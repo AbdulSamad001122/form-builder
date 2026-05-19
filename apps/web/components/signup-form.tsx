@@ -3,6 +3,8 @@
 import { GalleryVerticalEnd } from "lucide-react"
 import { useForm } from "react-hook-form"
 
+import { useRouter } from "next/navigation"
+
 import { cn } from "~/lib/utils"
 import { Button } from "~/components/ui/button"
 import {
@@ -47,9 +49,12 @@ export function SignupForm({
       password: values.password,
       fullName: values.fullName,
     })
+    const router = useRouter()
 
 
     console.log(`User create with this ${id}`)
+    router.replace("/dashboard")
+
   }
 
   return (

@@ -8,3 +8,21 @@ export const createUserWithEmailAndPasswordInputModel = z.object({
 export const createUserWithEmailAndPasswordOutputModel = z.object({
     id: z.string().describe("Id of the user")
 })
+export const signinUserWithEmailAndPasswordInputModel = z.object({
+    email: z.email().describe("Email of the user"),
+    password: z.string().min(8).describe("Password of the user"),
+})
+export const signinUserWithEmailAndPasswordOutputModel = z.object({
+    id: z.string().describe("Id of the user"),
+    token: z.string().describe("Token of the user")
+
+})
+
+export const getLoggedInUserInfoInputModel = z.undefined()
+export const getLoggedInUserInfoOutputModel = z.object({
+    id: z.string().describe("uuid of the user"),
+    fullName: z.string().describe("Full name of the user"),
+    email: z.string().describe("Email of the user"),
+    profileImageUrl: z.string().describe("Profile image url of the user").optional().nullable()
+,
+})

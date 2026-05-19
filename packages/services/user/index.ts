@@ -1,12 +1,50 @@
 import { randomBytes, createHmac } from "node:crypto"
 import * as JWT from "jsonwebtoken"
 import { type CreateUserWithEmailAndPasswordInputType, createUserWithEmailAndPasswordInput, generateUserTokenPayload, generateUserTokenPayloadType } from "./model"
+import { type SiginUserWithEmailAndPasswordInputType, siginUserWithEmailAndPasswordInput } from "./model"
 import { db, eq } from "@repo/database"
 import { usersTable } from "../../database/schema"
 import { env } from "../env"
 
 
 class UserService {
+
+    private async verifyUserToken(token: string): Promise<generateUserTokenPayloadType> {
+        try {
+            const verificationResult = JWT.verify(token, env.JWT_SECRET)
+            const result = await generateUserTokenPayload.safeParseAsync(verificationResult)
+
+            if (!result.success) {
+                throw new Error("Invalid or expired token")
+            }
+
+            return result.data
+        } catch {
+            throw new Error("Invalid or expired token")
+        }
+    }
+
+    private async getUserInfoById(id: string) {
+        const user = await db.select({
+            id: usersTable.id,
+            fullName: usersTable.fullName,
+            email: usersTable.email,
+            profileImageUrl: usersTable.profileImageUrl
+        }).from(usersTable).where(eq(usersTable.id, id))
+
+        if (!user || user.length === 0) {
+            throw new Error(`User with this ${id} not found}`)
+
+        }
+
+        return user[0]
+
+    }
+
+    private async generateHash(salt: string, password: string) {
+        return createHmac("sha256", salt).update(password).digest("hex")
+
+    }
 
     private async getUserByEmail(email: string) {
         const result = await db.select().from(usersTable).where(eq(usersTable.email, email))
@@ -48,7 +86,7 @@ class UserService {
 
         const salt = randomBytes(16).toString("hex")
 
-        const hash = createHmac("sha256", salt).update(password).digest("hex")
+        const hash = await this.generateHash(salt, password)
 
 
         // create user
@@ -69,6 +107,48 @@ class UserService {
         }
 
     }
+
+    public async siginUserWithEmailAndPassword(payload: SiginUserWithEmailAndPasswordInputType) {
+
+        const { email, password } = await siginUserWithEmailAndPasswordInput.parseAsync(payload)
+
+        const existingUser = await this.getUserByEmail(email)
+
+        if (!existingUser) {
+            throw new Error(`User not exist with this ${email} email`)
+        }
+
+        if (!existingUser.password || !existingUser.salt) {
+            throw new Error("Invalid Authentication Method")
+
+        }
+
+        const hash = await this.generateHash(existingUser.salt, password)
+
+
+
+        if (hash !== existingUser.password) {
+            throw new Error("Invalid email or Password")
+
+        }
+
+        const { token } = await this.generateUserToken({ id: existingUser.id })
+
+
+        return {
+            id: existingUser.id,
+            token
+        }
+
+    }
+
+    public async verifyAndDecodeUserToken(token: string) {
+        const { id } = await this.verifyUserToken(token)
+        const userInfo = await this.getUserInfoById(id)
+
+        return { ...userInfo }
+    }
+
 }
 
 export default UserService

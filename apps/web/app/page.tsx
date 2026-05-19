@@ -1,17 +1,35 @@
 "use client"
 
-import { trpc } from "~/trpc/client";
+import { useEffect } from "react";
+import { useUser } from "../hooks/api/auth/index"
+import { useRouter } from "next/navigation"
 
 export default function Home() {
+  const router = useRouter()
+  // Most auth hooks return a loading state. Ensure you extract it.
+  // If your hook doesn't have isLoading, you can check if user === undefined
+  const { user, isLoading } = useUser() as any
 
+  useEffect(() => {
+    // Guard: Do nothing while the authentication status is still being determined
+    if (isLoading) return;
 
+    if (user?.id) {
+      router.replace("/dashboard")
+    } else {
+      router.replace("/login")
+    }
+  }, [user, router, isLoading])
 
   return (
-    <main className="min-h-screen min-w-screen flex justify-center items-center">
+    <main className="min-h-screen w-full flex justify-center items-center">
       <div>
         <h1 className="text-3xl">Streamyst - Stream in Style</h1>
-        {/* <h2>Server Status: {data?.sta} </h2> */}
-        <h2>Message: </h2>
+        {isLoading ? (
+          <p>Verifying session...</p>
+        ) : (
+          <h2>Message: {JSON.stringify(user, null, 2)} </h2>
+        )}
       </div>
     </main >
   );

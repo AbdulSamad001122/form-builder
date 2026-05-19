@@ -2,6 +2,8 @@
 
 import { useForm } from "react-hook-form"
 
+import { useRouter } from "next/navigation"
+
 import { cn } from "~/lib/utils"
 import { Button } from "~/components/ui/button"
 import {
@@ -20,6 +22,8 @@ import {
 import { Input } from "~/components/ui/input"
 
 import { useSignin } from "~/hooks/api/auth"
+// import { router } from "@repo/trpc/server/trpc"
+
 
 type LoginFormValues = {
   email: string
@@ -37,7 +41,11 @@ export function LoginForm({
     },
   })
 
+  const router = useRouter()
+
   const { siginUserWithEmailAndPasswordAsync } = useSignin()
+
+
 
   const onSubmit = async (values: LoginFormValues) => {
     console.log(values)
@@ -48,6 +56,8 @@ export function LoginForm({
     })
 
     console.log(`Signed in with id ${id}`)
+
+    router.replace("/dashboard")
   }
 
 
