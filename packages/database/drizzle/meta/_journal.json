@@ -15,6 +15,13 @@
       "when": 1779101908506,
       "tag": "0001_legal_forgotten_one",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1779163701226,
+      "tag": "0002_short_northstar",
+      "breakpoints": true
     }
   ]
 }

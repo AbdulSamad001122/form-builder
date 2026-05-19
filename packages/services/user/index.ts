@@ -24,21 +24,19 @@ class UserService {
         }
     }
 
-    private async getUserInfoById(id: string) {
-        const user = await db.select({
+    public async getUserInfoById(id: string) {
+        const [user] = await db.select({
             id: usersTable.id,
             fullName: usersTable.fullName,
             email: usersTable.email,
             profileImageUrl: usersTable.profileImageUrl
         }).from(usersTable).where(eq(usersTable.id, id))
 
-        if (!user || user.length === 0) {
-            throw new Error(`User with this ${id} not found}`)
-
+        if (!user) {
+            throw new Error(`User with this ${id} not found`)
         }
 
-        return user[0]
-
+        return user
     }
 
     private async generateHash(salt: string, password: string) {
@@ -144,9 +142,8 @@ class UserService {
 
     public async verifyAndDecodeUserToken(token: string) {
         const { id } = await this.verifyUserToken(token)
-        const userInfo = await this.getUserInfoById(id)
 
-        return { ...userInfo }
+        return { id }
     }
 
 }
