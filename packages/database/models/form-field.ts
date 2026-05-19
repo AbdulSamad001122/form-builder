@@ -7,6 +7,7 @@ import {
     text,
     numeric,
     pgEnum,
+    jsonb,
 } from "drizzle-orm/pg-core";
 import { usersTable } from "./user";
 import { formsTable } from "./form"
@@ -14,7 +15,10 @@ import { placeholder } from "drizzle-orm";
 import { describe } from "zod/v4/core";
 import { unique } from "drizzle-orm/pg-core";
 
-export const fieldTypeEnum = pgEnum("field_type_enum", ["TEXT", "NUMBER", "EMAIL", "YES_NO", "PASSWORD"])
+export const fieldTypeEnum = pgEnum("field_type_enum", [
+    "TEXT", "LONG_TEXT", "NUMBER", "EMAIL", "YES_NO", "PASSWORD", 
+    "SINGLE_SELECT", "MULTI_SELECT", "CHECKBOX", "DROPDOWN", "RATING", "DATE"
+])
 
 
 export const formFieldsTable = pgTable("form_fields", {
@@ -26,6 +30,8 @@ export const formFieldsTable = pgTable("form_fields", {
     description: text("description"),
 
     placeholder: text("placeholder"),
+    
+    options: jsonb("options"), // Array of choices for selects/dropdowns
 
     isRequired: boolean("is_required").default(false).notNull(),
 
