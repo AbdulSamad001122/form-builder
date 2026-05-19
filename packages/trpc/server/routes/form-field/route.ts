@@ -17,7 +17,7 @@ const getPath = generatePath("/form-field")
 
 export const formFieldRouter = router({
     createFormField: authenticatedProcedure
-        .meta({ method: "POST", path: getPath("createFormField"), tags: TAGS, protect: true })
+        .meta({ openapi: { method: "POST", path: getPath("createFormField"), tags: TAGS, protect: true } })
         .input(createFormFieldInputModel)
         .output(formFieldActionOutputModel)
         .mutation(async ({ input, ctx }) => {
@@ -29,7 +29,7 @@ export const formFieldRouter = router({
         }),
 
     updateFormField: authenticatedProcedure
-        .meta({ method: "PUT", path: getPath("updateFormField"), tags: TAGS, protect: true })
+        .meta({ openapi: { method: "PUT", path: getPath("updateFormField"), tags: TAGS, protect: true } })
         .input(updateFormFieldInputModel)
         .output(formFieldActionOutputModel)
         .mutation(async ({ input, ctx }) => {
@@ -41,7 +41,7 @@ export const formFieldRouter = router({
         }),
 
     deleteFormField: authenticatedProcedure
-        .meta({ method: "DELETE", path: getPath("deleteFormField"), tags: TAGS, protect: true })
+        .meta({ openapi: { method: "DELETE", path: getPath("deleteFormField"), tags: TAGS, protect: true } })
         .input(deleteFormFieldInputModel)
         .output(formFieldActionOutputModel)
         .mutation(async ({ input, ctx }) => {
@@ -53,7 +53,7 @@ export const formFieldRouter = router({
         }),
 
     listFormFields: authenticatedProcedure
-        .meta({ method: "GET", path: getPath("listFormFields"), tags: TAGS, protect: true })
+        .meta({ openapi: { method: "GET", path: getPath("listFormFields"), tags: TAGS, protect: true } })
         .input(listFormFieldsInputModel)
         .output(z.array(listFormFieldsOutputModel))
         .query(async ({ input, ctx }) => {
@@ -64,7 +64,7 @@ export const formFieldRouter = router({
         }),
 
     reorderFormField: authenticatedProcedure
-        .meta({ method: "PUT", path: getPath("reorderFormField"), tags: TAGS, protect: true })
+        .meta({ openapi: { method: "PUT", path: getPath("reorderFormField"), tags: TAGS, protect: true } })
         .input(reorderFormFieldInputModel)
         .output(formFieldActionOutputModel)
         .mutation(async ({ input, ctx }) => {

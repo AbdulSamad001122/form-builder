@@ -1,6 +1,6 @@
 import { authenticatedProcedure, publicProcedure, router } from "../../trpc";
 import { generatePath } from "../../utils/path-generator";
-import { createFormInputModel, createFormOutputModel, listFormByUserIdOutputModel, updateFormInputModel, updateFormOutputModel, deleteFormInputModel, deleteFormOutputModel } from "./model";
+import { createFormInputModel, createFormOutputModel, listFormByUserIdOutputModel, updateFormInputModel, updateFormOutputModel, deleteFormInputModel, deleteFormOutputModel, getPublicFormInputModel, getPublicFormOutputModel, getFormByIdInputModel, getFormByIdOutputModel } from "./model";
 import { formService } from "../../services";
 import { z } from "zod";
 
@@ -12,20 +12,26 @@ const getPath = generatePath("/form")
 export const formRouter = router({
     createForm: authenticatedProcedure
         .meta({
-            method: "POST",
-            path: getPath("createForm"),
-            tags: TAGS,
-            protect: true,
+            openapi: {
+                method: "POST",
+                path: getPath("createForm"),
+                tags: TAGS,
+                protect: true,
+            }
         })
         .input(createFormInputModel)
         .output(createFormOutputModel)
         .mutation(async ({ input, ctx }) => {
-            const { title, description } = input;
+            const { title, description, slug, theme, visibility, status } = input;
 
             const { id } = await formService.createForm({
                 userId: ctx.user!.id,
                 title,
                 description,
+                slug,
+                theme,
+                visibility,
+                status
             });
 
             return { formId: id };
@@ -33,10 +39,12 @@ export const formRouter = router({
 
     listFormByUserId: authenticatedProcedure
         .meta({
-            method: "GET",
-            path: getPath("listFormByUserId"),
-            tags: TAGS,
-            protect: true,
+            openapi: {
+                method: "GET",
+                path: getPath("listFormByUserId"),
+                tags: TAGS,
+                protect: true,
+            }
         })
         .input(z.undefined())
         .output(z.array(listFormByUserIdOutputModel))
@@ -49,10 +57,12 @@ export const formRouter = router({
 
     updateForm: authenticatedProcedure
         .meta({
-            method: "PUT",
-            path: getPath("updateForm"),
-            tags: TAGS,
-            protect: true,
+            openapi: {
+                method: "PUT",
+                path: getPath("updateForm"),
+                tags: TAGS,
+                protect: true,
+            }
         })
         .input(updateFormInputModel)
         .output(updateFormOutputModel)
@@ -67,10 +77,12 @@ export const formRouter = router({
 
     deleteForm: authenticatedProcedure
         .meta({
-            method: "DELETE",
-            path: getPath("deleteForm"),
-            tags: TAGS,
-            protect: true,
+            openapi: {
+                method: "DELETE",
+                path: getPath("deleteForm"),
+                tags: TAGS,
+                protect: true,
+            }
         })
         .input(deleteFormInputModel)
         .output(deleteFormOutputModel)
@@ -81,5 +93,33 @@ export const formRouter = router({
             });
 
             return { formId: id };
+        }),
+
+    getPublicForm: publicProcedure
+        .meta({ 
+            openapi: { method: "GET", path: getPath("getPublicForm"), tags: TAGS, protect: false }
+        })
+        .input(getPublicFormInputModel)
+        .output(getPublicFormOutputModel)
+        .query(async ({ input }) => {
+            return await formService.getPublicForm(input.id)
+        }),
+
+    getFormById: authenticatedProcedure
+        .meta({
+            openapi: {
+                method: "GET",
+                path: getPath("getFormById"),
+                tags: TAGS,
+                protect: true,
+            }
+        })
+        .input(getFormByIdInputModel)
+        .output(getFormByIdOutputModel)
+        .query(async ({ input, ctx }) => {
+            return await formService.getFormById({
+                id: input.id,
+                userId: ctx.user!.id,
+            })
         }),
 });

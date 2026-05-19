@@ -6,6 +6,7 @@ export const createFormFieldInputModel = z.object({
     label: z.string().min(1, "Label is required").max(100),
     description: z.string().optional(),
     placeholder: z.string().optional(),
+    options: z.any().optional(),
     isRequired: z.boolean().default(false),
     type: fieldTypeEnumSchema,
 })
@@ -15,6 +16,7 @@ export const updateFormFieldInputModel = z.object({
     label: z.string().min(1).max(100).optional(),
     description: z.string().optional(),
     placeholder: z.string().optional(),
+    options: z.any().optional(),
     isRequired: z.boolean().optional(),
     type: fieldTypeEnumSchema.optional(),
     index: z.string().optional(),
@@ -40,6 +42,7 @@ export const listFormFieldsOutputModel = z.object({
     labelKey: z.string(),
     description: z.string().nullable(),
     placeholder: z.string().nullable(),
+    options: z.any().nullable(),
     isRequired: z.boolean(),
     type: z.string(),
     index: z.string()
