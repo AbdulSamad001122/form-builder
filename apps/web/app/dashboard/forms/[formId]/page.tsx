@@ -25,17 +25,23 @@ import {
     useDeleteFormField,
     useReorderFormField
 } from "~/hooks/api/form-field"
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "~/components/ui/card"
+import { useGetFormById, useUpdateForm } from "~/hooks/api/form"
+import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card"
 import { Button } from "~/components/ui/button"
 import { Input } from "~/components/ui/input"
 import { Label } from "~/components/ui/label"
 import { Textarea } from "~/components/ui/textarea"
 import { Checkbox } from "~/components/ui/checkbox"
+import { Badge } from "~/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/components/ui/select"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "~/components/ui/dialog"
-import { GripVertical, Edit, Trash2 } from "lucide-react"
+import { GripVertical, Edit, Trash2, Share2, Copy, Check, Globe, Lock, Eye, EyeOff, Loader2 } from "lucide-react"
+import { toast } from "sonner"
 
-const FIELD_TYPES = ["TEXT", "NUMBER", "EMAIL", "YES_NO", "PASSWORD"] as const;
+const FIELD_TYPES = [
+    "TEXT", "LONG_TEXT", "NUMBER", "EMAIL", "YES_NO", "PASSWORD", 
+    "SINGLE_SELECT", "MULTI_SELECT", "CHECKBOX", "DROPDOWN", "RATING", "DATE"
+] as const;
 
 function SortableFieldItem({ field, onEdit, onDelete }: { field: any, onEdit: (field: any) => void, onDelete: (field: any) => void }) {
     const {
@@ -96,16 +102,18 @@ export default function FormBuilderPage() {
     const params = useParams()
     const formId = params.formId as string
 
+    const { data: form, isLoading: isFormLoading, refetch: refetchForm } = useGetFormById(formId)
     const { data: fields, isLoading } = useListFormFields(formId)
     const { createFormField, isPending: isCreating } = useCreateFormField()
     const { updateFormField, isPending: isUpdating } = useUpdateFormField()
     const { deleteFormField, isPending: isDeleting } = useDeleteFormField()
     const { reorderFormField } = useReorderFormField()
+    const { updateForm, isPending: isSavingForm } = useUpdateForm()
 
     // Create Modal State
     const [isCreateOpen, setIsCreateOpen] = useState(false)
     const [newField, setNewField] = useState({
-        label: "", description: "", placeholder: "", isRequired: false, type: "TEXT" as any
+        label: "", description: "", placeholder: "", isRequired: false, type: "TEXT" as any, options: ""
     })
 
     // Edit Modal State
@@ -115,6 +123,46 @@ export default function FormBuilderPage() {
     // Delete Modal State
     const [isDeleteOpen, setIsDeleteOpen] = useState(false)
     const [deletingField, setDeletingField] = useState<any>(null)
+
+    // Share Dialog State
+    const [isShareOpen, setIsShareOpen] = useState(false)
+    const [copied, setCopied] = useState(false)
+
+    const publicUrl = typeof window !== "undefined" 
+        ? `${window.location.origin}/f/${formId}` 
+        : `/f/${formId}`
+
+    const handleCopyLink = () => {
+        navigator.clipboard.writeText(publicUrl)
+        setCopied(true)
+        toast.success("Link copied to clipboard!")
+        setTimeout(() => setCopied(false), 2000)
+    }
+
+    const handleToggleStatus = () => {
+        if (!form) return
+        const newStatus = form.status === "PUBLISHED" ? "DRAFT" : "PUBLISHED"
+        updateForm({ id: formId, status: newStatus as any }, {
+            onSuccess: () => {
+                refetchForm()
+                if (newStatus === "PUBLISHED") {
+                    setIsShareOpen(true)
+                }
+                toast.success(newStatus === "PUBLISHED" ? "Form published! Shareable link is ready." : "Form moved back to Draft.")
+            }
+        })
+    }
+
+    const handleToggleVisibility = () => {
+        if (!form) return
+        const newVisibility = form.visibility === "PUBLIC" ? "UNLISTED" : "PUBLIC"
+        updateForm({ id: formId, visibility: newVisibility as any }, {
+            onSuccess: () => {
+                refetchForm()
+                toast.success(`Visibility changed to ${newVisibility}.`)
+            }
+        })
+    }
 
     const sensors = useSensors(
         useSensor(PointerSensor, {
@@ -156,19 +204,31 @@ export default function FormBuilderPage() {
     }
 
     const handleCreateSubmit = () => {
+        let optionsArray = null;
+        if (["SINGLE_SELECT", "MULTI_SELECT", "DROPDOWN"].includes(newField.type) && newField.options) {
+            optionsArray = newField.options.split(",").map(s => s.trim()).filter(Boolean);
+        }
+
         createFormField({
             formId,
-            ...newField
+            ...newField,
+            options: optionsArray
         }, {
             onSuccess: () => {
                 setIsCreateOpen(false)
-                setNewField({ label: "", description: "", placeholder: "", isRequired: false, type: "TEXT" })
+                setNewField({ label: "", description: "", placeholder: "", isRequired: false, type: "TEXT", options: "" })
             }
         })
     }
 
     const handleEditSubmit = () => {
         if (!editingField) return
+
+        let optionsArray = editingField.options;
+        if (["SINGLE_SELECT", "MULTI_SELECT", "DROPDOWN"].includes(editingField.type) && typeof editingField.options === 'string') {
+            optionsArray = editingField.options.split(",").map((s: string) => s.trim()).filter(Boolean);
+        }
+
         updateFormField({
             id: editingField.id,
             label: editingField.label,
@@ -176,6 +236,7 @@ export default function FormBuilderPage() {
             placeholder: editingField.placeholder,
             isRequired: editingField.isRequired,
             type: editingField.type,
+            options: optionsArray
         }, {
             onSuccess: () => {
                 setIsEditOpen(false)
@@ -196,14 +257,85 @@ export default function FormBuilderPage() {
 
     return (
         <div className="container mx-auto p-6 max-w-4xl">
-            <div className="flex justify-between items-center mb-8">
+            {/* Header */}
+            <div className="flex justify-between items-start mb-6">
                 <div>
                     <h1 className="text-3xl font-bold tracking-tight">Form Builder</h1>
-                    <p className="text-muted-foreground mt-1">Drag and drop fields to reorder them.</p>
+                    {form && (
+                        <p className="text-muted-foreground mt-1 text-lg font-medium">{form.title}</p>
+                    )}
+                    <p className="text-muted-foreground text-sm">Drag and drop fields to reorder them.</p>
                 </div>
                 <Button onClick={() => setIsCreateOpen(true)}>Add Field</Button>
             </div>
 
+            {/* Form Status & Visibility Controls */}
+            {isFormLoading ? (
+                <div className="flex items-center gap-2 mb-6 text-muted-foreground">
+                    <Loader2 size={16} className="animate-spin" />
+                    <span className="text-sm">Loading form details...</span>
+                </div>
+            ) : form && (
+                <div className="flex flex-wrap items-center gap-3 mb-6 p-4 bg-muted/40 rounded-lg border">
+                    {/* Status Badge */}
+                    <Badge variant={form.status === "PUBLISHED" ? "default" : "secondary"} className="text-sm px-3 py-1">
+                        {form.status === "PUBLISHED" ? "● Published" : "● Draft"}
+                    </Badge>
+
+                    {/* Visibility Badge */}
+                    <Badge variant="outline" className="text-sm px-3 py-1 flex items-center gap-1">
+                        {form.visibility === "PUBLIC" ? <Globe size={12} /> : <Lock size={12} />}
+                        {form.visibility}
+                    </Badge>
+
+                    <div className="flex-1" />
+
+                    {/* Visibility Toggle */}
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleToggleVisibility}
+                        disabled={isSavingForm}
+                        className="flex items-center gap-2"
+                    >
+                        {form.visibility === "PUBLIC" ? <EyeOff size={14} /> : <Eye size={14} />}
+                        {form.visibility === "PUBLIC" ? "Make Unlisted" : "Make Public"}
+                    </Button>
+
+                    {/* Publish/Unpublish Toggle */}
+                    <Button
+                        variant={form.status === "PUBLISHED" ? "outline" : "default"}
+                        size="sm"
+                        onClick={handleToggleStatus}
+                        disabled={isSavingForm}
+                        className="flex items-center gap-2"
+                    >
+                        {isSavingForm ? (
+                            <Loader2 size={14} className="animate-spin" />
+                        ) : form.status === "PUBLISHED" ? (
+                            <EyeOff size={14} />
+                        ) : (
+                            <Eye size={14} />
+                        )}
+                        {form.status === "PUBLISHED" ? "Unpublish" : "Publish"}
+                    </Button>
+
+                    {/* Share Button — only if published */}
+                    {form.status === "PUBLISHED" && (
+                        <Button
+                            variant="secondary"
+                            size="sm"
+                            onClick={() => setIsShareOpen(true)}
+                            className="flex items-center gap-2"
+                        >
+                            <Share2 size={14} />
+                            Share Link
+                        </Button>
+                    )}
+                </div>
+            )}
+
+            {/* Fields List */}
             {isLoading ? (
                 <div className="text-center py-12 text-muted-foreground">Loading fields...</div>
             ) : fields?.length === 0 ? (
@@ -235,6 +367,46 @@ export default function FormBuilderPage() {
                     </SortableContext>
                 </DndContext>
             )}
+
+            {/* SHARE DIALOG */}
+            <Dialog open={isShareOpen} onOpenChange={setIsShareOpen}>
+                <DialogContent className="sm:max-w-[500px]">
+                    <DialogHeader>
+                        <DialogTitle className="flex items-center gap-2">
+                            <Share2 size={18} />
+                            Share Your Form
+                        </DialogTitle>
+                        <DialogDescription>
+                            Anyone with this link can fill out your form. Your form is currently <strong>{form?.visibility}</strong>.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="py-4 space-y-4">
+                        <div className="flex gap-2">
+                            <Input 
+                                value={publicUrl} 
+                                readOnly 
+                                className="font-mono text-sm bg-muted"
+                            />
+                            <Button 
+                                variant="outline" 
+                                size="icon"
+                                onClick={handleCopyLink}
+                                className="shrink-0"
+                            >
+                                {copied ? <Check size={16} className="text-green-500" /> : <Copy size={16} />}
+                            </Button>
+                        </div>
+                        <p className="text-sm text-muted-foreground">
+                            Respondents don't need an account to fill this form.
+                        </p>
+                    </div>
+                    <DialogFooter>
+                        <Button onClick={handleCopyLink} className="w-full">
+                            {copied ? "Copied!" : "Copy Link"}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
 
             {/* CREATE MODAL */}
             <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
@@ -280,6 +452,16 @@ export default function FormBuilderPage() {
                                 onChange={(e) => setNewField({...newField, description: e.target.value})} 
                             />
                         </div>
+                        {["SINGLE_SELECT", "MULTI_SELECT", "DROPDOWN"].includes(newField.type) && (
+                            <div className="space-y-2">
+                                <Label>Options (Comma separated)</Label>
+                                <Input 
+                                    placeholder="Option 1, Option 2, Option 3" 
+                                    value={newField.options} 
+                                    onChange={(e) => setNewField({...newField, options: e.target.value})} 
+                                />
+                            </div>
+                        )}
                         <div className="flex items-center space-x-2 pt-2">
                             <Checkbox 
                                 id="required" 
@@ -344,6 +526,16 @@ export default function FormBuilderPage() {
                                     onChange={(e) => setEditingField({...editingField, description: e.target.value})} 
                                 />
                             </div>
+                            {["SINGLE_SELECT", "MULTI_SELECT", "DROPDOWN"].includes(editingField.type) && (
+                                <div className="space-y-2">
+                                    <Label>Options (Comma separated)</Label>
+                                    <Input 
+                                        placeholder="Option 1, Option 2, Option 3" 
+                                        value={typeof editingField.options === 'string' ? editingField.options : (editingField.options?.join?.(', ') || '')} 
+                                        onChange={(e) => setEditingField({...editingField, options: e.target.value})} 
+                                    />
+                                </div>
+                            )}
                             <div className="flex items-center space-x-2 pt-2">
                                 <Checkbox 
                                     id="edit-required" 

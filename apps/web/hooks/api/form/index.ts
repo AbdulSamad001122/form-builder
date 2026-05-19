@@ -102,3 +102,53 @@ export const useDeleteForm = () => {
         isSuccess
     }
 }
+
+export const useGetPublicForm = (id: string) => {
+    const {
+        data,
+        error,
+        isError,
+        isPending,
+        isLoading,
+        isSuccess,
+        refetch
+    } = trpc.form.getPublicForm.useQuery({ id }, {
+        enabled: !!id,
+        refetchOnWindowFocus: false,
+    })
+
+    return {
+        data,
+        error,
+        isError,
+        isPending,
+        isLoading,
+        isSuccess,
+        refetch
+    }
+}
+
+export const useGetFormById = (id: string) => {
+    const {
+        data,
+        error,
+        isError,
+        isPending,
+        isLoading,
+        isSuccess,
+        refetch
+    } = trpc.form.getFormById.useQuery({ id }, {
+        enabled: !!id,
+        refetchOnWindowFocus: false,
+    })
+
+    return {
+        data,
+        error,
+        isError,
+        isPending,
+        isLoading,
+        isSuccess,
+        refetch
+    }
+}

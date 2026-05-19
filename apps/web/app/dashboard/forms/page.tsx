@@ -4,6 +4,8 @@ import { useState } from "react"
 import Link from "next/link"
 import { useCreateForm, useListFormsByUserId, useUpdateForm, useDeleteForm } from "~/hooks/api/form"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "~/components/ui/card"
+import { Badge } from "~/components/ui/badge"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/components/ui/select"
 import { Button } from "~/components/ui/button"
 import {
     Dialog,
@@ -17,11 +19,78 @@ import {
 import { Input } from "~/components/ui/input"
 import { Label } from "~/components/ui/label"
 import { Textarea } from "~/components/ui/textarea"
+import { FORM_THEMES, DEFAULT_THEME_ID, getThemeById } from "~/lib/form-themes"
+import { Check, Palette } from "lucide-react"
 
+// ─── Theme Picker Component ────────────────────────────────────────────────────
+function ThemePicker({ value, onChange }: { value: string; onChange: (id: string) => void }) {
+    return (
+        <div className="grid gap-2">
+            <Label className="flex items-center gap-2">
+                <Palette size={14} />
+                Form Theme
+            </Label>
+            <div className="grid grid-cols-3 gap-3">
+                {FORM_THEMES.map((theme) => (
+                    <button
+                        key={theme.id}
+                        type="button"
+                        onClick={() => onChange(theme.id)}
+                        className={`relative rounded-xl overflow-hidden border-2 transition-all focus:outline-none ${
+                            value === theme.id
+                                ? "border-primary shadow-lg scale-105"
+                                : "border-border hover:border-muted-foreground/50 hover:scale-102"
+                        }`}
+                    >
+                        {/* Preview gradient */}
+                        <div
+                            className="h-16 w-full"
+                            style={{ background: theme.previewGradient }}
+                        />
+                        {/* Theme name */}
+                        <div className="bg-card px-2 py-1.5 text-center">
+                            <p className="text-xs font-medium">{theme.name}</p>
+                        </div>
+                        {/* Selected check */}
+                        {value === theme.id && (
+                            <div className="absolute top-1.5 right-1.5 w-5 h-5 bg-primary rounded-full flex items-center justify-center shadow">
+                                <Check size={11} className="text-primary-foreground" />
+                            </div>
+                        )}
+                    </button>
+                ))}
+            </div>
+            <p className="text-xs text-muted-foreground">
+                {FORM_THEMES.find(t => t.id === value)?.description}
+            </p>
+        </div>
+    )
+}
+
+// ─── Theme Swatch Badge for form cards ────────────────────────────────────────
+function ThemeSwatch({ themeId }: { themeId?: string | null }) {
+    const theme = getThemeById(themeId)
+    return (
+        <span
+            className="inline-flex items-center gap-1.5 text-xs font-medium px-2 py-0.5 rounded-full border"
+            style={{
+                background: theme.previewGradient,
+                color: "white",
+                borderColor: "transparent",
+                textShadow: "0 1px 2px rgba(0,0,0,0.4)"
+            }}
+        >
+            {theme.name}
+        </span>
+    )
+}
+
+// ─── Main Page ─────────────────────────────────────────────────────────────────
 export default function FormsPage() {
     const [open, setOpen] = useState(false)
     const [title, setTitle] = useState("")
     const [description, setDescription] = useState("")
+    const [theme, setTheme] = useState(DEFAULT_THEME_ID)
 
     const { createForm } = useCreateForm()
     const { data: forms, isLoading } = useListFormsByUserId()
@@ -34,11 +103,17 @@ export default function FormsPage() {
 
     const [editTitle, setEditTitle] = useState("")
     const [editDescription, setEditDescription] = useState("")
+    const [editStatus, setEditStatus] = useState("DRAFT")
+    const [editVisibility, setEditVisibility] = useState("UNLISTED")
+    const [editTheme, setEditTheme] = useState(DEFAULT_THEME_ID)
 
-    const openEditModal = (form: { id: string, title: string, description: string | null }) => {
+    const openEditModal = (form: any) => {
         setSelectedForm(form)
         setEditTitle(form.title)
         setEditDescription(form.description || "")
+        setEditStatus(form.status || "DRAFT")
+        setEditVisibility(form.visibility || "UNLISTED")
+        setEditTheme(form.theme || DEFAULT_THEME_ID)
         setEditOpen(true)
     }
 
@@ -49,11 +124,12 @@ export default function FormsPage() {
 
     const handleCreateForm = (e: React.FormEvent) => {
         e.preventDefault()
-        createForm({ title, description }, {
+        createForm({ title, description, theme }, {
             onSuccess: () => {
                 setOpen(false)
                 setTitle("")
                 setDescription("")
+                setTheme(DEFAULT_THEME_ID)
             }
         })
     }
@@ -61,8 +137,15 @@ export default function FormsPage() {
     const handleUpdateForm = (e: React.FormEvent) => {
         e.preventDefault()
         if (!selectedForm) return
-        
-        updateForm({ id: selectedForm.id, title: editTitle, description: editDescription }, {
+
+        updateForm({
+            id: selectedForm.id,
+            title: editTitle,
+            description: editDescription,
+            status: editStatus as any,
+            visibility: editVisibility as any,
+            theme: editTheme,
+        }, {
             onSuccess: () => {
                 setEditOpen(false)
                 setSelectedForm(null)
@@ -72,7 +155,7 @@ export default function FormsPage() {
 
     const handleDeleteForm = () => {
         if (!selectedForm) return
-        
+
         deleteForm({ id: selectedForm.id }, {
             onSuccess: () => {
                 setDeleteOpen(false)
@@ -89,11 +172,11 @@ export default function FormsPage() {
                     <DialogTrigger asChild>
                         <Button>Create Form</Button>
                     </DialogTrigger>
-                    <DialogContent className="sm:max-w-[425px]">
+                    <DialogContent className="sm:max-w-[500px]">
                         <DialogHeader>
                             <DialogTitle>Create Form</DialogTitle>
                             <DialogDescription>
-                                Give your form a title and a brief description.
+                                Give your form a title, description, and choose a theme.
                             </DialogDescription>
                         </DialogHeader>
                         <form onSubmit={handleCreateForm} className="grid gap-4 py-4">
@@ -116,6 +199,8 @@ export default function FormsPage() {
                                     placeholder="Enter form description"
                                 />
                             </div>
+                            {/* Theme Picker */}
+                            <ThemePicker value={theme} onChange={setTheme} />
                             <DialogFooter>
                                 <Button type="submit">Create</Button>
                             </DialogFooter>
@@ -131,20 +216,47 @@ export default function FormsPage() {
             ) : forms && forms.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {forms.map((form) => (
-                        <Card key={form.id} className="hover:shadow-md transition-shadow relative">
-                            <Link href={`/dashboard/forms/${form.id}`} className="absolute inset-0 z-0"></Link>
-                            <CardHeader className="relative z-10 pointer-events-none">
-                                <CardTitle>{form.title}</CardTitle>
+                        <Card key={form.id} className="hover:shadow-md transition-shadow relative overflow-hidden">
+                            {/* Theme accent strip */}
+                            <div
+                                className="h-1.5 w-full absolute top-0 left-0"
+                                style={{ background: getThemeById(form.theme).previewGradient }}
+                            />
+                            <Link href={`/dashboard/forms/${form.id}`} className="absolute inset-0 z-0" />
+                            <CardHeader className="relative z-10 pointer-events-none pb-2 pt-5">
+                                <CardTitle className="flex items-center justify-between gap-2 flex-wrap">
+                                    <span className="truncate">{form.title}</span>
+                                    <div className="flex gap-2 shrink-0">
+                                        <Badge variant={form.status === "PUBLISHED" ? "default" : "secondary"}>
+                                            {form.status}
+                                        </Badge>
+                                        <Badge variant="outline">{form.visibility}</Badge>
+                                    </div>
+                                </CardTitle>
                                 {form.description && (
-                                    <CardDescription>{form.description}</CardDescription>
+                                    <CardDescription className="line-clamp-2">{form.description}</CardDescription>
                                 )}
                             </CardHeader>
-                            <CardContent className="relative z-10 pointer-events-none">
+                            <CardContent className="relative z-10 pointer-events-none py-2 space-y-2">
+                                {/* Theme badge */}
+                                <ThemeSwatch themeId={form.theme} />
                                 <p className="text-xs text-muted-foreground">
-                                    Created at: {new Date(form.createdAt!).toLocaleDateString()}
+                                    Created: {new Date(form.createdAt!).toLocaleDateString()}
                                 </p>
+                                {form.status === "PUBLISHED" && (
+                                    <div className="mt-2 pointer-events-auto">
+                                        <Button variant="link" className="p-0 h-auto text-blue-500" asChild>
+                                            <Link href={`/f/${form.id}`} target="_blank" onClick={(e) => e.stopPropagation()}>
+                                                Open Public Form ↗
+                                            </Link>
+                                        </Button>
+                                    </div>
+                                )}
                             </CardContent>
                             <CardFooter className="flex justify-end gap-2 relative z-10">
+                                <Button variant="outline" size="sm" asChild>
+                                    <Link href={`/dashboard/forms/${form.id}/responses`}>Responses</Link>
+                                </Button>
                                 <Button variant="outline" size="sm" onClick={() => openEditModal(form)}>Edit</Button>
                                 <Button variant="destructive" size="sm" onClick={() => openDeleteModal(form)}>Delete</Button>
                             </CardFooter>
@@ -159,11 +271,11 @@ export default function FormsPage() {
 
             {/* Edit Form Dialog */}
             <Dialog open={editOpen} onOpenChange={setEditOpen}>
-                <DialogContent className="sm:max-w-[425px]">
+                <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
                     <DialogHeader>
                         <DialogTitle>Edit Form</DialogTitle>
                         <DialogDescription>
-                            Update your form details.
+                            Update your form details and theme.
                         </DialogDescription>
                     </DialogHeader>
                     <form onSubmit={handleUpdateForm} className="grid gap-4 py-4">
@@ -186,6 +298,32 @@ export default function FormsPage() {
                                 placeholder="Enter form description"
                             />
                         </div>
+                        <div className="grid gap-2">
+                            <Label htmlFor="edit-status">Status</Label>
+                            <Select value={editStatus} onValueChange={setEditStatus}>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Select status" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="DRAFT">Draft</SelectItem>
+                                    <SelectItem value="PUBLISHED">Published</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <div className="grid gap-2">
+                            <Label htmlFor="edit-visibility">Visibility</Label>
+                            <Select value={editVisibility} onValueChange={setEditVisibility}>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Select visibility" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="UNLISTED">Unlisted</SelectItem>
+                                    <SelectItem value="PUBLIC">Public</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        {/* Theme Picker */}
+                        <ThemePicker value={editTheme} onChange={setEditTheme} />
                         <DialogFooter>
                             <Button type="submit" disabled={isUpdating}>{isUpdating ? "Saving..." : "Save Changes"}</Button>
                         </DialogFooter>
