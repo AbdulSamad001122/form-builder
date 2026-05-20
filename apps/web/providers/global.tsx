@@ -11,8 +11,9 @@ import { createTRPCHttpBatchClientClient } from "~/trpc/create-client";
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      refetchOnMount: true,
-      staleTime: Infinity,
+      refetchOnMount: false,
+      refetchOnWindowFocus: false,
+      staleTime: 5 * 60 * 1000, 
     },
   },
 });
