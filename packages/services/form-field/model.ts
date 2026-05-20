@@ -1,6 +1,9 @@
 import { z } from "zod"
 
-export const fieldTypeEnumSchema = z.enum(["TEXT", "NUMBER", "EMAIL", "YES_NO", "PASSWORD"])
+export const fieldTypeEnumSchema = z.enum([
+    "TEXT", "LONG_TEXT", "NUMBER", "EMAIL", "YES_NO", "PASSWORD", 
+    "SINGLE_SELECT", "MULTI_SELECT", "CHECKBOX", "DROPDOWN", "RATING", "DATE"
+])
 
 export const createFormFieldInputModel = z.object({
     userId: z.string().uuid(),
@@ -8,6 +11,7 @@ export const createFormFieldInputModel = z.object({
     label: z.string().min(1, "Label is required").max(100),
     description: z.string().optional(),
     placeholder: z.string().optional(),
+    options: z.any().optional(), 
     isRequired: z.boolean().default(false),
     type: fieldTypeEnumSchema,
 })
@@ -19,6 +23,7 @@ export const updateFormFieldInputModel = z.object({
     label: z.string().min(1).max(100).optional(),
     description: z.string().optional(),
     placeholder: z.string().optional(),
+    options: z.any().optional(),
     isRequired: z.boolean().optional(),
     type: fieldTypeEnumSchema.optional(),
     index: z.string().optional(), 

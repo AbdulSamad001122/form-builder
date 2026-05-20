@@ -34,7 +34,7 @@ class FormFieldService {
     }
 
     public async createFormField(payload: createFormFieldInputModelType) {
-        const { userId, formId, label, description, placeholder, isRequired, type } = await createFormFieldInputModel.parseAsync(payload)
+        const { userId, formId, label, description, placeholder, options, isRequired, type } = await createFormFieldInputModel.parseAsync(payload)
         
         await this.verifyFormOwnership(formId, userId)
 
@@ -57,6 +57,7 @@ class FormFieldService {
             labelKey,
             description,
             placeholder,
+            options,
             isRequired,
             type,
             index: newIndex
@@ -70,7 +71,7 @@ class FormFieldService {
     }
 
     public async updateFormField(payload: updateFormFieldInputModelType) {
-        const { id, userId, label, description, placeholder, isRequired, type, index } = await updateFormFieldInputModel.parseAsync(payload)
+        const { id, userId, label, description, placeholder, options, isRequired, type, index } = await updateFormFieldInputModel.parseAsync(payload)
         
         await this.verifyFieldOwnership(id, userId)
 
@@ -78,6 +79,7 @@ class FormFieldService {
         if (label !== undefined) valuesToUpdate.label = label
         if (description !== undefined) valuesToUpdate.description = description
         if (placeholder !== undefined) valuesToUpdate.placeholder = placeholder
+        if (options !== undefined) valuesToUpdate.options = options
         if (isRequired !== undefined) valuesToUpdate.isRequired = isRequired
         if (type !== undefined) valuesToUpdate.type = type
         if (index !== undefined) valuesToUpdate.index = index
