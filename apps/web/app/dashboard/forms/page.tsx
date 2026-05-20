@@ -21,6 +21,8 @@ import { Label } from "~/components/ui/label"
 import { Textarea } from "~/components/ui/textarea"
 import { FORM_THEMES, DEFAULT_THEME_ID, getThemeById } from "~/lib/form-themes"
 import { Check, Palette } from "lucide-react"
+import { toast } from "sonner"
+import { Skeleton } from "~/components/ui/skeleton"
 
 // ─── Theme Picker Component ────────────────────────────────────────────────────
 function ThemePicker({ value, onChange }: { value: string; onChange: (id: string) => void }) {
@@ -130,6 +132,10 @@ export default function FormsPage() {
                 setTitle("")
                 setDescription("")
                 setTheme(DEFAULT_THEME_ID)
+                toast.success("Form created successfully!")
+            },
+            onError: (err) => {
+                toast.error(`Failed to create form: ${err.message}`)
             }
         })
     }
@@ -149,6 +155,10 @@ export default function FormsPage() {
             onSuccess: () => {
                 setEditOpen(false)
                 setSelectedForm(null)
+                toast.success("Form updated successfully!")
+            },
+            onError: (err) => {
+                toast.error(`Failed to update form: ${err.message}`)
             }
         })
     }
@@ -160,6 +170,10 @@ export default function FormsPage() {
             onSuccess: () => {
                 setDeleteOpen(false)
                 setSelectedForm(null)
+                toast.success("Form deleted successfully!")
+            },
+            onError: (err) => {
+                toast.error(`Failed to delete form: ${err.message}`)
             }
         })
     }
@@ -210,8 +224,27 @@ export default function FormsPage() {
             </div>
 
             {isLoading ? (
-                <div className="flex justify-center p-8">
-                    <p className="text-muted-foreground">Loading forms...</p>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {[...Array(6)].map((_, i) => (
+                        <Card key={i} className="relative overflow-hidden space-y-4 p-5">
+                            <div className="h-1.5 w-full bg-muted absolute top-0 left-0" />
+                            <div className="flex justify-between items-center mt-2">
+                                <Skeleton className="h-5 w-1/3" />
+                                <div className="flex gap-2">
+                                    <Skeleton className="h-5 w-16" />
+                                    <Skeleton className="h-5 w-16" />
+                                </div>
+                            </div>
+                            <Skeleton className="h-4 w-3/4" />
+                            <Skeleton className="h-4 w-1/2" />
+                            <Skeleton className="h-6 w-20 rounded-full" />
+                            <div className="flex justify-end gap-2 pt-2 border-t mt-4">
+                                <Skeleton className="h-8 w-20" />
+                                <Skeleton className="h-8 w-16" />
+                                <Skeleton className="h-8 w-16" />
+                            </div>
+                        </Card>
+                    ))}
                 </div>
             ) : forms && forms.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

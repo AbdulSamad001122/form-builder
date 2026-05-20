@@ -152,3 +152,25 @@ export const useGetFormById = (id: string) => {
         refetch
     }
 }
+
+export const useGetDashboardStats = () => {
+    const {
+        data,
+        error,
+        isError,
+        isPending,
+        isLoading,
+        isSuccess,
+        refetch
+    } = trpc.form.getDashboardStats.useQuery(undefined)
+
+    return {
+        data,
+        error,
+        isError,
+        isPending,
+        isLoading,
+        isSuccess,
+        refetch
+    }
+}

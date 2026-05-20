@@ -13,6 +13,8 @@ import { Checkbox } from "~/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/components/ui/select";
 import { Loader2, Mail, ArrowRight } from "lucide-react";
 import { getThemeById } from "~/lib/form-themes";
+import { toast } from "sonner";
+import { Skeleton } from "~/components/ui/skeleton";
 
 type Step = "email" | "form" | "submitted";
 
@@ -36,8 +38,17 @@ export default function PublicFormPage() {
     // ─── Loading ───────────────────────────────────────────────────────────────
     if (isLoading) {
         return (
-            <div className="flex h-screen items-center justify-center bg-gray-950">
-                <Loader2 className="h-8 w-8 animate-spin text-cyan-400" />
+            <div className="flex min-h-screen items-center justify-center bg-gray-950 p-4 animate-pulse">
+                <div className="w-full max-w-md space-y-6 bg-white/5 border border-white/10 rounded-2xl p-8 backdrop-blur-sm">
+                    <div className="space-y-3 text-center">
+                        <Skeleton className="h-8 w-2/3 mx-auto" />
+                        <Skeleton className="h-4 w-1/2 mx-auto" />
+                    </div>
+                    <div className="space-y-4">
+                        <Skeleton className="h-10 w-full" />
+                        <Skeleton className="h-10 w-full" />
+                    </div>
+                </div>
             </div>
         );
     }
@@ -140,8 +151,13 @@ export default function PublicFormPage() {
         submitResponse(
             { formId: form.id, respondentEmail, answers: formattedAnswers },
             {
-                onSuccess: () => setStep("submitted"),
-                onError: (err) => alert(`Error submitting form: ${err.message}`),
+                onSuccess: () => {
+                    setStep("submitted");
+                    toast.success("Response submitted successfully!");
+                },
+                onError: (err) => {
+                    toast.error(`Failed to submit response: ${err.message}`);
+                },
             }
         );
     };

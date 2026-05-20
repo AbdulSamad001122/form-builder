@@ -37,6 +37,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "~/components/ui/dialog"
 import { GripVertical, Edit, Trash2, Share2, Copy, Check, Globe, Lock, Eye, EyeOff, Loader2 } from "lucide-react"
 import { toast } from "sonner"
+import { Skeleton } from "~/components/ui/skeleton"
 
 const FIELD_TYPES = [
     "TEXT", "LONG_TEXT", "NUMBER", "EMAIL", "YES_NO", "PASSWORD", 
@@ -184,15 +185,17 @@ export default function FormBuilderPage() {
             
 
             let newFractionalIndex = "1000.00"
-            if (newIndex === 0) {
+            if (newIndex === 0 && fields[0]) {
                 const firstIndex = parseFloat(fields[0].index)
                 newFractionalIndex = (firstIndex / 2).toFixed(2)
-            } else if (newIndex === fields.length - 1) {
-                const lastIndex = parseFloat(fields[fields.length - 1].index)
+            } else if (newIndex === fields.length - 1 && fields[fields.length - 1]) {
+                const lastIndex = parseFloat(fields[fields.length - 1]!.index)
                 newFractionalIndex = (lastIndex + 1000).toFixed(2)
-            } else {
-                const prevIndex = newIndex > oldIndex ? parseFloat(fields[newIndex].index) : parseFloat(fields[newIndex - 1].index)
-                const nextIndex = newIndex > oldIndex ? parseFloat(fields[newIndex + 1]?.index || fields[newIndex].index) : parseFloat(fields[newIndex].index)
+            } else if (fields[newIndex]) {
+                const prevItem = newIndex > oldIndex ? fields[newIndex] : fields[newIndex - 1]
+                const nextItem = newIndex > oldIndex ? (fields[newIndex + 1] || fields[newIndex]) : fields[newIndex]
+                const prevIndex = parseFloat(prevItem?.index || "0")
+                const nextIndex = parseFloat(nextItem?.index || "0")
                 newFractionalIndex = ((prevIndex + nextIndex) / 2).toFixed(2)
             }
 
@@ -271,9 +274,12 @@ export default function FormBuilderPage() {
 
             {/* Form Status & Visibility Controls */}
             {isFormLoading ? (
-                <div className="flex items-center gap-2 mb-6 text-muted-foreground">
-                    <Loader2 size={16} className="animate-spin" />
-                    <span className="text-sm">Loading form details...</span>
+                <div className="flex flex-wrap items-center gap-3 mb-6 p-4 bg-muted/40 rounded-lg border">
+                    <Skeleton className="h-6 w-24 rounded-full" />
+                    <Skeleton className="h-6 w-24 rounded-full" />
+                    <div className="flex-1" />
+                    <Skeleton className="h-8 w-32" />
+                    <Skeleton className="h-8 w-24" />
                 </div>
             ) : form && (
                 <div className="flex flex-wrap items-center gap-3 mb-6 p-4 bg-muted/40 rounded-lg border">
@@ -335,9 +341,22 @@ export default function FormBuilderPage() {
                 </div>
             )}
 
-            {/* Fields List */}
             {isLoading ? (
-                <div className="text-center py-12 text-muted-foreground">Loading fields...</div>
+                <div className="space-y-3">
+                    {[...Array(4)].map((_, i) => (
+                        <div key={i} className="bg-card border rounded-lg p-4 flex gap-3 shadow-sm">
+                            <Skeleton className="h-6 w-6 mt-1" />
+                            <div className="flex-1 space-y-3">
+                                <div className="flex justify-between items-center">
+                                    <Skeleton className="h-5 w-1/3" />
+                                    <Skeleton className="h-8 w-16" />
+                                </div>
+                                <Skeleton className="h-4 w-1/2" />
+                                <Skeleton className="h-9 w-full bg-muted/50" />
+                            </div>
+                        </div>
+                    ))}
+                </div>
             ) : fields?.length === 0 ? (
                 <div className="text-center py-16 bg-muted/30 rounded-lg border border-dashed">
                     <h3 className="text-lg font-medium">No fields yet</h3>
