@@ -71,7 +71,7 @@ const generalRateLimiter = rateLimit({
     if (token) return token;
     
     // fallback to IP Address (prevents IPv6 bypass warnings/crashes)
-    return ipKeyGenerator(req, res);
+    return ipKeyGenerator(req.ip || "unknown");
   },
   message: { message: "Too many requests. Please try again later." },
   standardHeaders: true,
