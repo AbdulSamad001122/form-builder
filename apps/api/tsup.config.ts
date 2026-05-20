@@ -9,6 +9,6 @@ export default defineConfig({
   clean: true,
   env: { IS_SERVER_BUILD: "true" },
   loader: { ".json": "copy" },
-  minify: true,
+  minify: false,
   sourcemap: false,
 });
