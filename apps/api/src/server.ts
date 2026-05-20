@@ -47,8 +47,40 @@ app.get("/openapi.json", (req, res) => {
 logger.debug(`docs: ${env.BASE_URL}/docs`);
 app.use("/docs", apiReference({ url: "/openapi.json" }));
 
+import rateLimit, { ipKeyGenerator } from "express-rate-limit";
+
+const submitRateLimiter = rateLimit({
+  windowMs: 60 * 1000, 
+  max: 5, 
+  message: { message: "Rate limit exceeded. Please try again later." },
+  standardHeaders: true, 
+  legacyHeaders: false, 
+});
+
+app.set("trust proxy", 1);
+
+
+app.use("/trpc/formResponse.submitResponse", submitRateLimiter);
+app.use("/api/form-response/submitResponse", submitRateLimiter);
+
+const generalRateLimiter = rateLimit({
+  windowMs: 60 * 1000, 
+  max: 5, 
+  keyGenerator: (req, res) => {
+    const token = req.cookies?.["authentication-token"];
+    if (token) return token;
+    
+    // fallback to IP Address (prevents IPv6 bypass warnings/crashes)
+    return ipKeyGenerator(req, res);
+  },
+  message: { message: "Too many requests. Please try again later." },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
 app.use(
   "/api",
+  generalRateLimiter,
   createOpenApiExpressMiddleware({
     router: serverRouter,
     createContext,
@@ -57,6 +89,7 @@ app.use(
 
 app.use(
   "/trpc",
+  generalRateLimiter,
   trpcExpress.createExpressMiddleware({
     router: serverRouter,
     createContext,

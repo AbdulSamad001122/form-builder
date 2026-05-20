@@ -10,9 +10,9 @@ class FormService {
 
         const formInsert = await db.insert(formsTable).values({
             title,
-            description,
-            slug,
-            theme,
+            description: description || null,
+            slug: slug || null,
+            theme: theme || null,
             visibility: visibility || "UNLISTED",
             status: status || "DRAFT",
             createdBy: userId

@@ -12,7 +12,6 @@ class FormResponseService {
     public async submitResponse(payload: submitFormResponseInputModelType) {
         const { formId, respondentEmail, answers } = await submitFormResponseInputModel.parseAsync(payload)
 
-        // 1. Verify form exists and is PUBLISHED
         const form = await db.select({
             id: formsTable.id,
             status: formsTable.status,
@@ -31,7 +30,6 @@ class FormResponseService {
             throw new Error("Cannot submit response to an unpublished form")
         }
 
-        // 2. Insert response
         const responseInsert = await db.insert(formResponsesTable).values({
             formId,
             respondentEmail
@@ -39,7 +37,6 @@ class FormResponseService {
 
         const responseId = responseInsert[0]!.id
 
-        // 3. Insert answers
         if (answers.length > 0) {
             const answersToInsert = answers.map(ans => ({
                 responseId,
@@ -50,7 +47,6 @@ class FormResponseService {
             await db.insert(formResponseAnswersTable).values(answersToInsert)
         }
 
-        // 4. Fetch fields to map labels for the email
         const fields = await db.select({
             id: formFieldsTable.id,
             label: formFieldsTable.label
@@ -96,7 +92,6 @@ class FormResponseService {
     public async listResponses(payload: listFormResponsesInputModelType) {
         const { formId, userId } = await listFormResponsesInputModel.parseAsync(payload)
 
-        // 1. Verify form ownership
         const form = await db.select({ id: formsTable.id })
             .from(formsTable)
             .where(and(eq(formsTable.id, formId), eq(formsTable.createdBy, userId)))
@@ -106,7 +101,6 @@ class FormResponseService {
             throw new Error("Form not found or unauthorized")
         }
 
-        // 2. Get responses
         const responses = await db.select({
             id: formResponsesTable.id,
             formId: formResponsesTable.formId,
@@ -117,19 +111,13 @@ class FormResponseService {
             .where(eq(formResponsesTable.formId, formId))
             .orderBy(desc(formResponsesTable.submittedAt))
 
-        // 3. Get answers for these responses
-        // To avoid N+1, we fetch all answers for this form and group them by responseId
         const responseIds = responses.map(r => r.id)
         let answers: any[] = []
-
-        // Note: 'inArray' should be used, but since we are doing manual grouping, we can join
         if (responseIds.length > 0) {
             answers = await db.select()
                 .from(formResponseAnswersTable)
-            // Filter by those responseIds isn't strictly necessary if we just innerJoin with formResponsesTable
         }
 
-        // Proper way using join
         const allAnswers = await db.select({
             responseId: formResponseAnswersTable.responseId,
             fieldId: formResponseAnswersTable.fieldId,
