@@ -6,12 +6,10 @@ import { useRouter } from "next/navigation"
 
 export default function Home() {
   const router = useRouter()
-  // Most auth hooks return a loading state. Ensure you extract it.
-  // If your hook doesn't have isLoading, you can check if user === undefined
+ 
   const { user, isLoading } = useUser() as any
 
   useEffect(() => {
-    // Guard: Do nothing while the authentication status is still being determined
     if (isLoading) return;
 
     if (user?.id) {
