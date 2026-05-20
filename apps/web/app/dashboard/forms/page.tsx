@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { useCreateForm, useListFormsByUserId, useUpdateForm, useDeleteForm } from "~/hooks/api/form"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "~/components/ui/card"
 import { Badge } from "~/components/ui/badge"
@@ -20,7 +21,7 @@ import { Input } from "~/components/ui/input"
 import { Label } from "~/components/ui/label"
 import { Textarea } from "~/components/ui/textarea"
 import { FORM_THEMES, DEFAULT_THEME_ID, getThemeById } from "~/lib/form-themes"
-import { Check, Palette } from "lucide-react"
+import { Check, Palette, Search, ArrowUpDown } from "lucide-react"
 import { toast } from "sonner"
 import { Skeleton } from "~/components/ui/skeleton"
 
@@ -89,10 +90,14 @@ function ThemeSwatch({ themeId }: { themeId?: string | null }) {
 
 // ─── Main Page ─────────────────────────────────────────────────────────────────
 export default function FormsPage() {
+    const router = useRouter()
     const [open, setOpen] = useState(false)
     const [title, setTitle] = useState("")
     const [description, setDescription] = useState("")
     const [theme, setTheme] = useState(DEFAULT_THEME_ID)
+
+    const [searchQuery, setSearchQuery] = useState("")
+    const [sortOrder, setSortOrder] = useState<"newest" | "oldest">("newest")
 
     const { createForm } = useCreateForm()
     const { data: forms, isLoading } = useListFormsByUserId()
@@ -108,6 +113,18 @@ export default function FormsPage() {
     const [editStatus, setEditStatus] = useState("DRAFT")
     const [editVisibility, setEditVisibility] = useState("UNLISTED")
     const [editTheme, setEditTheme] = useState(DEFAULT_THEME_ID)
+
+    const filteredAndSortedForms = forms
+        ? [...forms]
+              .filter((form) =>
+                  form.title.toLowerCase().includes(searchQuery.toLowerCase())
+              )
+              .sort((a, b) => {
+                  const dateA = new Date(a.createdAt!).getTime()
+                  const dateB = new Date(b.createdAt!).getTime()
+                  return sortOrder === "newest" ? dateB - dateA : dateA - dateB
+              })
+        : []
 
     const openEditModal = (form: any) => {
         setSelectedForm(form)
@@ -127,12 +144,13 @@ export default function FormsPage() {
     const handleCreateForm = (e: React.FormEvent) => {
         e.preventDefault()
         createForm({ title, description, theme }, {
-            onSuccess: () => {
+            onSuccess: (data) => {
                 setOpen(false)
                 setTitle("")
                 setDescription("")
                 setTheme(DEFAULT_THEME_ID)
                 toast.success("Form created successfully!")
+                router.push(`/dashboard/forms/${data.formId}`)
             },
             onError: (err) => {
                 toast.error(`Failed to create form: ${err.message}`)
@@ -223,6 +241,34 @@ export default function FormsPage() {
                 </Dialog>
             </div>
 
+            {forms && forms.length > 0 && (
+                <div className="flex flex-col sm:flex-row gap-4 mb-6">
+                    <div className="relative flex-1">
+                        <span className="absolute inset-y-0 left-3 flex items-center pointer-events-none text-muted-foreground">
+                            <Search size={18} />
+                        </span>
+                        <Input
+                            placeholder="Search forms by title..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="pl-10 w-full bg-card"
+                        />
+                    </div>
+                    <div className="w-full sm:w-[220px] flex items-center gap-2">
+                        <span className="text-sm font-medium text-muted-foreground shrink-0 hidden sm:inline">Sort:</span>
+                        <Select value={sortOrder} onValueChange={(value: any) => setSortOrder(value)}>
+                            <SelectTrigger className="w-full bg-card">
+                                <SelectValue placeholder="Sort order" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="newest">Newest First</SelectItem>
+                                <SelectItem value="oldest">Oldest First</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+                </div>
+            )}
+
             {isLoading ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {[...Array(6)].map((_, i) => (
@@ -247,57 +293,66 @@ export default function FormsPage() {
                     ))}
                 </div>
             ) : forms && forms.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {forms.map((form) => (
-                        <Card key={form.id} className="hover:shadow-md transition-shadow relative overflow-hidden">
-                            {/* Theme accent strip */}
-                            <div
-                                className="h-1.5 w-full absolute top-0 left-0"
-                                style={{ background: getThemeById(form.theme).previewGradient }}
-                            />
-                            <Link href={`/dashboard/forms/${form.id}`} className="absolute inset-0 z-0" />
-                            <CardHeader className="relative z-10 pointer-events-none pb-2 pt-5">
-                                <CardTitle className="flex items-center justify-between gap-2 flex-wrap">
-                                    <span className="truncate">{form.title}</span>
-                                    <div className="flex gap-2 shrink-0">
-                                        <Badge variant={form.status === "PUBLISHED" ? "default" : "secondary"}>
-                                            {form.status}
-                                        </Badge>
-                                        <Badge variant="outline">{form.visibility}</Badge>
-                                    </div>
-                                </CardTitle>
-                                {form.description && (
-                                    <CardDescription className="line-clamp-2">{form.description}</CardDescription>
-                                )}
-                            </CardHeader>
-                            <CardContent className="relative z-10 pointer-events-none py-2 space-y-2">
-                                {/* Theme badge */}
-                                <ThemeSwatch themeId={form.theme} />
-                                <p className="text-xs text-muted-foreground">
-                                    Created: {new Date(form.createdAt!).toLocaleDateString()}
-                                </p>
-                                {form.status === "PUBLISHED" && (
-                                    <div className="mt-2 pointer-events-auto">
-                                        <Button variant="link" className="p-0 h-auto text-blue-500" asChild>
-                                            <Link href={`/f/${form.id}`} target="_blank" onClick={(e) => e.stopPropagation()}>
-                                                Open Public Form ↗
-                                            </Link>
-                                        </Button>
-                                    </div>
-                                )}
-                            </CardContent>
-                            <CardFooter className="flex justify-end gap-2 relative z-10">
-                                <Button variant="outline" size="sm" asChild>
-                                    <Link href={`/dashboard/forms/${form.id}/responses`}>Responses</Link>
-                                </Button>
-                                <Button variant="outline" size="sm" onClick={() => openEditModal(form)}>Edit</Button>
-                                <Button variant="destructive" size="sm" onClick={() => openDeleteModal(form)}>Delete</Button>
-                            </CardFooter>
-                        </Card>
-                    ))}
-                </div>
+                filteredAndSortedForms.length > 0 ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {filteredAndSortedForms.map((form) => (
+                            <Card key={form.id} className="hover:shadow-md transition-shadow relative overflow-hidden">
+                                {/* Theme accent strip */}
+                                <div
+                                    className="h-1.5 w-full absolute top-0 left-0"
+                                    style={{ background: getThemeById(form.theme).previewGradient }}
+                                />
+                                <Link href={`/dashboard/forms/${form.id}`} className="absolute inset-0 z-0" />
+                                <CardHeader className="relative z-10 pointer-events-none pb-2 pt-5">
+                                    <CardTitle className="flex items-center justify-between gap-2 flex-wrap">
+                                        <span className="truncate">{form.title}</span>
+                                        <div className="flex gap-2 shrink-0">
+                                            <Badge variant={form.status === "PUBLISHED" ? "default" : "secondary"}>
+                                                {form.status}
+                                            </Badge>
+                                            <Badge variant="outline">{form.visibility}</Badge>
+                                        </div>
+                                    </CardTitle>
+                                    {form.description && (
+                                        <CardDescription className="line-clamp-2">{form.description}</CardDescription>
+                                    )}
+                                </CardHeader>
+                                <CardContent className="relative z-10 pointer-events-none py-2 space-y-2">
+                                    {/* Theme badge */}
+                                    <ThemeSwatch themeId={form.theme} />
+                                    <p className="text-xs text-muted-foreground">
+                                        Created: {new Date(form.createdAt!).toLocaleDateString()}
+                                    </p>
+                                    {form.status === "PUBLISHED" && (
+                                        <div className="mt-2 pointer-events-auto">
+                                            <Button variant="link" className="p-0 h-auto text-blue-500" asChild>
+                                                <Link href={`/f/${form.id}`} target="_blank" onClick={(e) => e.stopPropagation()}>
+                                                    Open Public Form ↗
+                                                </Link>
+                                            </Button>
+                                        </div>
+                                    )}
+                                </CardContent>
+                                <CardFooter className="flex justify-end gap-2 relative z-10">
+                                    <Button variant="outline" size="sm" asChild>
+                                        <Link href={`/dashboard/forms/${form.id}/responses`}>Responses</Link>
+                                    </Button>
+                                    <Button variant="outline" size="sm" onClick={() => openEditModal(form)}>Edit</Button>
+                                    <Button variant="destructive" size="sm" onClick={() => openDeleteModal(form)}>Delete</Button>
+                                </CardFooter>
+                            </Card>
+                        ))}
+                    </div>
+                ) : (
+                    <div className="rounded-lg border border-dashed p-12 text-center bg-muted/10">
+                        <p className="text-muted-foreground font-medium mb-2">No forms match your search query "{searchQuery}"</p>
+                        <Button variant="outline" size="sm" onClick={() => setSearchQuery("")}>
+                            Clear Search
+                        </Button>
+                    </div>
+                )
             ) : (
-                <div className="rounded-lg border border-dashed p-8 text-center">
+                <div className="rounded-lg border border-dashed p-8 text-center bg-muted/10">
                     <p className="text-muted-foreground">No forms found. Create one to get started.</p>
                 </div>
             )}

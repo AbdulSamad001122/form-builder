@@ -13,13 +13,6 @@ export function SiteHeader() {
         />
         <h1 className="text-base font-medium">Dashboard</h1>
         <div className="ml-auto flex items-center gap-2">
-          <Link
-            href="/dashboard/forms/new"
-            className="hidden sm:inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium text-white transition-all"
-            style={{ background: "#1A3D2B" }}
-          >
-            + New Form
-          </Link>
         </div>
       </div>
     </header>

@@ -35,6 +35,23 @@ export interface FormTheme {
 
 export const FORM_THEMES: FormTheme[] = [
   {
+    id: "none",
+    name: "None",
+    description: "Platform default minimalist theme using forest green, black, and white",
+    previewGradient: "linear-gradient(135deg, #1A3D2B 0%, #FFFFFF 100%)",
+    accentColor: "#1A3D2B",
+    page: "min-h-screen bg-[#F9F8F4] py-12 px-4 sm:px-6 lg:px-8 font-sans transition-colors duration-200",
+    title: "text-4xl font-extrabold tracking-tight text-[#0F0F0E]",
+    subtitle: "text-[#6B6860] text-lg",
+    fieldCard: "space-y-3 mb-6 p-6 bg-white rounded-xl border border-[#D4CFC6] shadow-sm hover:border-[#1A3D2B] transition-all duration-200",
+    label: "text-[#0F0F0E] font-semibold text-base",
+    input: "bg-white border-[#D4CFC6] text-[#0F0F0E] placeholder:text-[#6B6860]/40 focus:border-[#1A3D2B] focus:ring-[#1A3D2B]/10 rounded-lg transition-all",
+    button: "bg-[#1A3D2B] hover:bg-[#25573d] text-white font-semibold shadow-sm hover:shadow-md transition-all rounded-lg border-0 px-4 py-2",
+    emailCard: "bg-white border border-[#D4CFC6] shadow-sm rounded-xl p-8",
+    footer: "text-[#6B6860]/60 text-sm",
+    emailBadge: "bg-white border border-[#D4CFC6] text-[#1A3D2B] rounded-full px-4 py-1.5 text-sm",
+  },
+  {
     id: "midnight",
     name: "Midnight",
     description: "Deep space purple with neon accents",
@@ -87,7 +104,7 @@ export const FORM_THEMES: FormTheme[] = [
   },
 ];
 
-export const DEFAULT_THEME_ID = "midnight";
+export const DEFAULT_THEME_ID = "none";
 
 export function getThemeById(id?: string | null): FormTheme {
   return FORM_THEMES.find((t) => t.id === id) ?? FORM_THEMES[0]!;

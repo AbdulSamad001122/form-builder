@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation"
 
 export default function Home() {
   const router = useRouter()
- 
+
   const { user, isLoading } = useUser() as any
 
   useEffect(() => {
@@ -22,7 +22,7 @@ export default function Home() {
   return (
     <main className="min-h-screen w-full flex justify-center items-center">
       <div>
-        <h1 className="text-3xl">Streamyst - Stream in Style</h1>
+        <h1 className="text-3xl">Formline</h1>
         {isLoading ? (
           <p>Verifying session...</p>
         ) : (
