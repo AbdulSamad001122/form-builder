@@ -80,3 +80,21 @@ export const getFormByIdOutputModel = z.object({
     updatedAt: z.date().nullable(),
     fields: z.array(z.any())
 })
+
+export const getDashboardStatsOutputModel = z.object({
+    totalForms: z.number(),
+    totalSubmissions: z.number(),
+    totalPublished: z.number(),
+    totalDrafts: z.number(),
+    recentSubmissions: z.array(z.object({
+        id: z.string().uuid(),
+        formId: z.string().uuid(),
+        formTitle: z.string(),
+        respondentEmail: z.string().nullable(),
+        submittedAt: z.date(),
+    })),
+    submissionsTrend: z.array(z.object({
+        date: z.string(),
+        count: z.number(),
+    })),
+})
