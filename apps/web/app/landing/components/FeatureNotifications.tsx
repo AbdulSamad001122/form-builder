@@ -38,7 +38,7 @@ export default function FeatureNotifications() {
                 </li>
               ))}
             </ul>
-            <Link href="/register" className="feature-text-link" style={{ color: "#8FAF8A" }}>
+            <Link href="/signup" className="feature-text-link" style={{ color: "#8FAF8A" }}>
               Set up notifications →
             </Link>
           </div>

@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import { AuthAwareLink } from "~/components/auth-aware-link";
 
 export default function FinalCTA() {
   return (
@@ -43,15 +44,15 @@ export default function FinalCTA() {
         </p>
 
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 16, marginTop: 36 }}>
-          <Link href="/register" className="cta-main-btn">
+          <AuthAwareLink href="/signup" className="cta-main-btn">
             Start building free →
-          </Link>
+          </AuthAwareLink>
 
           <p style={{ fontSize: 14, color: "#8FAF8A" }}>
             Already have an account?{" "}
-            <Link href="/login" style={{ color: "#fff", fontWeight: 500, textDecoration: "underline" }}>
+            <AuthAwareLink href="/login" style={{ color: "#fff", fontWeight: 500, textDecoration: "underline" }}>
               Log in →
-            </Link>
+            </AuthAwareLink>
           </p>
         </div>
       </div>

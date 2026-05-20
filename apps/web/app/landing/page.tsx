@@ -12,7 +12,7 @@ import Footer from "./components/Footer";
 
 export default function LandingPage() {
   return (
-    <>
+    <div className="fl-root">
       <Nav />
       <main id="main-content">
         <Hero />
@@ -26,6 +26,6 @@ export default function LandingPage() {
         <FinalCTA />
       </main>
       <Footer />
-    </>
+    </div>
   );
 }

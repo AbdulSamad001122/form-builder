@@ -90,8 +90,8 @@ export default function FeatureBuilder() {
                 <li key={item}><CheckIcon /> <span>{item}</span></li>
               ))}
             </ul>
-            <Link href="/register" className="feature-text-link">
-              Start building free →
+            <Link href="/signup" className="feature-text-link">
+              Try the builder →
             </Link>
           </div>
         </div>

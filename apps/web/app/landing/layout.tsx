@@ -41,13 +41,8 @@ export const metadata: Metadata = {
 
 export default function LandingLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html
-      lang="en"
-      className={`${instrumentSerif.variable} ${dmSans.variable} ${caveat.variable}`}
-    >
-      <body style={{ fontFamily: "var(--font-sans, DM Sans), sans-serif" }}>
-        {children}
-      </body>
-    </html>
+    <div className={`${instrumentSerif.variable} ${dmSans.variable} ${caveat.variable}`}>
+      {children}
+    </div>
   );
 }

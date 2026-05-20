@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import { AuthAwareLink } from "~/components/auth-aware-link";
 import { useEffect, useRef, useState } from "react";
 
 function LogoIcon() {
@@ -20,7 +21,11 @@ export default function Nav() {
 
   useEffect(() => {
     const observer = new IntersectionObserver(
-      ([entry]) => setScrolled(!entry.isIntersecting),
+      ([entry]) => {
+        if (entry) {
+          setScrolled(!entry.isIntersecting);
+        }
+      },
       { threshold: 1 }
     );
     const sentinel = sentinelRef.current;
@@ -47,8 +52,8 @@ export default function Nav() {
           </ul>
 
           <div className="fl-nav-actions">
-            <Link href="/login" className="btn-ghost">Log in</Link>
-            <Link href="/register" className="btn-primary">Start free →</Link>
+            <AuthAwareLink href="/login" className="btn-ghost">Log in</AuthAwareLink>
+            <AuthAwareLink href="/signup" className="btn-primary">Start free →</AuthAwareLink>
           </div>
 
           <button

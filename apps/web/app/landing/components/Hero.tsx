@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import { AuthAwareLink } from "~/components/auth-aware-link";
 
 function WavyUnderline({ color = "#1A3D2B" }: { color?: string }) {
   return (
@@ -57,9 +58,9 @@ export default function Hero() {
           </p>
 
           <div style={{ display: "flex", gap: 14, marginTop: 36, flexWrap: "wrap", alignItems: "center" }}>
-            <Link href="/register" className="btn-primary btn-primary-lg">
+            <AuthAwareLink href="/signup" className="btn-primary btn-primary-lg">
               Build your first form →
-            </Link>
+            </AuthAwareLink>
             <Link
               href="/landing#demo"
               style={{ display: "inline-flex", alignItems: "center", gap: 6, color: "#0F0F0E", fontWeight: 500, textDecoration: "none", fontSize: 15 }}

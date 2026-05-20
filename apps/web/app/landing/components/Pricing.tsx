@@ -82,7 +82,7 @@ export default function Pricing() {
               </ul>
 
               <Link
-                href="/register"
+                href="/signup"
                 className={plan.featured ? "btn-primary" : "btn-ghost"}
                 style={{ width: "100%", textAlign: "center", display: "block" }}
               >
