@@ -65,7 +65,7 @@ app.use("/api/form-response/submitResponse", submitRateLimiter);
 
 const generalRateLimiter = rateLimit({
   windowMs: 60 * 1000, 
-  max: 5, 
+  max: 20, 
   keyGenerator: (req, res) => {
     const token = req.cookies?.["authentication-token"];
     if (token) return token;
