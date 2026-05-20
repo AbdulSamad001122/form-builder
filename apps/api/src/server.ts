@@ -17,14 +17,15 @@ const openApiDocument = generateOpenApiDocument(serverRouter, {
   baseUrl: env.BASE_URL.concat("/api"),
 });
 
-if (env.NODE_ENV !== "prod") {
-  app.use(
-    cors({
-      origin: "http://localhost:3000",
-      credentials: true,
-    }),
-  );
-}
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
+      return callback(null, true);
+    },
+    credentials: true,
+  }),
+);
 
 
 app.use(cookieParser())
@@ -50,11 +51,11 @@ app.use("/docs", apiReference({ url: "/openapi.json" }));
 import rateLimit, { ipKeyGenerator } from "express-rate-limit";
 
 const submitRateLimiter = rateLimit({
-  windowMs: 60 * 1000, 
-  max: 5, 
+  windowMs: 60 * 1000,
+  max: 5,
   message: { message: "Rate limit exceeded. Please try again later." },
-  standardHeaders: true, 
-  legacyHeaders: false, 
+  standardHeaders: true,
+  legacyHeaders: false,
 });
 
 app.set("trust proxy", 1);
@@ -64,12 +65,12 @@ app.use("/trpc/formResponse.submitResponse", submitRateLimiter);
 app.use("/api/form-response/submitResponse", submitRateLimiter);
 
 const generalRateLimiter = rateLimit({
-  windowMs: 60 * 1000, 
-  max: 20, 
+  windowMs: 60 * 1000,
+  max: 20,
   keyGenerator: (req, res) => {
     const token = req.cookies?.["authentication-token"];
     if (token) return token;
-    
+
     // fallback to IP Address (prevents IPv6 bypass warnings/crashes)
     return ipKeyGenerator(req.ip || "unknown");
   },
