@@ -9,20 +9,21 @@ const ONE_MONTH = 30 * ONE_DAY
 const ONE_YEAR = 12 * ONE_MONTH
 
 
-const defaultCookieOptions: CookieOptions = {
+const isProduction = process.env.NODE_ENV === "production" || process.env.NODE_ENV === "prod";
+
+export const getCookieOptions = (): CookieOptions => ({
     path: '/',
     httpOnly: true,
-    secure: false,
-    sameSite: "strict",
+    secure: isProduction,
+    sameSite: isProduction ? "none" : "lax",
     maxAge: ONE_YEAR
-
-}
+});
 
 export function createCookieFactory(res: Response) {
     return function createCookie(
         name: string,
         value: string,
-        opts: CookieOptions = defaultCookieOptions
+        opts: CookieOptions = getCookieOptions()
     ) {
         res.cookie(name, value, opts)
     }
@@ -33,9 +34,11 @@ export function getCookieFactory(req: Request) {
         return req.cookies?.[name]
     }
 }
+
 export function clearCookieFactory(res: Response) {
     return function clearCookie(name: string,) {
-        res.clearCookie(name)
+        const { maxAge, ...clearOptions } = getCookieOptions();
+        res.clearCookie(name, clearOptions)
     }
 }
 
