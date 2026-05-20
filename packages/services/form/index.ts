@@ -1,6 +1,6 @@
 import { type createFormFieldInputModelType, createFormInputModel, listFormByUserIdInputModel, type listFormByUserIdInputModelType, updateFormInputModel, type updateFormInputModelType, deleteFormInputModel, type deleteFormInputModelType, getFormByIdInputModel, type getFormByIdInputModelType } from "./model"
-import { db, eq, and, asc, desc } from "@repo/database"
-import { formsTable, formFieldsTable, formResponsesTable } from "../../database/schema"
+import { db, eq, and, asc, desc, ilike } from "@repo/database"
+import { formsTable, formFieldsTable, formResponsesTable, usersTable } from "../../database/schema"
 
 class FormService {
 
@@ -217,6 +217,38 @@ class FormService {
             recentSubmissions,
             submissionsTrend,
         }
+    }
+
+    public async listExploreForms(payload: { search?: string }) {
+        const { search } = payload
+
+        const conditions = [
+            eq(formsTable.status, "PUBLISHED"),
+            eq(formsTable.visibility, "PUBLIC"),
+        ]
+
+        if (search && search.trim().length > 0) {
+            conditions.push(ilike(formsTable.title, `%${search.trim()}%`))
+        }
+
+        const forms = await db
+            .select({
+                id: formsTable.id,
+                title: formsTable.title,
+                description: formsTable.description,
+                theme: formsTable.theme,
+                status: formsTable.status,
+                visibility: formsTable.visibility,
+                createdAt: formsTable.createdAt,
+                creatorName: usersTable.fullName,
+                creatorEmail: usersTable.email,
+            })
+            .from(formsTable)
+            .leftJoin(usersTable, eq(formsTable.createdBy, usersTable.id))
+            .where(and(...conditions))
+            .orderBy(desc(formsTable.createdAt))
+
+        return forms
     }
 }
 

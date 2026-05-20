@@ -174,3 +174,27 @@ export const useGetDashboardStats = () => {
         refetch
     }
 }
+
+export const useListExploreForms = (search?: string) => {
+    const {
+        data,
+        error,
+        isError,
+        isPending,
+        isLoading,
+        isSuccess,
+        refetch
+    } = trpc.form.listExploreForms.useQuery({ search }, {
+        refetchOnWindowFocus: false,
+    })
+
+    return {
+        data,
+        error,
+        isError,
+        isPending,
+        isLoading,
+        isSuccess,
+        refetch
+    }
+}

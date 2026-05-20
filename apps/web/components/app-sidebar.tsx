@@ -6,6 +6,7 @@ import {
   IconDashboard,
   IconClipboardText,
   IconSettings,
+  IconCompass,
 } from "@tabler/icons-react"
 
 import { NavMain } from "~/components/nav-main"
@@ -32,6 +33,11 @@ const navMain = [
     title: "Forms",
     url: "/dashboard/forms",
     icon: IconClipboardText,
+  },
+  {
+    title: "Explore",
+    url: "/dashboard/explore",
+    icon: IconCompass,
   },
 ]
 

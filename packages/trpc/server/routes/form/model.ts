@@ -98,3 +98,19 @@ export const getDashboardStatsOutputModel = z.object({
         count: z.number(),
     })),
 })
+
+export const listExploreFormsInputModel = z.object({
+    search: z.string().optional(),
+})
+
+export const listExploreFormsOutputModel = z.array(z.object({
+    id: z.string().uuid(),
+    title: z.string(),
+    description: z.string().nullable(),
+    theme: z.string().nullable(),
+    status: z.string(),
+    visibility: z.string(),
+    createdAt: z.date().nullable(),
+    creatorName: z.string(),
+    creatorEmail: z.string(),
+}))

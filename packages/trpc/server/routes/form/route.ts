@@ -1,6 +1,6 @@
 import { authenticatedProcedure, publicProcedure, router } from "../../trpc";
 import { generatePath } from "../../utils/path-generator";
-import { createFormInputModel, createFormOutputModel, listFormByUserIdOutputModel, updateFormInputModel, updateFormOutputModel, deleteFormInputModel, deleteFormOutputModel, getPublicFormInputModel, getPublicFormOutputModel, getFormByIdInputModel, getFormByIdOutputModel, getDashboardStatsOutputModel } from "./model";
+import { createFormInputModel, createFormOutputModel, listFormByUserIdOutputModel, updateFormInputModel, updateFormOutputModel, deleteFormInputModel, deleteFormOutputModel, getPublicFormInputModel, getPublicFormOutputModel, getFormByIdInputModel, getFormByIdOutputModel, getDashboardStatsOutputModel, listExploreFormsInputModel, listExploreFormsOutputModel } from "./model";
 import { formService } from "../../services";
 import { z } from "zod";
 
@@ -138,5 +138,20 @@ export const formRouter = router({
             return await formService.getDashboardStats({
                 userId: ctx.user!.id,
             });
+        }),
+
+    listExploreForms: publicProcedure
+        .meta({
+            openapi: {
+                method: "GET",
+                path: getPath("listExploreForms"),
+                tags: TAGS,
+                protect: false,
+            }
+        })
+        .input(listExploreFormsInputModel)
+        .output(listExploreFormsOutputModel)
+        .query(async ({ input }) => {
+            return await formService.listExploreForms({ search: input.search })
         }),
 });
