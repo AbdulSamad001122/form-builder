@@ -55,12 +55,30 @@ export default function PublicFormPage() {
 
     // ─── Error ─────────────────────────────────────────────────────────────────
     if (isError || !form) {
+        const message = (error as any)?.message ?? ""
+        const isClosed = message.includes("not currently accepting")
         return (
             <div className="flex h-screen items-center justify-center bg-gray-950 p-4">
-                <div className="w-full max-w-md bg-white/5 backdrop-blur-sm border border-red-500/20 rounded-2xl p-8 text-center">
-                    <p className="text-red-400 font-semibold text-lg mb-2">Form Unavailable</p>
-                    <p className="text-gray-400 text-sm">
-                        {(error as any)?.message || "This form does not exist or is not currently accepting responses."}
+                <div className="w-full max-w-md bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-10 text-center space-y-4">
+                    <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto"
+                        style={{ background: isClosed ? "rgba(234,179,8,0.15)" : "rgba(239,68,68,0.15)" }}>
+                        {isClosed ? (
+                            <svg className="w-8 h-8 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+                            </svg>
+                        ) : (
+                            <svg className="w-8 h-8 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        )}
+                    </div>
+                    <p className={`font-semibold text-lg ${isClosed ? "text-yellow-300" : "text-red-400"}`}>
+                        {isClosed ? "Form Closed" : "Form Not Found"}
+                    </p>
+                    <p className="text-gray-400 text-sm leading-relaxed">
+                        {isClosed
+                            ? "This form is not currently accepting responses. The creator may have unpublished it."
+                            : "This form does not exist or the link may be incorrect."}
                     </p>
                 </div>
             </div>

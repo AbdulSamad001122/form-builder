@@ -115,6 +115,7 @@ export const useGetPublicForm = (id: string) => {
     } = trpc.form.getPublicForm.useQuery({ id }, {
         enabled: !!id,
         refetchOnWindowFocus: false,
+        retry: false,
     })
 
     return {
