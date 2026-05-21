@@ -1,3 +1,4 @@
+import { useQueryClient } from "@tanstack/react-query"
 import { trpc } from "~/trpc/client"
 
 export const useSignup = () => {
@@ -77,9 +78,11 @@ export const useUser = () => {
 
 export const useLogout = () => {
     const utils = trpc.useUtils()
+    const queryClient = useQueryClient()
 
     const { mutate: logout, isPending: isLoggingOut } = trpc.auth.logout.useMutation({
         onSuccess: async () => {
+            queryClient.clear()
             await utils.auth.getLoggedInUserInfo.invalidate()
         }
     })

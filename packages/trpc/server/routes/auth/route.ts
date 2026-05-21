@@ -98,13 +98,13 @@ export const authRouter = router({
       };
     }),
 
-  logout: authenticatedProcedure
+  logout: publicProcedure
     .meta({
       openapi: {
         method: "POST",
         path: getPath("logout"),
         tags: TAGS,
-        protect: true,
+        protect: false,
       },
     })
     .input(getLoggedInUserInfoInputModel)

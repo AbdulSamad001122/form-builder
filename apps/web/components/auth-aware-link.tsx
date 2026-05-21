@@ -34,17 +34,53 @@ export function AuthAwareLink({
 }
 
 
+export function AuthLoadingScreen({ message = "Verifying session..." }: { message?: string }) {
+  return (
+    <div className="flex h-screen w-screen items-center justify-center bg-[#F9F8F4]">
+      <div className="flex flex-col items-center gap-3">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-t-transparent" style={{ borderColor: "#111111 transparent transparent transparent" }} />
+        <p className="text-sm text-muted-foreground font-medium animate-pulse">
+          {message}
+        </p>
+      </div>
+    </div>
+  );
+}
+
+
 export function RedirectIfAuthenticated({ children }: { children?: React.ReactNode }) {
   const router = useRouter();
-  const { user, isLoading } = useUser() as any;
+  const { user, isLoading, isFetched } = useUser() as any;
 
   useEffect(() => {
-    if (!isLoading && user?.id) {
+    if (isFetched && user?.id) {
       router.replace("/dashboard");
     }
-  }, [user, isLoading, router]);
+  }, [user, isFetched, router]);
 
-  if (isLoading || user?.id) {
+  if (!isFetched || isLoading || user?.id) {
+    return <AuthLoadingScreen />;
+  }
+
+  return <>{children}</>;
+}
+
+
+export function RequireAuth({ children }: { children: React.ReactNode }) {
+  const router = useRouter();
+  const { user, isLoading, isFetched } = useUser() as any;
+
+  useEffect(() => {
+    if (isFetched && !user?.id) {
+      router.replace("/login");
+    }
+  }, [user, isFetched, router]);
+
+  if (!isFetched || isLoading) {
+    return <AuthLoadingScreen />;
+  }
+
+  if (!user?.id) {
     return null;
   }
 

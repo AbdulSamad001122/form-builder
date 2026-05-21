@@ -45,7 +45,10 @@ export function NavUser({
   function handleLogout() {
     logout(undefined, {
       onSuccess: () => {
-        router.replace("/login")
+        window.location.href = "/login"
+      },
+      onError: () => {
+        window.location.href = "/login"
       },
     })
   }
