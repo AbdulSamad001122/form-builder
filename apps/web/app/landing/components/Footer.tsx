@@ -28,7 +28,7 @@ export default function Footer() {
           <div>
             <Link href="/" style={{ display: "inline-flex", alignItems: "center", gap: 8, textDecoration: "none", color: "#0F0F0E" }}>
               <LogoIcon />
-              <span style={{ fontFamily: "var(--font-serif), serif", fontSize: 20 }}>Formline</span>
+              <span style={{ fontFamily: "var(--font-serif), serif", fontSize: 20 }}>Formit</span>
             </Link>
             <p style={{ marginTop: 12, fontFamily: "var(--font-serif), serif", fontStyle: "italic", color: "#6B6860", fontSize: 16 }}>
               Forms with intention.
@@ -36,7 +36,7 @@ export default function Footer() {
             <div className="social-icons" aria-label="Social media links">
               {[
                 {
-                  label: "Follow Formline on X (Twitter)",
+                  label: "Follow Formit on X (Twitter)",
                   path: "M4 4 L20 20 M20 4 L4 20",
                 },
                 {
@@ -44,7 +44,7 @@ export default function Footer() {
                   path: "M4 4 h4 v12 h-4 z M10 8 Q14 6 16 10 v6 h-4 v-5 Q12 8 10 9 z M4 2 h4 v3 h-4 z",
                 },
                 {
-                  label: "Formline on GitHub",
+                  label: "Formit on GitHub",
                   path: "M12 3 Q6 3 6 9 Q6 13 9 14.5 Q9 16 9 17 Q7 17 6 15.5 Q5 13.5 4 14 Q6 16 7 17 L9 17 Q9 19 12 19 Q15 19 15 17 L17 17 Q18 16 20 14 Q19 13.5 18 15.5 Q17 17 15 17 Q15 16 15 14.5 Q18 13 18 9 Q18 3 12 3 Z",
                 },
               ].map((s) => (
@@ -73,7 +73,7 @@ export default function Footer() {
         </div>
 
         <div className="footer-bottom">
-          <p>© 2025 Formline. All rights reserved.</p>
+          <p>© 2025 Formit. All rights reserved.</p>
           <p>Made with ☕ and too many form fields.</p>
         </div>
       </div>

@@ -53,7 +53,7 @@ export default function Hero() {
           </p>
 
           <p style={{ marginTop: 16, fontSize: 16, color: "#6B6860", maxWidth: 460, lineHeight: 1.75 }}>
-            Formline is the form builder that respects your time and your users&apos; attention.
+            Formit is the form builder that respects your time and your users&apos; attention.
             No 47-step onboarding. No surprise pricing. Just forms that work.
           </p>
 
@@ -95,14 +95,14 @@ export default function Hero() {
                 boxShadow: "0 20px 60px rgba(0,0,0,0.08)",
               }}
               role="img"
-              aria-label="Formline drag-and-drop form builder interface"
+              aria-label="Formit drag-and-drop form builder interface"
             >
               {/* Simulated UI Mockup */}
               <div style={{ background: "#F9F8F4", borderBottom: "1px solid #D4CFC6", padding: "12px 16px", display: "flex", alignItems: "center", gap: 8 }}>
                 <div style={{ width: 10, height: 10, borderRadius: "50%", background: "#ff6058" }} />
                 <div style={{ width: 10, height: 10, borderRadius: "50%", background: "#febc2e" }} />
                 <div style={{ width: 10, height: 10, borderRadius: "50%", background: "#28c840" }} />
-                <span style={{ marginLeft: 12, fontSize: 12, color: "#6B6860" }}>formline.io/builder</span>
+                <span style={{ marginLeft: 12, fontSize: 12, color: "#6B6860" }}>formit.io/builder</span>
               </div>
               <div className="hero-mockup-layout">
                 <div className="hero-mockup-sidebar" style={{ borderRight: "1px solid #D4CFC6", padding: 16, background: "#F9F8F4" }}>

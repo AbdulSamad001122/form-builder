@@ -54,7 +54,7 @@ export default function FeatureNotifications() {
                 boxShadow: "0 30px 80px rgba(0,0,0,0.4)",
               }}
               role="img"
-              aria-label="Formline email notification settings showing toggle, recipient email input, custom subject line, merge tag template editor, and send test email button"
+              aria-label="Formit email notification settings showing toggle, recipient email input, custom subject line, merge tag template editor, and send test email button"
             >
               <div style={{ background: "#111", padding: "12px 16px", borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
                 <span style={{ fontSize: 13, fontWeight: 600, color: "#fff" }}>⚡ Notification Settings</span>

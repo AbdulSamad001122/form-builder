@@ -1,9 +1,9 @@
 const TESTIMONIALS = [
   {
-    quote: "I built Formline to solve my own frustration with bloated, complex form builders. It is designed to be simple, fast, and exactly as powerful as it needs to be.",
+    quote: "I built Formit to solve my own frustration with bloated, complex form builders. It is designed to be simple, fast, and exactly as powerful as it needs to be.",
     name: "Abdul Samad",
     role: "Creator",
-    company: "Formline",
+    company: "Formit",
     image: "https://github.com/AbdulSamad001122.png",
   },
 ];

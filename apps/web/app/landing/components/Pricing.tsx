@@ -21,7 +21,7 @@ const PLANS = [
     name: "Pro (Coming Soon)",
     price: "5",
     tagline: "Support the indie developer",
-    features: ["Everything in Free", "Remove Formline branding", "Advanced field types", "CSV data export", "Priority feature requests"],
+    features: ["Everything in Free", "Remove Formit branding", "Advanced field types", "CSV data export", "Priority feature requests"],
     cta: "Join Waitlist",
     featured: true,
   }

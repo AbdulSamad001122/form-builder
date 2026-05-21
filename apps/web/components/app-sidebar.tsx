@@ -49,13 +49,11 @@ const navSecondary = [
   },
 ]
 
-function FormlineLogo() {
+function FormitLogo() {
   return (
-    <svg width="22" height="22" viewBox="0 0 28 28" fill="none" aria-hidden="true">
-      <rect x="3" y="3" width="22" height="22" rx="4" stroke="currentColor" strokeWidth="1.8" fill="none" />
-      <line x1="8" y1="10" x2="20" y2="10.3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-      <line x1="8" y1="14.5" x2="18" y2="14.2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-      <line x1="8" y1="19" x2="15" y2="19.1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M9 11l3 3L22 4" />
+      <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
     </svg>
   )
 }
@@ -79,9 +77,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               className="data-[slot=sidebar-menu-button]:p-1.5!"
             >
               <Link href="/" style={{ display: "flex", alignItems: "center", gap: 8, textDecoration: "none" }}>
-                <FormlineLogo />
+                <FormitLogo />
                 <span className="text-base font-semibold" style={{ fontFamily: "'Instrument Serif', serif", letterSpacing: "-0.01em" }}>
-                  Formline
+                  Formit
                 </span>
               </Link>
             </SidebarMenuButton>

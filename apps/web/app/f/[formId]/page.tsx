@@ -436,7 +436,7 @@ export default function PublicFormPage() {
                     </div>
 
                     <p className={`text-center ${theme.footer}`}>
-                        Powered by <strong>Formify</strong>
+                        Powered by <strong>Formit</strong>
                     </p>
                 </div>
             </div>
@@ -485,7 +485,7 @@ export default function PublicFormPage() {
                 </form>
 
                 <div className="mt-12 pt-8 text-center">
-                    <p className={theme.footer}>Powered by <strong>Formify</strong></p>
+                    <p className={theme.footer}>Powered by <strong>Formit</strong></p>
                 </div>
             </div>
         </div>

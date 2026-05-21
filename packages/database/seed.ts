@@ -30,7 +30,7 @@ async function main() {
         const existingUser = await db
             .select()
             .from(usersTable)
-            .where(eq(usersTable.email, "demo@formline.dev"))
+            .where(eq(usersTable.email, "demo@formit.dev"))
             .limit(1);
 
         let userId: string;
@@ -45,7 +45,7 @@ async function main() {
             const inserted = await db
                 .insert(usersTable)
                 .values({
-                    email: "demo@formline.dev",
+                    email: "demo@formit.dev",
                     fullName: "Demo User",
                     password: hash,
                     salt,
@@ -326,7 +326,7 @@ async function main() {
 
         console.log("\n🎉 Seeding complete!");
         console.log("────────────────────────────────────");
-        console.log("  Demo email:    demo@formline.dev");
+        console.log("  Demo email:    demo@formit.dev");
         console.log("  Demo password: Demo@1234");
         console.log("  Forms seeded:  3");
         console.log("  Responses:     16 total");

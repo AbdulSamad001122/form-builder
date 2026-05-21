@@ -40,7 +40,7 @@ export default function Nav() {
         <div className="fl-nav-inner">
           <Link href="/" className="fl-logo">
             <LogoIcon />
-            Formline
+            Formit
           </Link>
 
           <ul className="fl-nav-links" role="list">

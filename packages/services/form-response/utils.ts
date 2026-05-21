@@ -91,7 +91,7 @@ export function generateSubmissionEmailHtml({
                         <!-- Footer -->
                         <tr>
                             <td style="padding: 30px; text-align: center; background-color: #ffffff; border-top: 1px solid #f3f4f6;">
-                                <p style="margin: 0; font-size: 13px; color: #9ca3af;">Powered by <strong>Formify</strong></p>
+                                <p style="margin: 0; font-size: 13px; color: #9ca3af;">Powered by <strong>Formit</strong></p>
                             </td>
                         </tr>
                     </table>

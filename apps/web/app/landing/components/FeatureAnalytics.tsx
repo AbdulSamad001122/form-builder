@@ -73,7 +73,7 @@ export default function FeatureAnalytics() {
               boxShadow: "0 12px 48px rgba(0,0,0,0.07)",
             }}
             role="img"
-            aria-label="Formline analytics dashboard showing total responses 1842, 68% completion rate, field-by-field drop-off funnel chart, device breakdown donut chart, and 30-day response timeline"
+            aria-label="Formit analytics dashboard showing total responses 1842, 68% completion rate, field-by-field drop-off funnel chart, device breakdown donut chart, and 30-day response timeline"
           >
             <div className="analytics-mockup-stats">
               {[

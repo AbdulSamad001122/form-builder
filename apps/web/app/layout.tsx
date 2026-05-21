@@ -38,13 +38,13 @@ const caveat = Caveat({
 });
 
 export const metadata: Metadata = {
-  title: "Formline — The Form Builder That People Actually Finish",
+  title: "Formit — The Form Builder That People Actually Finish",
   description:
     "Build beautiful, high-converting forms in minutes. Drag-and-drop builder, 20+ field types, instant email notifications, real analytics. Free to start.",
   keywords: ["form builder", "Typeform alternative", "drag and drop form builder", "form analytics"],
   openGraph: {
     type: "website",
-    title: "Formline — The Form Builder That People Actually Finish",
+    title: "Formit — The Form Builder That People Actually Finish",
     description: "Build beautiful, high-converting forms in minutes. 20+ field types, email notifications, real analytics.",
   },
   robots: { index: true, follow: true },

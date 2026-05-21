@@ -28,7 +28,7 @@ export default function FeatureBuilder() {
               boxShadow: "4px 4px 0 #D4CFC6",
             }}
               role="img"
-              aria-label="Formline form builder showing field type sidebar, drag-and-drop canvas with active form fields mid-reorder, and live preview panel"
+              aria-label="Formit form builder showing field type sidebar, drag-and-drop canvas with active form fields mid-reorder, and live preview panel"
             >
               <div style={{ background: "#1A3D2B", padding: "10px 16px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <span style={{ color: "#fff", fontSize: 13, fontWeight: 600 }}>🧩 Builder</span>
