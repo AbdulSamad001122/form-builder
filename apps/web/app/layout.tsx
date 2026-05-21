@@ -4,7 +4,6 @@ import { Instrument_Serif, DM_Sans, Caveat } from "next/font/google";
 import "./globals.css";
 import "./landing/landing.css";
 import { GlobalProviders } from "~/providers/global";
-import { Toaster } from "~/components/ui/sonner";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -61,7 +60,6 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} ${instrumentSerif.variable} ${dmSans.variable} ${caveat.variable}`}
       >
         <GlobalProviders>{children}</GlobalProviders>
-        <Toaster richColors position="top-right" />
       </body>
     </html>
   );

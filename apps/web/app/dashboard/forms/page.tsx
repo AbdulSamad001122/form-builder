@@ -21,7 +21,7 @@ import { Input } from "~/components/ui/input"
 import { Label } from "~/components/ui/label"
 import { Textarea } from "~/components/ui/textarea"
 import { FORM_THEMES, DEFAULT_THEME_ID, getThemeById } from "~/lib/form-themes"
-import { Check, Palette, Search, ArrowUpDown } from "lucide-react"
+import { Check, Palette, Search, ArrowUpDown, Loader2 } from "lucide-react"
 import { toast } from "sonner"
 import { Skeleton } from "~/components/ui/skeleton"
 
@@ -95,11 +95,12 @@ export default function FormsPage() {
     const [title, setTitle] = useState("")
     const [description, setDescription] = useState("")
     const [theme, setTheme] = useState(DEFAULT_THEME_ID)
+    const [isRedirecting, setIsRedirecting] = useState(false)
 
     const [searchQuery, setSearchQuery] = useState("")
     const [sortOrder, setSortOrder] = useState<"newest" | "oldest">("newest")
 
-    const { createForm } = useCreateForm()
+    const { createForm, isPending: isCreating } = useCreateForm()
     const { data: forms, isLoading } = useListFormsByUserId()
     const { updateForm, isPending: isUpdating } = useUpdateForm()
     const { deleteForm, isPending: isDeleting } = useDeleteForm()
@@ -145,6 +146,7 @@ export default function FormsPage() {
         e.preventDefault()
         createForm({ title, description, theme }, {
             onSuccess: (data) => {
+                setIsRedirecting(true)
                 setOpen(false)
                 setTitle("")
                 setDescription("")
@@ -196,6 +198,19 @@ export default function FormsPage() {
         })
     }
 
+    if (isRedirecting) {
+        return (
+            <div className="flex h-[calc(100vh-100px)] w-full items-center justify-center">
+                <div className="flex flex-col items-center gap-3">
+                    <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                    <p className="text-sm font-medium text-muted-foreground animate-pulse">
+                        Preparing your form builder...
+                    </p>
+                </div>
+            </div>
+        )
+    }
+
     return (
         <div className="p-4 lg:p-6">
             <div className="flex justify-between items-center mb-4">
@@ -234,7 +249,16 @@ export default function FormsPage() {
                             {/* Theme Picker */}
                             <ThemePicker value={theme} onChange={setTheme} />
                             <DialogFooter>
-                                <Button type="submit">Create</Button>
+                                <Button type="submit" disabled={isCreating}>
+                                    {isCreating ? (
+                                        <>
+                                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                            Creating...
+                                        </>
+                                    ) : (
+                                        "Create"
+                                    )}
+                                </Button>
                             </DialogFooter>
                         </form>
                     </DialogContent>
@@ -413,7 +437,10 @@ export default function FormsPage() {
                         {/* Theme Picker */}
                         <ThemePicker value={editTheme} onChange={setEditTheme} />
                         <DialogFooter>
-                            <Button type="submit" disabled={isUpdating}>{isUpdating ? "Saving..." : "Save Changes"}</Button>
+                            <Button type="submit" disabled={isUpdating} className="flex items-center gap-2">
+                                {isUpdating && <Loader2 className="h-4 w-4 animate-spin" />}
+                                {isUpdating ? "Saving..." : "Save Changes"}
+                            </Button>
                         </DialogFooter>
                     </form>
                 </DialogContent>
@@ -430,7 +457,8 @@ export default function FormsPage() {
                     </DialogHeader>
                     <DialogFooter className="mt-4">
                         <Button variant="outline" onClick={() => setDeleteOpen(false)} disabled={isDeleting}>Cancel</Button>
-                        <Button variant="destructive" onClick={handleDeleteForm} disabled={isDeleting}>
+                        <Button variant="destructive" onClick={handleDeleteForm} disabled={isDeleting} className="flex items-center gap-2">
+                            {isDeleting && <Loader2 className="h-4 w-4 animate-spin" />}
                             {isDeleting ? "Deleting..." : "Delete"}
                         </Button>
                     </DialogFooter>

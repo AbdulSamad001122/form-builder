@@ -11,7 +11,8 @@ export const useCreateForm = () => {
         failureCount,
         isError,
         isIdle,
-        isSuccess
+        isSuccess,
+        isPending
     } = trpc.form.createForm.useMutation({
         onMutate: async (newForm) => {
             await utils.form.listFormByUserId.cancel()
@@ -49,7 +50,8 @@ export const useCreateForm = () => {
         failureCount,
         isError,
         isIdle,
-        isSuccess
+        isSuccess,
+        isPending
     }
 }
 

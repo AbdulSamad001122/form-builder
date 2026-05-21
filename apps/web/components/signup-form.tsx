@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 
+import { Loader2 } from "lucide-react"
 import { cn } from "~/lib/utils"
 import { Input } from "~/components/ui/input"
 import { useSignup } from "~/hooks/api/auth"
@@ -25,7 +26,7 @@ export function SignupForm({
     defaultValues: { fullName: "", email: "", password: "", confirmPassword: "" },
   })
 
-  const { createUserWithEmailAndPasswordAsync, isError, error } = useSignup()
+  const { createUserWithEmailAndPasswordAsync, isError, error, isPending } = useSignup()
 
   const onSubmit = async (values: SignupFormValues) => {
     try {
@@ -163,24 +164,31 @@ export function SignupForm({
             {/* Submit */}
             <button
               type="submit"
-              disabled={form.formState.isSubmitting}
+              disabled={form.formState.isSubmitting || isPending}
               style={{
                 width: "100%",
                 padding: "11px 0",
-                background: form.formState.isSubmitting ? "#4a7a5c" : "#1A3D2B",
+                background: (form.formState.isSubmitting || isPending) ? "#4a7a5c" : "#1A3D2B",
                 color: "#fff",
                 border: "none",
                 borderRadius: 8,
                 fontSize: 15,
                 fontWeight: 600,
-                cursor: form.formState.isSubmitting ? "not-allowed" : "pointer",
+                cursor: (form.formState.isSubmitting || isPending) ? "not-allowed" : "pointer",
                 transition: "background 150ms, box-shadow 150ms, transform 150ms",
                 marginTop: 4,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "8px",
               }}
-              onMouseOver={(e) => { if (!form.formState.isSubmitting) { e.currentTarget.style.boxShadow = "2px 2px 0 #0F0F0E"; e.currentTarget.style.transform = "translate(-1px,-1px)"; } }}
+              onMouseOver={(e) => { if (!(form.formState.isSubmitting || isPending)) { e.currentTarget.style.boxShadow = "2px 2px 0 #0F0F0E"; e.currentTarget.style.transform = "translate(-1px,-1px)"; } }}
               onMouseOut={(e) => { e.currentTarget.style.boxShadow = "none"; e.currentTarget.style.transform = "none"; }}
             >
-              {form.formState.isSubmitting ? "Creating account…" : "Create account"}
+              {(form.formState.isSubmitting || isPending) && (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              )}
+              {form.formState.isSubmitting || isPending ? "Creating account…" : "Create account"}
             </button>
 
             {/* Sign in link */}

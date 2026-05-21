@@ -390,7 +390,13 @@ export default function FormBuilderPage() {
                         disabled={isSavingForm}
                         className="flex items-center gap-2"
                     >
-                        {form.visibility === "PUBLIC" ? <EyeOff size={14} /> : <Eye size={14} />}
+                        {isSavingForm ? (
+                            <Loader2 size={14} className="animate-spin" />
+                        ) : form.visibility === "PUBLIC" ? (
+                            <EyeOff size={14} />
+                        ) : (
+                            <Eye size={14} />
+                        )}
                         {form.visibility === "PUBLIC" ? "Make Unlisted" : "Make Public"}
                     </Button>
 
@@ -558,8 +564,11 @@ export default function FormBuilderPage() {
                         </div>
                     </div>
                     <DialogFooter>
-                        <Button variant="outline" onClick={() => setIsCreateOpen(false)}>Cancel</Button>
-                        <Button onClick={handleCreateSubmit} disabled={isCreating || !newField.label}>Create Field</Button>
+                        <Button variant="outline" onClick={() => setIsCreateOpen(false)} disabled={isCreating}>Cancel</Button>
+                        <Button onClick={handleCreateSubmit} disabled={isCreating || !newField.label} className="flex items-center gap-2">
+                            {isCreating && <Loader2 className="h-4 w-4 animate-spin" />}
+                            {isCreating ? "Creating..." : "Create Field"}
+                        </Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
@@ -632,8 +641,11 @@ export default function FormBuilderPage() {
                         </div>
                     )}
                     <DialogFooter>
-                        <Button variant="outline" onClick={() => setIsEditOpen(false)}>Cancel</Button>
-                        <Button onClick={handleEditSubmit} disabled={isUpdating}>Save Changes</Button>
+                        <Button variant="outline" onClick={() => setIsEditOpen(false)} disabled={isUpdating}>Cancel</Button>
+                        <Button onClick={handleEditSubmit} disabled={isUpdating} className="flex items-center gap-2">
+                            {isUpdating && <Loader2 className="h-4 w-4 animate-spin" />}
+                            {isUpdating ? "Saving..." : "Save Changes"}
+                        </Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
@@ -647,8 +659,11 @@ export default function FormBuilderPage() {
                         </DialogDescription>
                     </DialogHeader>
                     <DialogFooter>
-                        <Button variant="outline" onClick={() => setIsDeleteOpen(false)}>Cancel</Button>
-                        <Button variant="destructive" onClick={handleDeleteSubmit} disabled={isDeleting}>Delete Field</Button>
+                        <Button variant="outline" onClick={() => setIsDeleteOpen(false)} disabled={isDeleting}>Cancel</Button>
+                        <Button variant="destructive" onClick={handleDeleteSubmit} disabled={isDeleting} className="flex items-center gap-2">
+                            {isDeleting && <Loader2 className="h-4 w-4 animate-spin" />}
+                            {isDeleting ? "Deleting..." : "Delete Field"}
+                        </Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>

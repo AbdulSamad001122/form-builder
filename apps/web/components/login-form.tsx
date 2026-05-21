@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 
+import { Loader2 } from "lucide-react"
 import { cn } from "~/lib/utils"
 import { Button } from "~/components/ui/button"
 import { Input } from "~/components/ui/input"
@@ -24,7 +25,7 @@ export function LoginForm({
     defaultValues: { email: "", password: "" },
   })
 
-  const { siginUserWithEmailAndPasswordAsync, isError, error } = useSignin()
+  const { siginUserWithEmailAndPasswordAsync, isError, error, isPending } = useSignin()
 
   const onSubmit = async (values: LoginFormValues) => {
     try {
@@ -89,16 +90,10 @@ export function LoginForm({
 
             {/* Password */}
             <div>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
+              <div style={{ marginBottom: 6 }}>
                 <label htmlFor="password" style={{ fontSize: 13, fontWeight: 600, color: "#0F0F0E" }}>
                   Password
                 </label>
-                <a href="#" style={{ fontSize: 12, color: "#1A3D2B", textDecoration: "none" }}
-                  onMouseOver={(e) => (e.currentTarget.style.textDecoration = "underline")}
-                  onMouseOut={(e) => (e.currentTarget.style.textDecoration = "none")}
-                >
-                  Forgot password?
-                </a>
               </div>
               <Input
                 id="password"
@@ -124,23 +119,30 @@ export function LoginForm({
             {/* Submit */}
             <button
               type="submit"
-              disabled={form.formState.isSubmitting}
+              disabled={form.formState.isSubmitting || isPending}
               style={{
                 width: "100%",
                 padding: "11px 0",
-                background: form.formState.isSubmitting ? "#4a7a5c" : "#1A3D2B",
+                background: (form.formState.isSubmitting || isPending) ? "#4a7a5c" : "#1A3D2B",
                 color: "#fff",
                 border: "none",
                 borderRadius: 8,
                 fontSize: 15,
                 fontWeight: 600,
-                cursor: form.formState.isSubmitting ? "not-allowed" : "pointer",
+                cursor: (form.formState.isSubmitting || isPending) ? "not-allowed" : "pointer",
                 transition: "background 150ms, box-shadow 150ms, transform 150ms",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "8px",
               }}
-              onMouseOver={(e) => { if (!form.formState.isSubmitting) { e.currentTarget.style.boxShadow = "2px 2px 0 #0F0F0E"; e.currentTarget.style.transform = "translate(-1px,-1px)"; } }}
+              onMouseOver={(e) => { if (!(form.formState.isSubmitting || isPending)) { e.currentTarget.style.boxShadow = "2px 2px 0 #0F0F0E"; e.currentTarget.style.transform = "translate(-1px,-1px)"; } }}
               onMouseOut={(e) => { e.currentTarget.style.boxShadow = "none"; e.currentTarget.style.transform = "none"; }}
             >
-              {form.formState.isSubmitting ? "Logging in…" : "Log in"}
+              {(form.formState.isSubmitting || isPending) && (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              )}
+              {form.formState.isSubmitting || isPending ? "Logging in…" : "Log in"}
             </button>
 
 

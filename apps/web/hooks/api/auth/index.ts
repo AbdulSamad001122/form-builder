@@ -12,6 +12,7 @@ export const useSignup = () => {
         failureCount,
         isError,
         isIdle,
+        isPending,
         isSuccess
     } = trpc.auth.createUserWithEmailAndPassword.useMutation({
         onSuccess: async () => {
@@ -27,6 +28,7 @@ export const useSignup = () => {
         failureCount,
         isError,
         isIdle,
+        isPending,
         isSuccess
     }
 
@@ -43,6 +45,7 @@ export const useSignin = () => {
         failureCount,
         isError,
         isIdle,
+        isPending,
         isSuccess
     } = trpc.auth.signinUserWithEmailAndPassword.useMutation({
         onSuccess: async () => {
@@ -58,13 +61,18 @@ export const useSignin = () => {
         failureCount,
         isError,
         isIdle,
+        isPending,
         isSuccess
     }
 
 }
 
 export const useUser = () => {
-    const { data: user, error, isFetched, isFetching, isLoading, status } = trpc.auth.getLoggedInUserInfo.useQuery()
+    const { data: user, error, isFetched, isFetching, isLoading, status } = trpc.auth.getLoggedInUserInfo.useQuery(undefined, {
+        retry: false,
+        staleTime: 1000 * 60 * 5, // 5 minutes cache
+        refetchOnWindowFocus: false,
+    })
 
     return {
         user,

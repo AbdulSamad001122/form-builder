@@ -28,6 +28,7 @@ export default function PublicFormPage() {
     const [step, setStep] = useState<Step>("email");
     const [respondentEmail, setRespondentEmail] = useState("");
     const [emailError, setEmailError] = useState("");
+    const [isContinuing, setIsContinuing] = useState(false);
 
     const [answers, setAnswers] = useState<Record<string, any>>({});
     const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
@@ -123,7 +124,11 @@ export default function PublicFormPage() {
             return;
         }
         setEmailError("");
-        setStep("form");
+        setIsContinuing(true);
+        setTimeout(() => {
+            setStep("form");
+            setIsContinuing(false);
+        }, 400);
     };
 
     const handleFieldChange = (fieldId: string, value: any) => {
@@ -427,9 +432,22 @@ export default function PublicFormPage() {
                                         <p className="text-sm text-red-400">{emailError}</p>
                                     )}
                                 </div>
-                                <Button type="submit" className={`w-full flex items-center gap-2 ${theme.button}`}>
-                                    Continue to Form
-                                    <ArrowRight size={16} />
+                                <Button
+                                    type="submit"
+                                    disabled={isContinuing}
+                                    className={`w-full flex items-center justify-center gap-2 ${theme.button}`}
+                                >
+                                    {isContinuing ? (
+                                        <>
+                                            <Loader2 className="h-4 w-4 animate-spin" />
+                                            Continuing...
+                                        </>
+                                    ) : (
+                                        <>
+                                            Continue to Form
+                                            <ArrowRight size={16} />
+                                        </>
+                                    )}
                                 </Button>
                             </form>
                         </div>
