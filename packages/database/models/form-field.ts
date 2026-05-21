@@ -9,6 +9,7 @@ import {
     pgEnum,
     jsonb,
     unique,
+    index,
 } from "drizzle-orm/pg-core";
 import { usersTable } from "./user";
 import { formsTable } from "./form"
@@ -29,7 +30,7 @@ export const formFieldsTable = pgTable("form_fields", {
 
     placeholder: text("placeholder"),
     
-    options: jsonb("options"), // Array of choices for selects/dropdowns
+    options: jsonb("options"),
 
     isRequired: boolean("is_required").default(false).notNull(),
 
@@ -46,8 +47,7 @@ export const formFieldsTable = pgTable("form_fields", {
 
     updatedAt: timestamp("updated_at").$onUpdate(() => new Date())
 
-}, (table) => {
-    return {
-        uniqueFormIdAndIndex: unique().on(table.formId, table.index)
-    }
-})
+}, (table) => [
+    unique().on(table.formId, table.index),
+    index("form_fields_form_id_idx").on(table.formId),
+])

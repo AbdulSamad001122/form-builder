@@ -6,6 +6,7 @@ import {
     boolean,
     text,
     pgEnum,
+    index,
 } from "drizzle-orm/pg-core";
 import { usersTable } from "./user";
 
@@ -28,4 +29,8 @@ export const formsTable = pgTable("forms", {
 
     updatedAt: timestamp("updated_at").$onUpdate(() => new Date())
 
-})
+}, (table) => [
+    index("forms_created_by_idx").on(table.createdBy),
+    index("forms_status_visibility_idx").on(table.status, table.visibility),
+    index("forms_created_at_idx").on(table.createdAt),
+])

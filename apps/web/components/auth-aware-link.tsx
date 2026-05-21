@@ -34,7 +34,7 @@ export function AuthAwareLink({
 }
 
 
-export function RedirectIfAuthenticated() {
+export function RedirectIfAuthenticated({ children }: { children?: React.ReactNode }) {
   const router = useRouter();
   const { user, isLoading } = useUser() as any;
 
@@ -44,5 +44,9 @@ export function RedirectIfAuthenticated() {
     }
   }, [user, isLoading, router]);
 
-  return null;
+  if (isLoading || user?.id) {
+    return null;
+  }
+
+  return <>{children}</>;
 }
