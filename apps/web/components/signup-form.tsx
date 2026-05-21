@@ -29,12 +29,11 @@ export function SignupForm({
 
   const onSubmit = async (values: SignupFormValues) => {
     try {
-      const { id } = await createUserWithEmailAndPasswordAsync({
+      await createUserWithEmailAndPasswordAsync({
         email: values.email,
         password: values.password,
         fullName: values.fullName,
       })
-      console.log(`User created with id ${id}`)
       router.replace("/dashboard")
     } catch (err) {
       console.error("Signup failed:", err)

@@ -1,6 +1,7 @@
 import express from "express";
 import { logger } from "@repo/logger";
 import cors from "cors";
+import helmet from "helmet";
 
 import * as trpcExpress from "@trpc/server/adapters/express";
 import { generateOpenApiDocument, createOpenApiExpressMiddleware } from "trpc-to-openapi";
@@ -11,17 +12,39 @@ import cookieParser from "cookie-parser"
 import { env } from "./env";
 
 export const app = express();
+
+// Secure backend HTTP response headers using helmet (disabling CSP to keep Scalar docs running flawlessly)
+app.use(helmet({ contentSecurityPolicy: false }));
+
 const openApiDocument = generateOpenApiDocument(serverRouter, {
   title: "Formit OpenAPI",
   version: "1.0.0",
   baseUrl: env.BASE_URL.concat("/api"),
 });
 
+const allowedOrigins = [
+  "http://localhost:3000",
+  "http://127.0.0.1:3000",
+];
+
+if (env.WEB_URL) {
+  allowedOrigins.push(env.WEB_URL);
+}
+
+if (env.FRONTEND_URL) {
+  allowedOrigins.push(env.FRONTEND_URL);
+}
+
 app.use(
   cors({
     origin: (origin, callback) => {
       if (!origin) return callback(null, true);
-      return callback(null, true);
+      
+      if (allowedOrigins.indexOf(origin) !== -1 || env.NODE_ENV === "development") {
+        return callback(null, true);
+      } else {
+        return callback(new Error("Not allowed by CORS"));
+      }
     },
     credentials: true,
   }),
@@ -30,7 +53,7 @@ app.use(
 
 app.use(cookieParser())
 
-app.use(express.json());
+app.use(express.json({ limit: "10kb" }));
 
 app.get("/", (req, res) => {
   return res.json({ message: "Formit is up and running..." });

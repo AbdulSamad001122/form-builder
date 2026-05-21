@@ -28,11 +28,10 @@ export function LoginForm({
 
   const onSubmit = async (values: LoginFormValues) => {
     try {
-      const { id } = await siginUserWithEmailAndPasswordAsync({
+      await siginUserWithEmailAndPasswordAsync({
         email: values.email,
         password: values.password,
       })
-      console.log(`Signed in with id ${id}`)
       router.replace("/dashboard")
     } catch (err) {
       console.error("Login failed:", err)

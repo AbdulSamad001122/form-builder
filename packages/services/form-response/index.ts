@@ -6,6 +6,16 @@ import {
 } from "./model"
 import { resend, generateSubmissionEmailHtml } from "./utils"
 
+function sanitizeInput(val: string): string {
+    if (!val) return val;
+    return val
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#x27;")
+        .replace(/\//g, "&#x2F;");
+}
 
 class FormResponseService {
 
@@ -41,7 +51,7 @@ class FormResponseService {
             const answersToInsert = answers.map(ans => ({
                 responseId,
                 fieldId: ans.fieldId,
-                value: ans.value
+                value: sanitizeInput(ans.value)
             }))
 
             await db.insert(formResponseAnswersTable).values(answersToInsert)
@@ -58,7 +68,7 @@ class FormResponseService {
             const field = fields.find(f => f.id === ans.fieldId)
             return {
                 label: field ? field.label : "Unknown Field",
-                value: ans.value
+                value: sanitizeInput(ans.value)
             }
         })
 
@@ -79,8 +89,6 @@ class FormResponseService {
 
             if (error) {
                 console.error("Resend API Error details:", error)
-            } else {
-                console.log("Email sent successfully, data:", data)
             }
         } catch (err) {
             console.error("Failed to send submission email via Resend:", err)
