@@ -111,6 +111,6 @@ export const listExploreFormsOutputModel = z.array(z.object({
     status: z.string(),
     visibility: z.string(),
     createdAt: z.date().nullable(),
-    creatorName: z.string(),
-    creatorEmail: z.string(),
-}))
+    creatorName: z.string().nullable(),
+    creatorEmail: z.string().nullable(),
+}))

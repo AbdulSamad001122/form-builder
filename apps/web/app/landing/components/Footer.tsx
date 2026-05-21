@@ -26,7 +26,7 @@ export default function Footer() {
         <div className="footer-grid">
           {/* Col 1: Brand */}
           <div>
-            <Link href="/landing" style={{ display: "inline-flex", alignItems: "center", gap: 8, textDecoration: "none", color: "#0F0F0E" }}>
+            <Link href="/" style={{ display: "inline-flex", alignItems: "center", gap: 8, textDecoration: "none", color: "#0F0F0E" }}>
               <LogoIcon />
               <span style={{ fontFamily: "var(--font-serif), serif", fontSize: 20 }}>Formline</span>
             </Link>

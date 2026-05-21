@@ -29,7 +29,6 @@ class UserService {
             id: usersTable.id,
             fullName: usersTable.fullName,
             email: usersTable.email,
-            profileImageUrl: usersTable.profileImageUrl
         }).from(usersTable).where(eq(usersTable.id, id))
 
         if (!user) {

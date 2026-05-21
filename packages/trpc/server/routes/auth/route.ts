@@ -9,10 +9,11 @@ import {
   getLoggedInUserInfoOutputModel,
   signinUserWithEmailAndPasswordInputModel,
   signinUserWithEmailAndPasswordOutputModel,
+  logoutOutputModel,
 } from "./model";
 
 import {
-  getAuthenticationCookie,
+  clearAuthenticationCookie,
   setAuthenticationCookie,
 } from "../../utils/cookies";
 
@@ -87,14 +88,29 @@ export const authRouter = router({
     .input(getLoggedInUserInfoInputModel)
     .output(getLoggedInUserInfoOutputModel)
     .query(async ({ ctx }) => {
-      const { id, email, fullName, profileImageUrl } =
+      const { id, email, fullName } =
         (await userService.getUserInfoById(ctx.user!.id))!;
 
       return {
         id,
         email,
         fullName,
-        profileImageUrl
       };
+    }),
+
+  logout: authenticatedProcedure
+    .meta({
+      openapi: {
+        method: "POST",
+        path: getPath("logout"),
+        tags: TAGS,
+        protect: true,
+      },
+    })
+    .input(getLoggedInUserInfoInputModel)
+    .output(logoutOutputModel)
+    .mutation(async ({ ctx }) => {
+      clearAuthenticationCookie(ctx);
+      return { success: true };
     }),
 });

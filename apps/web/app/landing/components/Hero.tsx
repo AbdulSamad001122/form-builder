@@ -62,7 +62,7 @@ export default function Hero() {
               Build your first form →
             </AuthAwareLink>
             <Link
-              href="/landing#demo"
+              href="/#demo"
               style={{ display: "inline-flex", alignItems: "center", gap: 6, color: "#0F0F0E", fontWeight: 500, textDecoration: "none", fontSize: 15 }}
             >
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">

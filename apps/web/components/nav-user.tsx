@@ -1,12 +1,11 @@
 "use client"
 
 import {
-  IconCreditCard,
   IconDotsVertical,
   IconLogout,
-  IconNotification,
   IconUserCircle,
 } from "@tabler/icons-react"
+import { useRouter } from "next/navigation"
 
 import {
   Avatar,
@@ -28,6 +27,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "~/components/ui/sidebar"
+import { useLogout } from "~/hooks/api/auth"
 
 export function NavUser({
   user,
@@ -39,6 +39,23 @@ export function NavUser({
   }
 }) {
   const { isMobile } = useSidebar()
+  const router = useRouter()
+  const { logout, isLoggingOut } = useLogout()
+
+  function handleLogout() {
+    logout(undefined, {
+      onSuccess: () => {
+        router.replace("/login")
+      },
+    })
+  }
+
+  const initials = user.name
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2)
 
   return (
     <SidebarMenu>
@@ -51,7 +68,7 @@ export function NavUser({
             >
               <Avatar className="h-8 w-8 rounded-lg grayscale">
                 <AvatarImage src={user.avatar} alt={user.name} />
-                <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+                <AvatarFallback className="rounded-lg">{initials}</AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-medium">{user.name}</span>
@@ -72,7 +89,7 @@ export function NavUser({
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                 <Avatar className="h-8 w-8 rounded-lg">
                   <AvatarImage src={user.avatar} alt={user.name} />
-                  <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+                  <AvatarFallback className="rounded-lg">{initials}</AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-medium">{user.name}</span>
@@ -88,19 +105,15 @@ export function NavUser({
                 <IconUserCircle />
                 Account
               </DropdownMenuItem>
-              <DropdownMenuItem>
-                <IconCreditCard />
-                Billing
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <IconNotification />
-                Notifications
-              </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={handleLogout}
+              disabled={isLoggingOut}
+              className="text-red-400 focus:text-red-400"
+            >
               <IconLogout />
-              Log out
+              {isLoggingOut ? "Logging out…" : "Log out"}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

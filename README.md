@@ -1,135 +1,244 @@
-# Turborepo starter
+# Formline — Form Builder SaaS
 
-This Turborepo starter is maintained by the Turborepo core team.
+A production-style Typeform-inspired form builder built with Turborepo, tRPC, Drizzle ORM, Zod, and Next.js. Create dynamic forms, publish shareable links, collect responses and view analytics — all inside a polished monorepo architecture.
 
-## Using this example
+---
 
-Run the following command:
+## 🚀 Live Demo
 
-```sh
-npx create-turbo@latest
-```
+**Frontend:** [https://formfit-builder-web.vercel.app](https://formfit-builder-web.vercel.app)
 
-## What's inside?
+**API / Backend:** Deployed separately (Express + tRPC)
 
-This Turborepo includes the following packages/apps:
+**API Docs (Scalar):** `<your-api-base-url>/docs`
 
-### Apps and Packages
+**OpenAPI JSON:** `<your-api-base-url>/openapi.json`
 
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
+---
 
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
+## 🔑 Demo Credentials
 
-### Utilities
+| Field    | Value                        |
+|----------|------------------------------|
+| Email    | `demo@formline.dev`          |
+| Password | `Demo@1234`                  |
 
-This Turborepo has some additional tools already setup for you:
+> The demo account comes pre-loaded with themed sample forms, seeded responses, and analytics data so judges can explore the product immediately without any manual setup.
 
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
+---
 
-### Build
+## 📦 Tech Stack
 
-To build all apps and packages, run the following command:
+| Layer        | Technology                                  |
+|--------------|---------------------------------------------|
+| Monorepo     | Turborepo                                   |
+| Frontend     | Next.js 16, React 19, Tailwind CSS v4       |
+| Backend      | Express.js, tRPC, trpc-to-openapi           |
+| Database     | PostgreSQL + Drizzle ORM                    |
+| Validation   | Zod                                         |
+| Auth         | JWT + HMAC-SHA256 password hashing          |
+| Email        | Resend API                                  |
+| API Docs     | Scalar (`@scalar/express-api-reference`)    |
+| Rate Limiting| express-rate-limit                          |
+| UI           | shadcn/ui, Radix UI, Tabler Icons           |
+| Drag & Drop  | @dnd-kit                                    |
+| QR Code      | qrcode.react                                |
 
-```
-cd my-turborepo
+---
 
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build
-yarn dlx turbo build
-pnpm exec turbo build
-```
-
-You can build a specific package by using a [filter](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters):
+## 🗂 Monorepo Structure
 
 ```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build --filter=docs
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build --filter=docs
-yarn exec turbo build --filter=docs
-pnpm exec turbo build --filter=docs
+trpc-monorepo/
+├── apps/
+│   ├── api/          # Express backend — tRPC + OpenAPI + Scalar docs
+│   └── web/          # Next.js frontend — dashboard, public forms, landing
+├── packages/
+│   ├── database/     # Drizzle ORM schema, migrations, seed
+│   ├── trpc/         # tRPC router definitions, procedures, context
+│   ├── services/     # Business logic (FormService, UserService, etc.)
+│   ├── logger/       # Shared logger utility
+│   └── typescript-config/
+└── turbo.json
 ```
 
-### Develop
+---
 
-To develop all apps and packages, run the following command:
+## ✨ Features
 
-```
-cd my-turborepo
+### Creator Features
+- **Authentication** — Email/password sign up and sign in
+- **Form Builder** — Create forms with a drag-and-drop field editor
+- **Field Types** — TEXT, LONG_TEXT, EMAIL, NUMBER, YES_NO, PASSWORD, SINGLE_SELECT, MULTI_SELECT, CHECKBOX, DROPDOWN, RATING, DATE
+- **Field Config** — Required/optional, placeholder text, options for select fields
+- **Drag & Drop Reorder** — Fractional indexing for stable field ordering
+- **Themes** — Multiple visual themes with live preview (gradient accent strips)
+- **Publish / Unpublish** — Toggle form status with one click
+- **Copy Link** — Instantly copy the shareable public form URL
+- **QR Code Sharing** — Generate, copy image, and download a QR code for any published form
+- **Visibility Modes** — `PUBLIC` (visible in Explore) or `UNLISTED` (direct link only)
+- **Response Analytics** — 7-day submission trend chart, total stats, recent submissions table
+- **Response Management** — View all responses and individual answers per submission
+- **Search & Sort** — Filter forms by title and sort by newest/oldest
+- **Edit & Delete Forms** — Full CRUD management
 
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev
+### Respondent Features
+- **Public Form Filling** — No login required
+- **Email Capture** — Two-step flow: enter email → fill form → submit
+- **Thank-You Screen** — Animated confirmation on successful submission
+- **Graceful Error States** — Friendly messages for invalid, unpublished or unavailable forms
 
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev
-yarn exec turbo dev
-pnpm exec turbo dev
-```
+### Discovery Features
+- **Explore Page** — Browse all public published forms from all creators
+- **Search in Explore** — Filter community forms by title
 
-You can develop a specific package by using a [filter](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters):
+### Product Pages
+- **Landing Page** — Hero, features, testimonials, pricing and CTA sections
+- **Pricing Page** — Embedded in landing page (no real payments needed)
 
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev --filter=web
+### Infrastructure
+- **Rate Limiting** — 5 req/min on public form submission, 20 req/min general API
+- **Email Notifications** — Resend API sends creator an email on every new submission
+- **API Documentation** — Full OpenAPI spec via Scalar at `/docs`
+- **Seed Data** — 3 themed demo forms with realistic responses pre-loaded
 
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev --filter=web
-yarn exec turbo dev --filter=web
-pnpm exec turbo dev --filter=web
-```
+---
 
-### Remote Caching
+## 🛠 Local Setup
 
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
+### Prerequisites
 
-Turborepo can use a technique known as [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
+- Node.js >= 18
+- pnpm >= 9
+- PostgreSQL database (local or hosted)
 
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
+### 1. Clone the repository
 
-```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo login
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo login
-yarn exec turbo login
-pnpm exec turbo login
-```
-
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
-
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
-
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo link
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo link
-yarn exec turbo link
-pnpm exec turbo link
+```bash
+git clone <your-repo-url>
+cd trpc-monorepo
 ```
 
-## Useful Links
+### 2. Install dependencies
 
-Learn more about the power of Turborepo:
+```bash
+pnpm install
+```
 
-- [Tasks](https://turborepo.com/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.com/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.com/docs/reference/configuration)
-- [CLI Usage](https://turborepo.com/docs/reference/command-line-reference)
+### 3. Configure environment variables
+
+Copy the `.env` file in each relevant package and fill in your values:
+
+**`packages/database/.env`**
+```env
+DATABASE_URL=postgresql://user:password@localhost:5432/formline
+```
+
+**`packages/services/.env`**
+```env
+DATABASE_URL=postgresql://user:password@localhost:5432/formline
+JWT_SECRET=your_jwt_secret_here
+RESEND_API_KEY=your_resend_api_key
+```
+
+**`apps/api/.env`**
+```env
+DATABASE_URL=postgresql://user:password@localhost:5432/formline
+JWT_SECRET=your_jwt_secret_here
+RESEND_API_KEY=your_resend_api_key
+BASE_URL=http://localhost:4000
+PORT=4000
+```
+
+**`apps/web/.env`**
+```env
+NEXT_PUBLIC_API_URL=http://localhost:4000
+```
+
+### 4. Run database migrations
+
+```bash
+pnpm --filter @repo/database db:migrate
+```
+
+### 5. Seed demo data
+
+```bash
+pnpm --filter @repo/database db:seed
+```
+
+### 6. Start development servers
+
+```bash
+pnpm dev
+```
+
+This starts both `apps/api` (port 4000) and `apps/web` (port 3000) concurrently via Turborepo.
+
+---
+
+## 📖 API Documentation
+
+The backend exposes a full OpenAPI spec generated from tRPC routes using `trpc-to-openapi`.
+
+| Endpoint       | Description                          |
+|----------------|--------------------------------------|
+| `/docs`        | Interactive Scalar API documentation |
+| `/openapi.json`| Raw OpenAPI JSON spec                |
+| `/trpc/*`      | tRPC batch endpoint                  |
+| `/api/*`       | REST-style OpenAPI endpoint          |
+
+---
+
+## 🌱 Seeding the Database
+
+The seed script creates a demo user and 3 themed sample forms with realistic responses and analytics data.
+
+```bash
+pnpm --filter @repo/database db:seed
+```
+
+After seeding:
+- **Demo user** is created (see Demo Credentials above)
+- **3 themed forms** are created (Customer Satisfaction Survey, Hackathon Registration 2026, Movie Night Picks)
+- **~15 realistic responses** with answers are seeded across all forms
+
+---
+
+## 🗃 Database Schema
+
+| Table                   | Description                              |
+|-------------------------|------------------------------------------|
+| `users`                 | Creator accounts                         |
+| `forms`                 | Form metadata, status, visibility, theme |
+| `form_fields`           | Individual fields with type and options  |
+| `form_responses`        | Per-submission records with email        |
+| `form_response_answers` | Individual answers linked to fields      |
+
+---
+
+## 🚀 Deployment
+
+### Frontend (Vercel)
+The Next.js web app is deployed to Vercel. Set `NEXT_PUBLIC_API_URL` to your backend URL in Vercel environment variables.
+
+### Backend (Render / Railway)
+The Express API is deployed as a Node.js web service. Set all required environment variables in your hosting dashboard.
+
+---
+
+## 📝 Submission Info
+
+| Item                  | Value                                                |
+|-----------------------|------------------------------------------------------|
+| GitHub Repository     | [github.com/your-username/trpc-monorepo](https://github.com) |
+| Deployed Demo         | [https://formfit-builder-web.vercel.app](https://formfit-builder-web.vercel.app) |
+| API Documentation     | `<your-api-url>/docs`                                |
+| Demo Email            | `demo@formline.dev`                                  |
+| Demo Password         | `Demo@1234`                                          |
+
+---
+
+## 👤 Author
+
+Built solo for the hackathon by Abdul Samad.

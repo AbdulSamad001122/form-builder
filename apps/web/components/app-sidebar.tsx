@@ -78,7 +78,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               asChild
               className="data-[slot=sidebar-menu-button]:p-1.5!"
             >
-              <Link href="/landing" style={{ display: "flex", alignItems: "center", gap: 8, textDecoration: "none" }}>
+              <Link href="/" style={{ display: "flex", alignItems: "center", gap: 8, textDecoration: "none" }}>
                 <FormlineLogo />
                 <span className="text-base font-semibold" style={{ fontFamily: "'Instrument Serif', serif", letterSpacing: "-0.01em" }}>
                   Formline

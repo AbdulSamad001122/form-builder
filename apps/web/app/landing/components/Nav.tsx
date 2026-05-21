@@ -38,7 +38,7 @@ export default function Nav() {
       <div ref={sentinelRef} style={{ height: 1, position: "absolute", top: 0 }} aria-hidden="true" />
       <nav aria-label="Main navigation" className={`fl-nav${scrolled ? " scrolled" : ""}`}>
         <div className="fl-nav-inner">
-          <Link href="/landing" className="fl-logo">
+          <Link href="/" className="fl-logo">
             <LogoIcon />
             Formline
           </Link>
@@ -46,7 +46,7 @@ export default function Nav() {
           <ul className="fl-nav-links" role="list">
             {["Features", "Pricing", "Docs", "Changelog"].map((item) => (
               <li key={item}>
-                <Link href={`/landing#${item.toLowerCase()}`}>{item}</Link>
+                <Link href={`/#${item.toLowerCase()}`}>{item}</Link>
               </li>
             ))}
           </ul>
