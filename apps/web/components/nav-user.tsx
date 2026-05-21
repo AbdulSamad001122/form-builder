@@ -45,10 +45,10 @@ export function NavUser({
   function handleLogout() {
     logout(undefined, {
       onSuccess: () => {
-        window.location.href = "/login"
+        router.push("/")
       },
       onError: () => {
-        window.location.href = "/login"
+        router.push("/")
       },
     })
   }

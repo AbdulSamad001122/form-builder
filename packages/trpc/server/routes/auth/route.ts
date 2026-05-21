@@ -107,7 +107,6 @@ export const authRouter = router({
         protect: false,
       },
     })
-    .input(getLoggedInUserInfoInputModel)
     .output(logoutOutputModel)
     .mutation(async ({ ctx }) => {
       clearAuthenticationCookie(ctx);

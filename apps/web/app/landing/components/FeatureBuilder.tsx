@@ -37,8 +37,8 @@ export default function FeatureBuilder() {
                   <span style={{ padding: "2px 10px", background: "#8FAF8A", borderRadius: 20, fontSize: 11, color: "#0F0F0E" }}>Publish</span>
                 </div>
               </div>
-              <div style={{ display: "grid", gridTemplateColumns: "160px 1fr", minHeight: 280 }}>
-                <div style={{ borderRight: "1px solid #D4CFC6", padding: 12, background: "#F9F8F4" }}>
+              <div className="feature-mockup-layout">
+                <div className="feature-mockup-sidebar" style={{ borderRight: "1px solid #D4CFC6", padding: 12, background: "#F9F8F4" }}>
                   <p style={{ fontSize: 10, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.1em", color: "#6B6860", marginBottom: 10 }}>Fields</p>
                   {["Short Text", "Email", "Rating", "Yes / No", "Dropdown", "File"].map((f, i) => (
                     <div key={f} style={{

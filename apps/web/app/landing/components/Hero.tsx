@@ -75,12 +75,10 @@ export default function Hero() {
 
           <div className="social-proof" aria-label="Social proof">
             <div className="avatar-stack" aria-hidden="true">
-              {["#8FAF8A", "#1A3D2B", "#D4CFC6", "#6B6860", "#EDE8DC"].map((bg, i) => (
-                <span key={i} style={{ background: bg }} />
-              ))}
+              <img src="https://github.com/AbdulSamad001122.png" alt="Abdul Samad" style={{ width: 32, height: 32, borderRadius: "50%", border: "2px solid var(--fl-bg)", display: "block" }} />
             </div>
             <p style={{ fontSize: 14, color: "#6B6860" }}>
-              Trusted by <strong style={{ color: "#0F0F0E" }}>4,200+</strong> teams worldwide
+              Built with care by <strong style={{ color: "#0F0F0E" }}>Abdul Samad</strong>
             </p>
           </div>
         </div>
@@ -106,9 +104,8 @@ export default function Hero() {
                 <div style={{ width: 10, height: 10, borderRadius: "50%", background: "#28c840" }} />
                 <span style={{ marginLeft: 12, fontSize: 12, color: "#6B6860" }}>formline.io/builder</span>
               </div>
-              <div style={{ display: "grid", gridTemplateColumns: "180px 1fr", minHeight: 320 }}>
-                {/* Sidebar */}
-                <div style={{ borderRight: "1px solid #D4CFC6", padding: 16, background: "#F9F8F4" }}>
+              <div className="hero-mockup-layout">
+                <div className="hero-mockup-sidebar" style={{ borderRight: "1px solid #D4CFC6", padding: 16, background: "#F9F8F4" }}>
                   <p style={{ fontSize: 10, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: "#6B6860", marginBottom: 12 }}>Field Types</p>
                   {["Short Text", "Long Text", "Multiple Choice", "Email", "File Upload", "Rating"].map((f) => (
                     <div key={f} style={{ padding: "8px 10px", borderRadius: 6, fontSize: 12, color: "#0F0F0E", marginBottom: 4, cursor: "grab", border: "1px solid transparent" }}

@@ -10,16 +10,21 @@ export function AuthAwareLink({
   children,
   className,
   style,
+  onClick,
 }: {
   href: string;
   children: React.ReactNode;
   className?: string;
   style?: React.CSSProperties;
+  onClick?: (e: React.MouseEvent) => void;
 }) {
   const router = useRouter();
   const { user, isLoading } = useUser() as any;
 
   const handleClick = (e: React.MouseEvent) => {
+    if (onClick) {
+      onClick(e);
+    }
     if (!isLoading && user?.id) {
       e.preventDefault();
       router.push("/dashboard");

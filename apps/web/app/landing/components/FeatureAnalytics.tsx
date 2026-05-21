@@ -75,8 +75,7 @@ export default function FeatureAnalytics() {
             role="img"
             aria-label="Formline analytics dashboard showing total responses 1842, 68% completion rate, field-by-field drop-off funnel chart, device breakdown donut chart, and 30-day response timeline"
           >
-            {/* Top stats row */}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16, marginBottom: 28 }}>
+            <div className="analytics-mockup-stats">
               {[
                 { label: "Total Responses", value: "1,842", color: "#1A3D2B" },
                 { label: "Completion Rate", value: "68%", color: "#1A3D2B" },
@@ -90,8 +89,7 @@ export default function FeatureAnalytics() {
               ))}
             </div>
 
-            {/* Funnel Chart */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24 }}>
+            <div className="analytics-mockup-charts">
               <div>
                 <p style={{ fontSize: 12, fontWeight: 600, color: "#6B6860", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 16 }}>Field Drop-off</p>
                 {[

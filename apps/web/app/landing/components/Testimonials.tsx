@@ -1,21 +1,10 @@
 const TESTIMONIALS = [
   {
-    quote: "We switched from Typeform last year. Our completion rate went from 41% to 68% in the first month. The difference is almost embarrassing.",
-    name: "Sarah Chen",
-    role: "Head of Growth",
-    company: "Linear",
-  },
-  {
-    quote: "Finally a form tool that doesn't assume I want 47 features I'll never use. It's exactly as powerful as it needs to be, and nothing more.",
-    name: "Marcus Webb",
-    role: "Indie Maker",
-    company: "Maker Weekly",
-  },
-  {
-    quote: "The CSV export is so good I actually look forward to Monday morning data reviews. That's not something I expected to say about a form builder.",
-    name: "Priya Nair",
-    role: "Product Lead",
-    company: "Framer",
+    quote: "I built Formline to solve my own frustration with bloated, complex form builders. It is designed to be simple, fast, and exactly as powerful as it needs to be.",
+    name: "Abdul Samad",
+    role: "Creator",
+    company: "Formline",
+    image: "https://github.com/AbdulSamad001122.png",
   },
 ];
 
@@ -32,15 +21,14 @@ export default function Testimonials() {
           <span style={{ color: "#1A3D2B" }}>Here&apos;s why.</span>
         </h2>
 
-        <div className="testimonials-grid">
+        <div className="testimonials-grid" style={{ gridTemplateColumns: "1fr", maxWidth: 600, margin: "0 auto" }}>
           {TESTIMONIALS.map((t) => (
             <article
               key={t.name}
               className="testimonial-card"
               role="figure"
-              aria-label={`Testimonial from ${t.name}`}
+              aria-label={`A note from ${t.name}`}
             >
-              {/* Green corner fold */}
               <div style={{
                 position: "absolute",
                 top: 0, right: 0,
@@ -49,7 +37,7 @@ export default function Testimonials() {
                 borderWidth: "0 28px 28px 0",
                 borderColor: `transparent #1A3D2B transparent transparent`,
               }} aria-hidden="true" />
-
+              <img src={t.image} alt={t.name} style={{ width: 48, height: 48, borderRadius: "50%", marginBottom: 16 }} />
               <blockquote>
                 <p>&ldquo;{t.quote}&rdquo;</p>
               </blockquote>

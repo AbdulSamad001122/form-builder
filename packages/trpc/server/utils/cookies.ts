@@ -35,9 +35,9 @@ export function getCookieFactory(req: Request) {
 }
 
 export function clearCookieFactory(res: Response) {
-    return function clearCookie(name: string,) {
-        const { maxAge, ...clearOptions } = getCookieOptions();
-        res.clearCookie(name, clearOptions)
+    return function clearCookie(name: string) {
+        const opts = getCookieOptions();
+        res.cookie(name, "", { ...opts, maxAge: 0, expires: new Date(0) });
     }
 }
 

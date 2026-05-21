@@ -59,15 +59,38 @@ export default function Nav() {
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
             aria-label="Toggle mobile menu"
-            style={{ background: "none", border: "none", cursor: "pointer", display: "none" }}
+            className="fl-menu-toggle"
+            style={{ background: "none", border: "none", cursor: "pointer" }}
           >
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <path d="M4 6.5 Q12 5.8 20 6.5" stroke="#0F0F0E" strokeWidth="1.8" strokeLinecap="round" />
-              <path d="M4 12 Q12 11.5 20 12" stroke="#0F0F0E" strokeWidth="1.8" strokeLinecap="round" />
-              <path d="M4 17.5 Q12 17 20 17.5" stroke="#0F0F0E" strokeWidth="1.8" strokeLinecap="round" />
-            </svg>
+            {mobileOpen ? (
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M5 5 L19 19" stroke="#0F0F0E" strokeWidth="1.8" strokeLinecap="round" />
+                <path d="M19 5 L5 19" stroke="#0F0F0E" strokeWidth="1.8" strokeLinecap="round" />
+              </svg>
+            ) : (
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M4 6.5 Q12 5.8 20 6.5" stroke="#0F0F0E" strokeWidth="1.8" strokeLinecap="round" />
+                <path d="M4 12 Q12 11.5 20 12" stroke="#0F0F0E" strokeWidth="1.8" strokeLinecap="round" />
+                <path d="M4 17.5 Q12 17 20 17.5" stroke="#0F0F0E" strokeWidth="1.8" strokeLinecap="round" />
+              </svg>
+            )}
           </button>
         </div>
+        {mobileOpen && (
+          <div className="fl-mobile-menu">
+            <ul className="fl-mobile-nav-links" role="list">
+              {["Features", "Pricing", "Docs", "Changelog"].map((item) => (
+                <li key={item}>
+                  <Link href={`/#${item.toLowerCase()}`} onClick={() => setMobileOpen(false)}>{item}</Link>
+                </li>
+              ))}
+            </ul>
+            <div className="fl-mobile-nav-actions">
+              <AuthAwareLink href="/login" className="btn-ghost" onClick={() => setMobileOpen(false)}>Log in</AuthAwareLink>
+              <AuthAwareLink href="/signup" className="btn-primary" onClick={() => setMobileOpen(false)}>Start free →</AuthAwareLink>
+            </div>
+          </div>
+        )}
       </nav>
     </>
   );

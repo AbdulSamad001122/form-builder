@@ -12,29 +12,20 @@ const PLANS = [
   {
     name: "Free",
     price: "0",
-    tagline: "For makers getting started",
-    features: ["3 forms", "100 responses/month", "20+ field types", "Email notifications", "CSV export", "Formline branding"],
+    tagline: "Everything you need to get started",
+    features: ["Create unlimited forms", "Collect unlimited responses", "Standard field types", "Shareable public links", "Basic dashboard"],
     cta: "Start for free",
     featured: false,
   },
   {
-    name: "Pro",
-    price: "12",
-    tagline: "For serious builders",
-    features: ["Unlimited forms", "Unlimited responses", "Custom domain", "No branding", "Advanced analytics", "Webhooks & integrations", "Priority support"],
-    cta: "Start Pro trial",
+    name: "Pro (Coming Soon)",
+    price: "5",
+    tagline: "Support the indie developer",
+    features: ["Everything in Free", "Remove Formline branding", "Advanced field types", "CSV data export", "Priority feature requests"],
+    cta: "Join Waitlist",
     featured: true,
-  },
-  {
-    name: "Team",
-    price: "39",
-    tagline: "For agencies & small teams",
-    features: ["Everything in Pro", "5 team members", "Shared form library", "Team analytics dashboard", "GDPR tools", "SLA support", "Custom invoicing"],
-    cta: "Talk to us",
-    featured: false,
-  },
+  }
 ];
-
 export default function Pricing() {
   return (
     <section
@@ -98,7 +89,7 @@ export default function Pricing() {
             <path d="M8 1.5 L13 4.5 L13 8.5 Q13 12 8 14.5 Q3 12 3 8.5 L3 4.5 Z" stroke="#1A3D2B" strokeWidth="1.5" strokeLinejoin="round" fill="none" />
             <path d="M5.5 8 L7 9.5 L10.5 6" stroke="#1A3D2B" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
-          All plans include SSL, GDPR tools, and 99.9% uptime SLA.
+          Indie built. No venture capital, no fake promises.
         </p>
       </div>
 
