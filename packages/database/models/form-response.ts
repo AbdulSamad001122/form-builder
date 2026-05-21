@@ -10,7 +10,7 @@ import { formFieldsTable } from "./form-field";
 
 export const formResponsesTable = pgTable("form_responses", {
     id: uuid("id").primaryKey().defaultRandom(),
-    formId: uuid("form_id").references(() => formsTable.id).notNull(),
+    formId: uuid("form_id").references(() => formsTable.id, { onDelete: 'cascade' }).notNull(),
     respondentEmail: text("respondent_email"),
     submittedAt: timestamp("submitted_at").defaultNow().notNull(),
 }, (table) => [

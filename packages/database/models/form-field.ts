@@ -36,7 +36,7 @@ export const formFieldsTable = pgTable("form_fields", {
 
     index: numeric("index", { scale: 2 }).notNull(),
 
-    formId: uuid("form_id").references(() => formsTable.id),
+    formId: uuid("form_id").references(() => formsTable.id, { onDelete: 'cascade' }),
 
 
     type: fieldTypeEnum("type").notNull(),
