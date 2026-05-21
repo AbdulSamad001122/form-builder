@@ -44,11 +44,15 @@ export default function Nav() {
           </Link>
 
           <ul className="fl-nav-links" role="list">
-            {["Features", "Pricing"].map((item) => (
-              <li key={item}>
-                <Link href={`/#${item.toLowerCase()}`}>{item}</Link>
-              </li>
-            ))}
+            <li>
+              <Link href="/#features">Features</Link>
+            </li>
+            <li>
+              <Link href="/#pricing">Pricing</Link>
+            </li>
+            <li>
+              <Link href="/docs">Docs</Link>
+            </li>
           </ul>
 
           <div className="fl-nav-actions">
@@ -79,11 +83,15 @@ export default function Nav() {
         {mobileOpen && (
           <div className="fl-mobile-menu">
             <ul className="fl-mobile-nav-links" role="list">
-              {["Features", "Pricing"].map((item) => (
-                <li key={item}>
-                  <Link href={`/#${item.toLowerCase()}`} onClick={() => setMobileOpen(false)}>{item}</Link>
-                </li>
-              ))}
+              <li>
+                <Link href="/#features" onClick={() => setMobileOpen(false)}>Features</Link>
+              </li>
+              <li>
+                <Link href="/#pricing" onClick={() => setMobileOpen(false)}>Pricing</Link>
+              </li>
+              <li>
+                <Link href="/docs" onClick={() => setMobileOpen(false)}>Docs</Link>
+              </li>
             </ul>
             <div className="fl-mobile-nav-actions">
               <AuthAwareLink href="/login" className="btn-ghost" onClick={() => setMobileOpen(false)}>Log in</AuthAwareLink>

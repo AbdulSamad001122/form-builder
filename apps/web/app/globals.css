@@ -44,7 +44,7 @@
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
-/* ===== FORMLINE BRAND TOKENS ===== */
+/* ===== FORMIT BRAND TOKENS ===== */
 /* Warm cream + forest green palette matching the landing page */
 :root {
   --radius: 0.625rem;
@@ -61,7 +61,7 @@
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.10 0.002 80);
 
-  /* Primary = Formline forest green #1A3D2B */
+  /* Primary = Formit forest green #1A3D2B */
   --primary: oklch(0.27 0.07 155);
   --primary-foreground: oklch(0.99 0 0);
 
@@ -102,7 +102,7 @@
   --sidebar-ring: oklch(0.27 0.07 155);
 }
 
-/* No dark mode overrides — Formline dashboard is always light/warm */
+/* No dark mode overrides — Formit dashboard is always light/warm */
 
 @layer base {
   * {

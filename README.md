@@ -1,4 +1,4 @@
-# Formline — Form Builder SaaS
+# Formit — Form Builder SaaS
 
 A production-style Typeform-inspired form builder built with Turborepo, tRPC, Drizzle ORM, Zod, and Next.js. Create dynamic forms, publish shareable links, collect responses and view analytics — all inside a polished monorepo architecture.
 
@@ -20,7 +20,7 @@ A production-style Typeform-inspired form builder built with Turborepo, tRPC, Dr
 
 | Field    | Value                        |
 |----------|------------------------------|
-| Email    | `demo@formline.dev`          |
+| Email    | `demo@formit.dev`            |
 | Password | `Demo@1234`                  |
 
 > The demo account comes pre-loaded with themed sample forms, seeded responses, and analytics data so judges can explore the product immediately without any manual setup.
@@ -81,6 +81,7 @@ trpc-monorepo/
 - **Response Management** — View all responses and individual answers per submission
 - **Search & Sort** — Filter forms by title and sort by newest/oldest
 - **Edit & Delete Forms** — Full CRUD management
+- 
 
 ### Respondent Features
 - **Public Form Filling** — No login required
@@ -131,19 +132,19 @@ Copy the `.env` file in each relevant package and fill in your values:
 
 **`packages/database/.env`**
 ```env
-DATABASE_URL=postgresql://user:password@localhost:5432/formline
+DATABASE_URL=postgresql://user:password@localhost:5432/formit
 ```
 
 **`packages/services/.env`**
 ```env
-DATABASE_URL=postgresql://user:password@localhost:5432/formline
+DATABASE_URL=postgresql://user:password@localhost:5432/formit
 JWT_SECRET=your_jwt_secret_here
 RESEND_API_KEY=your_resend_api_key
 ```
 
 **`apps/api/.env`**
 ```env
-DATABASE_URL=postgresql://user:password@localhost:5432/formline
+DATABASE_URL=postgresql://user:password@localhost:5432/formit
 JWT_SECRET=your_jwt_secret_here
 RESEND_API_KEY=your_resend_api_key
 BASE_URL=http://localhost:4000
@@ -234,7 +235,7 @@ The Express API is deployed as a Node.js web service. Set all required environme
 | GitHub Repository     | [github.com/your-username/trpc-monorepo](https://github.com) |
 | Deployed Demo         | [https://formfit-builder-web.vercel.app](https://formfit-builder-web.vercel.app) |
 | API Documentation     | `<your-api-url>/docs`                                |
-| Demo Email            | `demo@formline.dev`                                  |
+| Demo Email            | `demo@formit.dev`                                    |
 | Demo Password         | `Demo@1234`                                          |
 
 ---
@@ -242,3 +243,4 @@ The Express API is deployed as a Node.js web service. Set all required environme
 ## 👤 Author
 
 Built solo for the hackathon by Abdul Samad.
+
