@@ -37,7 +37,7 @@ app.get("/", (req, res) => {
 });
 
 app.get("/health", (req, res) => {
-  return res.json({ message: "Formit server is healthy", healthy: true });
+  return res.json({ healthy: true });
 });
 
 logger.debug(`openapi.json: ${env.BASE_URL}/openapi.json`);

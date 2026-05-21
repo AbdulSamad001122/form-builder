@@ -44,7 +44,7 @@ export default function Nav() {
           </Link>
 
           <ul className="fl-nav-links" role="list">
-            {["Features", "Pricing", "Docs", "Changelog"].map((item) => (
+            {["Features", "Pricing"].map((item) => (
               <li key={item}>
                 <Link href={`/#${item.toLowerCase()}`}>{item}</Link>
               </li>
@@ -79,7 +79,7 @@ export default function Nav() {
         {mobileOpen && (
           <div className="fl-mobile-menu">
             <ul className="fl-mobile-nav-links" role="list">
-              {["Features", "Pricing", "Docs", "Changelog"].map((item) => (
+              {["Features", "Pricing"].map((item) => (
                 <li key={item}>
                   <Link href={`/#${item.toLowerCase()}`} onClick={() => setMobileOpen(false)}>{item}</Link>
                 </li>
