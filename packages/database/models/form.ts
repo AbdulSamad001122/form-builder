@@ -23,6 +23,10 @@ export const formsTable = pgTable("forms", {
     visibility: formVisibilityEnum("visibility").default("UNLISTED").notNull(),
     status: formStatusEnum("status").default("DRAFT").notNull(),
 
+    isPasswordProtected: boolean("is_password_protected").default(false).notNull(),
+    passwordHash: varchar("password_hash", { length: 255 }),
+    passwordSalt: varchar("password_salt", { length: 255 }),
+
     createdBy: uuid("created_by").references(() => usersTable.id),
 
     createdAt: timestamp("created_at").defaultNow(),

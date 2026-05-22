@@ -1,6 +1,6 @@
 import { authenticatedProcedure, publicProcedure, router } from "../../trpc";
 import { generatePath } from "../../utils/path-generator";
-import { createFormInputModel, createFormOutputModel, listFormByUserIdOutputModel, updateFormInputModel, updateFormOutputModel, deleteFormInputModel, deleteFormOutputModel, getPublicFormInputModel, getPublicFormOutputModel, getFormByIdInputModel, getFormByIdOutputModel, getDashboardStatsOutputModel, listExploreFormsInputModel, listExploreFormsOutputModel } from "./model";
+import { createFormInputModel, createFormOutputModel, listFormByUserIdOutputModel, updateFormInputModel, updateFormOutputModel, deleteFormInputModel, deleteFormOutputModel, getPublicFormInputModel, getPublicFormOutputModel, getFormByIdInputModel, getFormByIdOutputModel, getDashboardStatsOutputModel, listExploreFormsInputModel, listExploreFormsOutputModel, verifyFormPasswordInputModel, verifyFormPasswordOutputModel } from "./model";
 import { formService } from "../../services";
 import { z } from "zod";
 
@@ -102,7 +102,20 @@ export const formRouter = router({
         .input(getPublicFormInputModel)
         .output(getPublicFormOutputModel)
         .query(async ({ input }) => {
-            return await formService.getPublicForm(input.id)
+            return await formService.getPublicForm(input.id, input.accessToken)
+        }),
+
+    verifyFormPassword: publicProcedure
+        .meta({
+            openapi: { method: "POST", path: getPath("verifyFormPassword"), tags: TAGS, protect: false }
+        })
+        .input(verifyFormPasswordInputModel)
+        .output(verifyFormPasswordOutputModel)
+        .mutation(async ({ input }) => {
+            return await formService.verifyFormPassword({
+                formId: input.formId,
+                password: input.password
+            })
         }),
 
     getFormById: authenticatedProcedure

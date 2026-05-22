@@ -1,4 +1,5 @@
 import { initTRPC, TRPCError } from "@trpc/server";
+import { ZodError } from "zod";
 import { OpenApiMeta } from "trpc-to-openapi";
 
 import { createContext } from "./context";
@@ -8,7 +9,17 @@ import { userService } from "./services";
 export const tRPCContext = initTRPC
   .meta<OpenApiMeta>()
   .context<typeof createContext>()
-  .create({});
+  .create({
+    errorFormatter({ shape, error }) {
+      return {
+        ...shape,
+        message:
+          error.cause instanceof ZodError
+            ? error.cause.issues.map((e: any) => e.message).join(", ")
+            : shape.message,
+      };
+    },
+  });
 
 export const router = tRPCContext.router;
 

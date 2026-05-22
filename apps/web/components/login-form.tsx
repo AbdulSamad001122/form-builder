@@ -114,7 +114,7 @@ export function LoginForm({
             {isError && (
               <div style={{ background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 8, padding: "10px 14px" }}>
                 <p style={{ fontSize: 13, color: "#dc2626", margin: 0 }}>
-                  {(error as any)?.message ?? "Login failed. Please check your credentials."}
+                  {(error as any)?.message || "Login failed. Please check your credentials."}
                 </p>
               </div>
             )}

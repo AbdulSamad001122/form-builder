@@ -43,6 +43,13 @@
       "when": 1779454437590,
       "tag": "0005_clear_hemingway",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1779456722994,
+      "tag": "0006_chilly_the_stranger",
+      "breakpoints": true
     }
   ]
 }

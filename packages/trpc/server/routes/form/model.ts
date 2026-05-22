@@ -26,7 +26,8 @@ export const listFormByUserIdOutputModel = z.object({
     visibility: z.string().describe("Visibility status"),
     status: z.string().describe("Publish status"),
     createdAt: z.date().nullable().describe("Created at"),
-    updatedAt: z.date().nullable().describe("Updated at")
+    updatedAt: z.date().nullable().describe("Updated at"),
+    isPasswordProtected: z.boolean().optional()
 })
 
 export const updateFormInputModel = z.object({
@@ -37,6 +38,8 @@ export const updateFormInputModel = z.object({
     theme: z.string().optional(),
     visibility: formVisibilityEnumSchema.optional(),
     status: formStatusEnumSchema.optional(),
+    isPasswordProtected: z.boolean().optional(),
+    password: z.string().optional(),
 })
 
 export const updateFormOutputModel = z.object({
@@ -52,7 +55,8 @@ export const deleteFormOutputModel = z.object({
 })
 
 export const getPublicFormInputModel = z.object({
-    id: z.string().uuid()
+    id: z.string().uuid(),
+    accessToken: z.string().optional(),
 })
 
 export const getPublicFormOutputModel = z.object({
@@ -61,6 +65,7 @@ export const getPublicFormOutputModel = z.object({
     description: z.string().nullable(),
     theme: z.string().nullable(),
     status: z.string(),
+    isPasswordProtected: z.boolean().optional(),
     fields: z.array(z.any())
 })
 
@@ -78,6 +83,7 @@ export const getFormByIdOutputModel = z.object({
     visibility: z.string(),
     createdAt: z.date().nullable(),
     updatedAt: z.date().nullable(),
+    isPasswordProtected: z.boolean().optional(),
     fields: z.array(z.any())
 })
 
@@ -113,4 +119,13 @@ export const listExploreFormsOutputModel = z.array(z.object({
     createdAt: z.date().nullable(),
     creatorName: z.string().nullable(),
     creatorEmail: z.string().nullable(),
-}))
+}))
+
+export const verifyFormPasswordInputModel = z.object({
+    formId: z.string().uuid(),
+    password: z.string(),
+})
+
+export const verifyFormPasswordOutputModel = z.object({
+    token: z.string(),
+})

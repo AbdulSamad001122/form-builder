@@ -17,7 +17,7 @@ class FormFieldService {
     private async verifyFormOwnership(formId: string, userId: string) {
         const form = await db.select({ id: formsTable.id }).from(formsTable).where(and(eq(formsTable.id, formId), eq(formsTable.createdBy, userId)))
         if (!form || form.length === 0) {
-            throw new Error("Form not found or you don't have permission")
+            throw new Error("We couldn't find this form, or you don't have permission to access it.")
         }
     }
 
@@ -28,7 +28,7 @@ class FormFieldService {
             .where(and(eq(formFieldsTable.id, fieldId), eq(formsTable.createdBy, userId)))
             
         if (!field || field.length === 0) {
-            throw new Error("Field not found or you don't have permission")
+            throw new Error("We couldn't find this field, or you don't have permission to access it.")
         }
         return field[0]
     }
@@ -37,7 +37,7 @@ class FormFieldService {
         const { userId, formId, label, description, placeholder, options, isRequired, type } = await createFormFieldInputModel.parseAsync(payload)
         
         await this.verifyFormOwnership(formId, userId)
-
+ 
         let labelKey = generateLabelKey(label)
         if (!labelKey) labelKey = "field_" + Math.random().toString(36).substring(7)
         
@@ -64,7 +64,7 @@ class FormFieldService {
         }).returning()
 
         if (!insert || insert.length === 0) {
-            throw new Error("Failed to create form field")
+            throw new Error("We couldn't create the form field. Please try again.")
         }
 
         return insert[0]!
@@ -90,7 +90,7 @@ class FormFieldService {
             .returning()
 
         if (!update || update.length === 0) {
-            throw new Error("Failed to update form field")
+            throw new Error("We couldn't update the form field. Please try again.")
         }
 
         return update[0]!
@@ -106,7 +106,7 @@ class FormFieldService {
             .returning()
 
         if (!deleted || deleted.length === 0) {
-            throw new Error("Failed to delete form field")
+            throw new Error("We couldn't delete the form field. Please try again.")
         }
 
         return deleted[0]!
@@ -123,7 +123,7 @@ class FormFieldService {
             .returning()
 
         if (!update || update.length === 0) {
-            throw new Error("Failed to reorder form field")
+            throw new Error("We couldn't reorder the form fields. Please try again.")
         }
 
         return update[0]!

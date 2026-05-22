@@ -208,6 +208,158 @@ function QRShareModal({
     )
 }
 
+function SecuritySettingsModal({
+    open,
+    onClose,
+    form,
+    onSave,
+    isSaving,
+}: {
+    open: boolean
+    onClose: () => void
+    form: any
+    onSave: (payload: { isPasswordProtected: boolean; password?: string }) => void
+    isSaving: boolean
+}) {
+    const [isProtected, setIsProtected] = useState(form?.isPasswordProtected || false)
+    const [password, setPassword] = useState("")
+    const [showPassword, setShowPassword] = useState(false)
+    const [error, setError] = useState("")
+
+    const prevOpenRef = useRef(open)
+    if (prevOpenRef.current !== open) {
+        prevOpenRef.current = open
+        if (open) {
+            setIsProtected(form?.isPasswordProtected || false)
+            setPassword("")
+            setError("")
+        }
+    }
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault()
+        if (isProtected && !form?.isPasswordProtected && !password.trim()) {
+            setError("A password is required to enable protection.")
+            return
+        }
+        if (isProtected && password.trim() && password.length < 4) {
+            setError("Password must be at least 4 characters.")
+            return
+        }
+        
+        setError("")
+        onSave({
+            isPasswordProtected: isProtected,
+            password: password.trim() || undefined,
+        })
+    }
+
+    return (
+        <Dialog open={open} onOpenChange={onClose}>
+            <DialogContent className="sm:max-w-[420px] bg-white border border-[#D4CFC6] rounded-2xl shadow-xl p-6">
+                <DialogHeader>
+                    <DialogTitle className="flex items-center gap-2 text-xl font-bold text-gray-900">
+                        <Lock size={18} className="text-[#1A3D2B]" />
+                        Form Security
+                    </DialogTitle>
+                    <DialogDescription className="text-gray-500 text-sm">
+                        Require respondents to enter a password to view and submit this form.
+                    </DialogDescription>
+                </DialogHeader>
+
+                <form onSubmit={handleSubmit} className="space-y-5 pt-3">
+                    <div className="flex items-center space-x-3 p-3 bg-gray-50 border border-gray-100 rounded-xl">
+                        <Checkbox
+                            id="security-protected"
+                            checked={isProtected}
+                            onCheckedChange={(checked) => {
+                                setIsProtected(!!checked)
+                                setError("")
+                            }}
+                            className="border-gray-300"
+                        />
+                        <div className="grid gap-0.5 leading-none">
+                            <label
+                                htmlFor="security-protected"
+                                className="text-sm font-semibold text-gray-800 cursor-pointer"
+                            >
+                                Enable Password Protection
+                            </label>
+                            <span className="text-xs text-gray-500">
+                                Restrict response collection to authorized users.
+                            </span>
+                        </div>
+                    </div>
+
+                    {isProtected && (
+                        <div className="space-y-2.5">
+                            <Label htmlFor="security-password" className="text-xs font-bold text-gray-700 uppercase tracking-wider">
+                                {form?.isPasswordProtected ? "Update Password (Optional)" : "Form Password"}
+                            </Label>
+                            <div className="relative">
+                                <Input
+                                    id="security-password"
+                                    type={showPassword ? "text" : "password"}
+                                    placeholder={form?.isPasswordProtected ? "•••••••• (Leave blank to keep current)" : "Enter access password"}
+                                    value={password}
+                                    onChange={(e) => {
+                                        setPassword(e.target.value)
+                                        if (error) setError("")
+                                    }}
+                                    className="pr-10 border-gray-300 focus:ring-[#1A3D2B]"
+                                    autoFocus
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none"
+                                    tabIndex={-1}
+                                >
+                                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                                </button>
+                            </div>
+                            {error && (
+                                <p className="text-xs text-red-500 font-medium">{error}</p>
+                            )}
+                            {form?.isPasswordProtected && (
+                                <p className="text-xs text-gray-400 italic">
+                                    Leave the password blank if you only want to keep the current password.
+                                </p>
+                            )}
+                        </div>
+                    )}
+
+                    <DialogFooter className="pt-2 gap-2 sm:gap-0">
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={onClose}
+                            disabled={isSaving}
+                            className="flex-1 sm:flex-none border-gray-300 hover:bg-gray-50"
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            type="submit"
+                            disabled={isSaving}
+                            className="flex-1 sm:flex-none bg-[#1A3D2B] hover:bg-[#11261B] text-white flex items-center justify-center gap-2"
+                        >
+                            {isSaving ? (
+                                <>
+                                    <Loader2 size={14} className="animate-spin" />
+                                    Saving...
+                                </>
+                            ) : (
+                                "Save Security Settings"
+                            )}
+                        </Button>
+                    </DialogFooter>
+                </form>
+            </DialogContent>
+        </Dialog>
+    )
+}
+
 export default function FormBuilderPage() {
     const params = useParams()
     const formId = params.formId as string
@@ -232,6 +384,7 @@ export default function FormBuilderPage() {
     const [deletingField, setDeletingField] = useState<any>(null)
 
     const [isShareOpen, setIsShareOpen] = useState(false)
+    const [isSecurityOpen, setIsSecurityOpen] = useState(false)
     const [linkCopied, setLinkCopied] = useState(false)
 
     const publicUrl = typeof window !== "undefined"
@@ -272,6 +425,23 @@ export default function FormBuilderPage() {
             onSuccess: () => {
                 refetchForm()
                 toast.success(`Visibility changed to ${newVisibility}.`)
+            }
+        })
+    }
+
+    const handleSaveSecurity = (payload: { isPasswordProtected: boolean; password?: string }) => {
+        updateForm({
+            id: formId,
+            isPasswordProtected: payload.isPasswordProtected,
+            password: payload.password
+        }, {
+            onSuccess: () => {
+                refetchForm()
+                setIsSecurityOpen(false)
+                toast.success("Security settings updated successfully!")
+            },
+            onError: (err) => {
+                toast.error(`Failed to update security: ${err.message}`)
             }
         })
     }
@@ -417,6 +587,26 @@ export default function FormBuilderPage() {
                         {form.status === "PUBLISHED" ? "Unpublish" : "Publish"}
                     </Button>
 
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setIsSecurityOpen(true)}
+                        className="flex items-center gap-2"
+                    >
+                        <Lock size={14} />
+                        Security
+                    </Button>
+
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => window.open(`/f/${formId}?preview=true`, "_blank")}
+                        className="flex items-center gap-2"
+                    >
+                        <Eye size={14} />
+                        Preview
+                    </Button>
+
                     {form.status === "PUBLISHED" && (
                         <>
                             <Button
@@ -496,6 +686,16 @@ export default function FormBuilderPage() {
                     formId={formId}
                     formTitle={form.title}
                     publicUrl={publicUrl}
+                />
+            )}
+
+            {form && (
+                <SecuritySettingsModal
+                    open={isSecurityOpen}
+                    onClose={() => setIsSecurityOpen(false)}
+                    form={form}
+                    onSave={handleSaveSecurity}
+                    isSaving={isSavingForm}
                 />
             )}
 

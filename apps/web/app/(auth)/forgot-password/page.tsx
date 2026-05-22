@@ -7,6 +7,7 @@ import { Input } from "~/components/ui/input"
 import { useForgotPassword } from "~/hooks/api/auth"
 import { RedirectIfAuthenticated } from "~/components/auth-aware-link"
 
+
 type ForgotPasswordValues = {
   email: string
 }
@@ -117,7 +118,7 @@ export default function ForgotPasswordPage() {
                   {isError && (
                     <div style={{ background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 8, padding: "10px 14px" }}>
                       <p style={{ fontSize: 13, color: "#dc2626", margin: 0 }}>
-                        {(error as any)?.message ?? "Something went wrong. Please try again."}
+                        {(error as any)?.message || "Something went wrong. Please try again."}
                       </p>
                     </div>
                   )}

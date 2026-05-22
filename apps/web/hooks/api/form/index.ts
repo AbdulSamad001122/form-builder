@@ -194,7 +194,7 @@ export const useDeleteForm = () => {
     }
 }
 
-export const useGetPublicForm = (id: string) => {
+export const useGetPublicForm = (id: string, accessToken?: string) => {
     const {
         data,
         error,
@@ -203,7 +203,7 @@ export const useGetPublicForm = (id: string) => {
         isLoading,
         isSuccess,
         refetch
-    } = trpc.form.getPublicForm.useQuery({ id }, {
+    } = trpc.form.getPublicForm.useQuery({ id, accessToken }, {
         enabled: !!id,
         refetchOnWindowFocus: false,
         retry: false,
@@ -220,7 +220,25 @@ export const useGetPublicForm = (id: string) => {
     }
 }
 
-export const useGetFormById = (id: string) => {
+export const useVerifyFormPassword = () => {
+    const {
+        mutateAsync: verifyFormPasswordAsync,
+        error,
+        isPending,
+        isError,
+        isSuccess
+    } = trpc.form.verifyFormPassword.useMutation()
+
+    return {
+        verifyFormPasswordAsync,
+        error,
+        isPending,
+        isError,
+        isSuccess
+    }
+}
+
+export const useGetFormById = (id: string, enabled = true) => {
     const {
         data,
         error,
@@ -230,7 +248,7 @@ export const useGetFormById = (id: string) => {
         isSuccess,
         refetch
     } = trpc.form.getFormById.useQuery({ id }, {
-        enabled: !!id,
+        enabled: enabled && !!id,
         refetchOnWindowFocus: false,
     })
 

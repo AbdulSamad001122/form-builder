@@ -33,11 +33,11 @@ class FormResponseService {
             .limit(1)
 
         if (!form || form.length === 0 || !form[0]) {
-            throw new Error("Form not found")
+            throw new Error("We could not find the form you are looking for.")
         }
 
         if (form[0].status !== "PUBLISHED") {
-            throw new Error("Cannot submit response to an unpublished form")
+            throw new Error("This form is still a draft and is not accepting responses yet.")
         }
 
         const responseInsert = await db.insert(formResponsesTable).values({
@@ -106,7 +106,7 @@ class FormResponseService {
             .limit(1)
 
         if (!form || form.length === 0) {
-            throw new Error("Form not found or unauthorized")
+            throw new Error("This form could not be found, or you do not have permission to view it.")
         }
 
         const responses = await db.select({

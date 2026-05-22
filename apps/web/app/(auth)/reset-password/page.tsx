@@ -10,6 +10,7 @@ import { toast } from "sonner"
 import { RedirectIfAuthenticated } from "~/components/auth-aware-link"
 import { Suspense } from "react"
 
+
 type ResetPasswordValues = {
   password: string
   confirmPassword: string
@@ -174,7 +175,7 @@ function ResetPasswordForm() {
             {isError && (
               <div style={{ background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 8, padding: "10px 14px" }}>
                 <p style={{ fontSize: 13, color: "#dc2626", margin: 0 }}>
-                  {(error as any)?.message ?? "Link is expired or invalid. Please request a new password reset link."}
+                  {(error as any)?.message || "This reset link is invalid or has expired. Please request a new link."}
                 </p>
               </div>
             )}

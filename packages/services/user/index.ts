@@ -16,12 +16,12 @@ class UserService {
             const result = await generateUserTokenPayload.safeParseAsync(verificationResult)
 
             if (!result.success) {
-                throw new Error("Invalid or expired token")
+                throw new Error("Your session has expired. Please log in again.")
             }
 
             return result.data
         } catch {
-            throw new Error("Invalid or expired token")
+            throw new Error("Your session has expired. Please log in again.")
         }
     }
 
@@ -33,7 +33,7 @@ class UserService {
         }).from(usersTable).where(eq(usersTable.id, id))
 
         if (!user) {
-            throw new Error(`User with this ${id} not found`)
+            throw new Error("We could not find a user account with the requested ID.")
         }
 
         return user
@@ -77,7 +77,7 @@ class UserService {
         const getUserByEmail = await this.getUserByEmail(email)
 
         if (getUserByEmail) {
-            throw new Error("User already exist")
+            throw new Error("An account with this email address already exists. Please try logging in.")
         }
 
         // calc salt and create hash of password
@@ -93,7 +93,7 @@ class UserService {
         })
 
         if (!userInsertResult || userInsertResult.length === 0 || !userInsertResult[0]?.id) {
-            throw new Error("Something went wrong while creating user")
+            throw new Error("An unexpected error occurred while creating your account. Please try again.")
         }
 
         const userId = userInsertResult[0].id
@@ -113,11 +113,11 @@ class UserService {
         const existingUser = await this.getUserByEmail(email)
 
         if (!existingUser) {
-            throw new Error(`User not exist with this ${email} email`)
+            throw new Error("No account was found with this email address.")
         }
 
         if (!existingUser.password || !existingUser.salt) {
-            throw new Error("Invalid Authentication Method")
+            throw new Error("This account is configured with a different login method.")
 
         }
 
@@ -126,7 +126,7 @@ class UserService {
 
 
         if (hash !== existingUser.password) {
-            throw new Error("Invalid email or Password")
+            throw new Error("The email address or password you entered is incorrect.")
 
         }
 
@@ -204,7 +204,7 @@ class UserService {
 
         const existingUser = await this.getUserByEmail(email)
         if (!existingUser) {
-            throw new Error("Invalid or expired reset token")
+            throw new Error("This reset link is invalid or has expired. Please request a new link.")
         }
 
         const incomingHash = this.calculateTokenHash(token)
@@ -216,12 +216,12 @@ class UserService {
             .limit(1)
 
         if (!activeToken || activeToken.tokenHash !== incomingHash) {
-            throw new Error("Invalid or expired reset token")
+            throw new Error("This reset link is invalid or has expired. Please request a new link.")
         }
 
         if (new Date() > new Date(activeToken.expiresAt)) {
             await db.delete(passwordResetTokensTable).where(eq(passwordResetTokensTable.id, activeToken.id))
-            throw new Error("Invalid or expired reset token")
+            throw new Error("This reset link is invalid or has expired. Please request a new link.")
         }
 
         const salt = randomBytes(16).toString("hex")

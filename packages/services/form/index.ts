@@ -1,6 +1,9 @@
 import { type createFormFieldInputModelType, createFormInputModel, listFormByUserIdInputModel, type listFormByUserIdInputModelType, updateFormInputModel, type updateFormInputModelType, deleteFormInputModel, type deleteFormInputModelType, getFormByIdInputModel, type getFormByIdInputModelType } from "./model"
 import { db, eq, and, asc, desc, ilike } from "@repo/database"
 import { formsTable, formFieldsTable, formResponsesTable, usersTable } from "../../database/schema"
+import { randomBytes, createHmac } from "node:crypto"
+import * as JWT from "jsonwebtoken"
+import { env } from "../env"
 
 class FormService {
 
@@ -22,7 +25,7 @@ class FormService {
 
 
         if (!formInsert || formInsert.length === 0 || !formInsert[0]?.id) {
-            throw new Error("Something went wrong while creating form")
+            throw new Error("An unexpected error occurred while creating your form. Please try again.")
         }
 
         return {
@@ -47,7 +50,8 @@ class FormService {
             visibility: formsTable.visibility,
             status: formsTable.status,
             createdAt: formsTable.createdAt,
-            updatedAt: formsTable.updatedAt
+            updatedAt: formsTable.updatedAt,
+            isPasswordProtected: formsTable.isPasswordProtected
         }).from(formsTable)
             .where(eq(formsTable.createdBy, userId))
 
@@ -57,7 +61,7 @@ class FormService {
     }
 
     public async updateForm(payload: updateFormInputModelType) {
-        const { id, userId, title, description, slug, theme, visibility, status } = await updateFormInputModel.parseAsync(payload)
+        const { id, userId, title, description, slug, theme, visibility, status, isPasswordProtected, password } = await updateFormInputModel.parseAsync(payload)
 
         const valuesToUpdate: any = {}
         if (title !== undefined) valuesToUpdate.title = title
@@ -67,6 +71,22 @@ class FormService {
         if (visibility !== undefined) valuesToUpdate.visibility = visibility
         if (status !== undefined) valuesToUpdate.status = status
 
+        if (isPasswordProtected !== undefined) {
+            valuesToUpdate.isPasswordProtected = isPasswordProtected
+            if (!isPasswordProtected) {
+                valuesToUpdate.passwordHash = null
+                valuesToUpdate.passwordSalt = null
+            }
+        }
+
+        if (password !== undefined && password !== "") {
+            const salt = randomBytes(16).toString("hex")
+            const hash = createHmac("sha256", salt).update(password).digest("hex")
+            valuesToUpdate.passwordHash = hash
+            valuesToUpdate.passwordSalt = salt
+            valuesToUpdate.isPasswordProtected = true
+        }
+
         valuesToUpdate.updatedAt = new Date()
 
         const formUpdate = await db.update(formsTable)
@@ -75,7 +95,7 @@ class FormService {
             .returning({ id: formsTable.id })
 
         if (!formUpdate || formUpdate.length === 0 || !formUpdate[0]?.id) {
-            throw new Error("Form not found or you don't have permission to update it")
+            throw new Error("This form could not be found, or you do not have permission to update it.")
         }
 
         return { id: formUpdate[0].id }
@@ -89,29 +109,60 @@ class FormService {
             .returning({ id: formsTable.id })
 
         if (!formDelete || formDelete.length === 0 || !formDelete[0]?.id) {
-            throw new Error("Form not found or you don't have permission to delete it")
+            throw new Error("This form could not be found, or you do not have permission to delete it.")
         }
 
         return { id: formDelete[0].id }
     }
 
-    public async getPublicForm(id: string) {
+    public async getPublicForm(id: string, accessToken?: string) {
         const form = await db.select({
             id: formsTable.id,
             title: formsTable.title,
             description: formsTable.description,
             theme: formsTable.theme,
-            status: formsTable.status
+            status: formsTable.status,
+            isPasswordProtected: formsTable.isPasswordProtected,
+            passwordHash: formsTable.passwordHash,
+            passwordSalt: formsTable.passwordSalt
         }).from(formsTable)
             .where(eq(formsTable.id, id))
             .limit(1)
 
         if (!form || form.length === 0 || !form[0]) {
-            throw new Error("Form not found")
+            throw new Error("We could not find the form you are looking for.")
         }
 
         if (form[0].status !== "PUBLISHED") {
-            throw new Error("This form is not currently accepting responses.")
+            throw new Error("This form is a draft and is not accepting responses yet.")
+        }
+
+        const formDetails = form[0]
+
+        if (formDetails.isPasswordProtected) {
+            let isAuthorized = false
+            if (accessToken) {
+                try {
+                    const decoded = JWT.verify(accessToken, env.JWT_SECRET) as { formId: string; verified: boolean }
+                    if (decoded.formId === id && decoded.verified === true) {
+                        isAuthorized = true
+                    }
+                } catch {
+                    isAuthorized = false
+                }
+            }
+
+            if (!isAuthorized) {
+                return {
+                    id: formDetails.id,
+                    title: formDetails.title,
+                    description: formDetails.description,
+                    theme: formDetails.theme,
+                    status: formDetails.status,
+                    isPasswordProtected: true,
+                    fields: []
+                }
+            }
         }
 
         const fields = await db.select()
@@ -120,10 +171,16 @@ class FormService {
             .orderBy(asc(formFieldsTable.index))
 
         return {
-            ...form[0],
+            id: formDetails.id,
+            title: formDetails.title,
+            description: formDetails.description,
+            theme: formDetails.theme,
+            status: formDetails.status,
+            isPasswordProtected: formDetails.isPasswordProtected,
             fields
         }
     }
+
     public async getFormById(payload: getFormByIdInputModelType) {
         const { id, userId } = await getFormByIdInputModel.parseAsync(payload)
 
@@ -137,12 +194,13 @@ class FormService {
             visibility: formsTable.visibility,
             createdAt: formsTable.createdAt,
             updatedAt: formsTable.updatedAt,
+            isPasswordProtected: formsTable.isPasswordProtected
         }).from(formsTable)
             .where(and(eq(formsTable.id, id), eq(formsTable.createdBy, userId)))
             .limit(1)
 
         if (!form || form.length === 0 || !form[0]) {
-            throw new Error("Form not found or unauthorized")
+            throw new Error("This form could not be found, or you do not have permission to view it.")
         }
 
         const fields = await db.select()
@@ -249,6 +307,29 @@ class FormService {
             .orderBy(desc(formsTable.createdAt))
 
         return forms
+    }
+
+    public async verifyFormPassword(payload: { formId: string; password: string }) {
+        const [form] = await db.select({
+            id: formsTable.id,
+            isPasswordProtected: formsTable.isPasswordProtected,
+            passwordHash: formsTable.passwordHash,
+            passwordSalt: formsTable.passwordSalt
+        }).from(formsTable)
+            .where(eq(formsTable.id, payload.formId))
+            .limit(1)
+
+        if (!form || !form.isPasswordProtected || !form.passwordSalt || !form.passwordHash) {
+            throw new Error("This form is not password protected.")
+        }
+
+        const hash = createHmac("sha256", form.passwordSalt).update(payload.password).digest("hex")
+        if (hash !== form.passwordHash) {
+            throw new Error("The password you entered is incorrect. Please try again.")
+        }
+
+        const token = JWT.sign({ formId: form.id, verified: true }, env.JWT_SECRET, { expiresIn: "2h" })
+        return { token }
     }
 }
 

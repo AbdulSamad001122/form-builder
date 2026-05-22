@@ -8,7 +8,7 @@ export const fieldTypeEnumSchema = z.enum([
 export const createFormFieldInputModel = z.object({
     userId: z.string().uuid(),
     formId: z.string().uuid(),
-    label: z.string().min(1, "Label is required").max(100),
+    label: z.string().min(1, "Please enter a question or label for this field.").max(100, "Please keep the question or label under 100 characters."),
     description: z.string().optional(),
     placeholder: z.string().optional(),
     options: z.any().optional(), 
@@ -20,7 +20,7 @@ export type createFormFieldInputModelType = z.infer<typeof createFormFieldInputM
 export const updateFormFieldInputModel = z.object({
     id: z.string().uuid(),
     userId: z.string().uuid(), 
-    label: z.string().min(1).max(100).optional(),
+    label: z.string().min(1, "Please enter a question or label for this field.").max(100, "Please keep the question or label under 100 characters.").optional(),
     description: z.string().optional(),
     placeholder: z.string().optional(),
     options: z.any().optional(),
