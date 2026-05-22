@@ -27,3 +27,20 @@ export const getLoggedInUserInfoOutputModel = z.object({
 export const logoutOutputModel = z.object({
     success: z.boolean().describe("Whether the logout was successful"),
 })
+
+export const forgotPasswordInputModel = z.object({
+    email: z.string().email().describe("User email address to reset password"),
+    webUrl: z.string().url().describe("Base origin URL of web client"),
+})
+export const forgotPasswordOutputModel = z.object({
+    success: z.boolean().describe("Success flag"),
+})
+
+export const resetPasswordInputModel = z.object({
+    email: z.string().email().describe("User email address"),
+    token: z.string().describe("Raw validation token"),
+    password: z.string().min(8).describe("New chosen password"),
+})
+export const resetPasswordOutputModel = z.object({
+    success: z.boolean().describe("Success flag"),
+})

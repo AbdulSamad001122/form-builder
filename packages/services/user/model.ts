@@ -21,3 +21,15 @@ export const generateUserTokenPayload = z.object({
 })
 
 export type generateUserTokenPayloadType = z.infer<typeof generateUserTokenPayload>
+
+export const forgotPasswordInput = z.object({
+    email: z.string().email().describe("Email of the user requesting password reset"),
+})
+export type ForgotPasswordInputType = z.infer<typeof forgotPasswordInput>
+
+export const resetPasswordInput = z.object({
+    email: z.string().email().describe("User email"),
+    token: z.string().min(1).describe("Secure verification token"),
+    password: z.string().min(8).describe("New user password"),
+})
+export type ResetPasswordInputType = z.infer<typeof resetPasswordInput>

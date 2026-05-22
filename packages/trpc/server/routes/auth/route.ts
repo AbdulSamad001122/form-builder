@@ -10,6 +10,10 @@ import {
   signinUserWithEmailAndPasswordInputModel,
   signinUserWithEmailAndPasswordOutputModel,
   logoutOutputModel,
+  forgotPasswordInputModel,
+  forgotPasswordOutputModel,
+  resetPasswordInputModel,
+  resetPasswordOutputModel,
 } from "./model";
 
 import {
@@ -111,5 +115,35 @@ export const authRouter = router({
     .mutation(async ({ ctx }) => {
       clearAuthenticationCookie(ctx);
       return { success: true };
+    }),
+
+  forgotPassword: publicProcedure
+    .meta({
+      openapi: {
+        method: "POST",
+        path: getPath("forgotPassword"),
+        tags: TAGS,
+      },
+    })
+    .input(forgotPasswordInputModel)
+    .output(forgotPasswordOutputModel)
+    .mutation(async ({ input }) => {
+      const { email, webUrl } = input;
+      return await userService.requestPasswordReset({ email, webUrl });
+    }),
+
+  resetPassword: publicProcedure
+    .meta({
+      openapi: {
+        method: "POST",
+        path: getPath("resetPassword"),
+        tags: TAGS,
+      },
+    })
+    .input(resetPasswordInputModel)
+    .output(resetPasswordOutputModel)
+    .mutation(async ({ input }) => {
+      const { email, token, password } = input;
+      return await userService.resetPassword({ email, token, password });
     }),
 });

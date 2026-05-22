@@ -90,10 +90,13 @@ export function LoginForm({
 
             {/* Password */}
             <div>
-              <div style={{ marginBottom: 6 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
                 <label htmlFor="password" style={{ fontSize: 13, fontWeight: 600, color: "#0F0F0E" }}>
                   Password
                 </label>
+                <Link href="/forgot-password" style={{ fontSize: 12, color: "#1A3D2B", fontWeight: 600, textDecoration: "none" }}>
+                  Forgot password?
+                </Link>
               </div>
               <Input
                 id="password"

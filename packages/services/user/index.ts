@@ -1,10 +1,11 @@
-import { randomBytes, createHmac } from "node:crypto"
+import { randomBytes, createHmac, createHash } from "node:crypto"
 import * as JWT from "jsonwebtoken"
-import { type CreateUserWithEmailAndPasswordInputType, createUserWithEmailAndPasswordInput, generateUserTokenPayload, generateUserTokenPayloadType } from "./model"
+import { type CreateUserWithEmailAndPasswordInputType, createUserWithEmailAndPasswordInput, generateUserTokenPayload, generateUserTokenPayloadType, type ResetPasswordInputType } from "./model"
 import { type SiginUserWithEmailAndPasswordInputType, siginUserWithEmailAndPasswordInput } from "./model"
 import { db, eq } from "@repo/database"
-import { usersTable } from "../../database/schema"
+import { usersTable, passwordResetTokensTable } from "../../database/schema"
 import { env } from "../env"
+import { Resend } from "resend"
 
 
 class UserService {
@@ -143,6 +144,96 @@ class UserService {
         const { id } = await this.verifyUserToken(token)
 
         return { id }
+    }
+
+    private calculateTokenHash(token: string) {
+        return createHash("sha256").update(token).digest("hex")
+    }
+
+    public async requestPasswordReset(payload: { email: string; webUrl: string }) {
+        const { email, webUrl } = payload
+        
+        const existingUser = await this.getUserByEmail(email)
+        if (!existingUser) {
+            return { success: true }
+        }
+
+        const rawToken = randomBytes(32).toString("hex")
+        const hashedToken = this.calculateTokenHash(rawToken)
+        const expiresAt = new Date(Date.now() + 10 * 60 * 1000)
+
+        await db.insert(passwordResetTokensTable).values({
+            userId: existingUser.id,
+            tokenHash: hashedToken,
+            expiresAt,
+        })
+
+        const cleanWebUrl = webUrl.replace(/\/$/, "")
+        const resetLink = `${cleanWebUrl}/reset-password?email=${encodeURIComponent(email)}&token=${rawToken}`
+
+        const resend = new Resend(env.RESEND_API_KEY)
+
+        try {
+            await resend.emails.send({
+                from: 'Formit <onboarding@resend.dev>',
+                to: email,
+                subject: 'Reset your Formit password',
+                html: `
+                    <div style="font-family: sans-serif; max-width: 500px; margin: 0 auto; padding: 20px; border: 1px solid #D4CFC6; border-radius: 8px;">
+                        <h2 style="color: #1A3D2B; font-weight: bold; margin-top: 0;">Reset your Formit Password</h2>
+                        <p style="color: #6B6860; font-size: 14px; line-height: 1.5;">You requested to reset your password for your Formit account. Click the button below to verify your identity and enter a new password. This secure link will expire in 10 minutes.</p>
+                        <div style="margin: 28px 0; text-align: center;">
+                            <a href="${resetLink}" style="background-color: #1A3D2B; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600; display: inline-block;">Reset Password</a>
+                        </div>
+                        <p style="color: #6B6860; font-size: 13px; margin-bottom: 4px;">Or copy and paste this link into your browser:</p>
+                        <p style="color: #1A3D2B; font-size: 12px; word-break: break-all; margin-top: 0;"><a href="${resetLink}" style="color: #1A3D2B;">${resetLink}</a></p>
+                        <hr style="border: 0; border-top: 1px solid #E4E2DC; margin: 24px 0;" />
+                        <p style="font-size: 12px; color: #A19E95; margin-bottom: 0;">If you did not request this password reset, please ignore this email safely.</p>
+                    </div>
+                `
+            })
+        } catch (err) {
+            console.error("Failed to send password reset email via Resend:", err)
+        }
+
+        return { success: true }
+    }
+
+    public async resetPassword(payload: ResetPasswordInputType) {
+        const { email, token, password } = payload
+
+        const existingUser = await this.getUserByEmail(email)
+        if (!existingUser) {
+            throw new Error("Invalid or expired reset token")
+        }
+
+        const incomingHash = this.calculateTokenHash(token)
+
+        const [activeToken] = await db
+            .select()
+            .from(passwordResetTokensTable)
+            .where(eq(passwordResetTokensTable.userId, existingUser.id))
+            .limit(1)
+
+        if (!activeToken || activeToken.tokenHash !== incomingHash) {
+            throw new Error("Invalid or expired reset token")
+        }
+
+        if (new Date() > new Date(activeToken.expiresAt)) {
+            await db.delete(passwordResetTokensTable).where(eq(passwordResetTokensTable.id, activeToken.id))
+            throw new Error("Invalid or expired reset token")
+        }
+
+        const salt = randomBytes(16).toString("hex")
+        const hash = await this.generateHash(salt, password)
+
+        await db.update(usersTable)
+            .set({ password: hash, salt })
+            .where(eq(usersTable.id, existingUser.id))
+
+        await db.delete(passwordResetTokensTable).where(eq(passwordResetTokensTable.userId, existingUser.id))
+
+        return { success: true }
     }
 
 }

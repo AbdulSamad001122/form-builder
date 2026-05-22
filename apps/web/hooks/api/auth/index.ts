@@ -96,4 +96,28 @@ export const useLogout = () => {
     })
 
     return { logout, isLoggingOut }
+}
+
+export const useForgotPassword = () => {
+    const {
+        mutateAsync: forgotPasswordAsync,
+        error,
+        isError,
+        isPending,
+        isSuccess
+    } = trpc.auth.forgotPassword.useMutation()
+
+    return { forgotPasswordAsync, error, isError, isPending, isSuccess }
+}
+
+export const useResetPassword = () => {
+    const {
+        mutateAsync: resetPasswordAsync,
+        error,
+        isError,
+        isPending,
+        isSuccess
+    } = trpc.auth.resetPassword.useMutation()
+
+    return { resetPasswordAsync, error, isError, isPending, isSuccess }
 }

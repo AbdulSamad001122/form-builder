@@ -81,7 +81,7 @@ class FormResponseService {
 
         try {
             const { data, error } = await resend.emails.send({
-                from: 'onboarding@resend.dev',
+                from: 'Formit <onboarding@resend.dev>',
                 to: ["iamabdulsamad2.0@gmail.com"],
                 subject: `New Submission: ${form[0].title}`,
                 html: emailHtml,
