@@ -1,5 +1,5 @@
 import { type createFormFieldInputModelType, createFormInputModel, listFormByUserIdInputModel, type listFormByUserIdInputModelType, updateFormInputModel, type updateFormInputModelType, deleteFormInputModel, type deleteFormInputModelType, getFormByIdInputModel, type getFormByIdInputModelType } from "./model"
-import { db, eq, and, asc, desc, ilike } from "@repo/database"
+import { db, eq, and, asc, desc, ilike, sql } from "@repo/database"
 import { formsTable, formFieldsTable, formResponsesTable, usersTable } from "../../database/schema"
 import { randomBytes, createHmac } from "node:crypto"
 import * as JWT from "jsonwebtoken"
@@ -50,7 +50,9 @@ class FormService {
             createdAt: formsTable.createdAt,
             updatedAt: formsTable.updatedAt,
             isPasswordProtected: formsTable.isPasswordProtected,
-            isArchived: formsTable.isArchived
+            isArchived: formsTable.isArchived,
+            expiresAt: formsTable.expiresAt,
+            responseLimit: formsTable.responseLimit
         }).from(formsTable)
             .where(and(eq(formsTable.createdBy, userId), eq(formsTable.isArchived, false)))
 
@@ -71,7 +73,9 @@ class FormService {
             createdAt: formsTable.createdAt,
             updatedAt: formsTable.updatedAt,
             isPasswordProtected: formsTable.isPasswordProtected,
-            isArchived: formsTable.isArchived
+            isArchived: formsTable.isArchived,
+            expiresAt: formsTable.expiresAt,
+            responseLimit: formsTable.responseLimit
         }).from(formsTable)
             .where(and(eq(formsTable.createdBy, userId), eq(formsTable.isArchived, true)))
 
@@ -79,7 +83,7 @@ class FormService {
     }
 
     public async updateForm(payload: updateFormInputModelType) {
-        const { id, userId, title, description, slug, theme, visibility, status, isPasswordProtected, password, isArchived } = await updateFormInputModel.parseAsync(payload)
+        const { id, userId, title, description, slug, theme, visibility, status, isPasswordProtected, password, isArchived, expiresAt, responseLimit } = await updateFormInputModel.parseAsync(payload)
 
         const valuesToUpdate: any = {}
         if (title !== undefined) valuesToUpdate.title = title
@@ -107,6 +111,14 @@ class FormService {
 
         if (isArchived !== undefined) {
             valuesToUpdate.isArchived = isArchived
+        }
+
+        if (expiresAt !== undefined) {
+            valuesToUpdate.expiresAt = expiresAt ? new Date(expiresAt) : null
+        }
+
+        if (responseLimit !== undefined) {
+            valuesToUpdate.responseLimit = responseLimit
         }
 
         valuesToUpdate.updatedAt = new Date()
@@ -146,7 +158,9 @@ class FormService {
             status: formsTable.status,
             isPasswordProtected: formsTable.isPasswordProtected,
             passwordHash: formsTable.passwordHash,
-            passwordSalt: formsTable.passwordSalt
+            passwordSalt: formsTable.passwordSalt,
+            expiresAt: formsTable.expiresAt,
+            responseLimit: formsTable.responseLimit
         }).from(formsTable)
             .where(eq(formsTable.id, id))
             .limit(1)
@@ -157,6 +171,22 @@ class FormService {
 
         if (form[0].status !== "PUBLISHED") {
             throw new Error("This form is a draft and is not accepting responses yet.")
+        }
+
+        if (form[0].expiresAt && new Date() > new Date(form[0].expiresAt)) {
+            throw new Error("This form has expired and is no longer accepting responses.")
+        }
+
+        if (form[0].responseLimit) {
+            const [countResult] = await db.select({
+                count: sql<number>`count(*)::int`
+            })
+            .from(formResponsesTable)
+            .where(eq(formResponsesTable.formId, id))
+
+            if (countResult && countResult.count >= form[0].responseLimit) {
+                throw new Error("This form has reached its response limit and is no longer accepting submissions.")
+            }
         }
 
         const formDetails = form[0]
@@ -217,7 +247,9 @@ class FormService {
             createdAt: formsTable.createdAt,
             updatedAt: formsTable.updatedAt,
             isPasswordProtected: formsTable.isPasswordProtected,
-            isArchived: formsTable.isArchived
+            isArchived: formsTable.isArchived,
+            expiresAt: formsTable.expiresAt,
+            responseLimit: formsTable.responseLimit
         }).from(formsTable)
             .where(and(eq(formsTable.id, id), eq(formsTable.createdBy, userId)))
             .limit(1)

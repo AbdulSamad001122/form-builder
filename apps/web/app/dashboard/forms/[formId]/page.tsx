@@ -34,7 +34,7 @@ import { Checkbox } from "~/components/ui/checkbox"
 import { Badge } from "~/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/components/ui/select"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "~/components/ui/dialog"
-import { GripVertical, Edit, Trash2, Copy, Check, Globe, Lock, Eye, EyeOff, Loader2, QrCode, Download, CheckCheck } from "lucide-react"
+import { GripVertical, Edit, Trash2, Copy, Check, Globe, Lock, Eye, EyeOff, Loader2, QrCode, Download, CheckCheck, Clock, Calendar } from "lucide-react"
 import { toast } from "sonner"
 import { Skeleton } from "~/components/ui/skeleton"
 import { QRCodeCanvas } from "qrcode.react"
@@ -360,6 +360,202 @@ function SecuritySettingsModal({
     )
 }
 
+function LimitsSettingsModal({
+    open,
+    onClose,
+    form,
+    onSave,
+    isSaving,
+}: {
+    open: boolean
+    onClose: () => void
+    form: any
+    onSave: (payload: { expiresAt: string | null; responseLimit: number | null }) => void
+    isSaving: boolean
+}) {
+    const [hasExpiry, setHasExpiry] = useState(!!form?.expiresAt)
+    const [expiresAt, setExpiresAt] = useState(
+        form?.expiresAt 
+            ? new Date(form.expiresAt).toISOString().slice(0, 16) 
+            : ""
+    )
+    const [hasLimit, setHasLimit] = useState(!!form?.responseLimit)
+    const [responseLimit, setResponseLimit] = useState(
+        form?.responseLimit ? String(form.responseLimit) : ""
+    )
+    const [error, setError] = useState("")
+
+    const prevOpenRef = useRef(open)
+    if (prevOpenRef.current !== open) {
+        prevOpenRef.current = open
+        if (open) {
+            setHasExpiry(!!form?.expiresAt)
+            setExpiresAt(
+                form?.expiresAt 
+                    ? new Date(new Date(form.expiresAt).getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16) 
+                    : ""
+            )
+            setHasLimit(!!form?.responseLimit)
+            setResponseLimit(
+                form?.responseLimit ? String(form.responseLimit) : ""
+            )
+            setError("")
+        }
+    }
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault()
+        if (hasExpiry && !expiresAt) {
+            setError("An expiration date and time is required.")
+            return
+        }
+        if (hasLimit && (!responseLimit || parseInt(responseLimit, 10) <= 0)) {
+            setError("A valid response limit greater than 0 is required.")
+            return
+        }
+        
+        setError("")
+        onSave({
+            expiresAt: hasExpiry ? new Date(expiresAt).toISOString() : null,
+            responseLimit: hasLimit ? parseInt(responseLimit, 10) : null,
+        })
+    }
+
+    return (
+        <Dialog open={open} onOpenChange={onClose}>
+            <DialogContent className="sm:max-w-[420px] bg-white border border-[#D4CFC6] rounded-2xl shadow-xl p-6">
+                <DialogHeader>
+                    <DialogTitle className="flex items-center gap-2 text-xl font-bold text-gray-900">
+                        <Clock size={18} className="text-[#1A3D2B]" />
+                        Form Limits & Expiry
+                    </DialogTitle>
+                    <DialogDescription className="text-gray-500 text-sm">
+                        Configure date/time boundaries and maximum submission limits for your form.
+                    </DialogDescription>
+                </DialogHeader>
+
+                <form onSubmit={handleSubmit} className="space-y-5 pt-3">
+                    <div className="space-y-4">
+                        <div className="flex items-center space-x-3 p-3 bg-gray-50 border border-gray-100 rounded-xl">
+                            <Checkbox
+                                id="enable-expiry"
+                                checked={hasExpiry}
+                                onCheckedChange={(checked) => {
+                                    setHasExpiry(!!checked)
+                                    setError("")
+                                }}
+                                className="border-gray-300"
+                            />
+                            <div className="grid gap-0.5 leading-none">
+                                <label
+                                    htmlFor="enable-expiry"
+                                    className="text-sm font-semibold text-gray-800 cursor-pointer"
+                                >
+                                    Enable Expiry Date
+                                </label>
+                                <span className="text-xs text-gray-500">
+                                    Automatically reject responses after a specific date.
+                                </span>
+                            </div>
+                        </div>
+
+                        {hasExpiry && (
+                            <div className="space-y-2.5 px-1">
+                                <Label htmlFor="expires-at" className="text-xs font-bold text-gray-700 uppercase tracking-wider">
+                                    Expiration Date & Time
+                                </Label>
+                                <Input
+                                    id="expires-at"
+                                    type="datetime-local"
+                                    value={expiresAt}
+                                    onChange={(e) => {
+                                        setExpiresAt(e.target.value)
+                                        if (error) setError("")
+                                    }}
+                                    className="border-gray-300 focus:ring-[#1A3D2B]"
+                                />
+                            </div>
+                        )}
+
+                        <div className="flex items-center space-x-3 p-3 bg-gray-50 border border-gray-100 rounded-xl">
+                            <Checkbox
+                                id="enable-limit"
+                                checked={hasLimit}
+                                onCheckedChange={(checked) => {
+                                    setHasLimit(!!checked)
+                                    setError("")
+                                }}
+                                className="border-gray-300"
+                            />
+                            <div className="grid gap-0.5 leading-none">
+                                <label
+                                    htmlFor="enable-limit"
+                                    className="text-sm font-semibold text-gray-800 cursor-pointer"
+                                >
+                                    Enable Response Limit
+                                </label>
+                                <span className="text-xs text-gray-500">
+                                    Cap the total number of allowed submissions.
+                                </span>
+                            </div>
+                        </div>
+
+                        {hasLimit && (
+                            <div className="space-y-2.5 px-1">
+                                <Label htmlFor="response-limit" className="text-xs font-bold text-gray-700 uppercase tracking-wider">
+                                    Maximum Submissions
+                                </Label>
+                                <Input
+                                    id="response-limit"
+                                    type="number"
+                                    min="1"
+                                    placeholder="e.g., 30"
+                                    value={responseLimit}
+                                    onChange={(e) => {
+                                        setResponseLimit(e.target.value)
+                                        if (error) setError("")
+                                    }}
+                                    className="border-gray-300 focus:ring-[#1A3D2B]"
+                                />
+                            </div>
+                        )}
+                    </div>
+
+                    {error && (
+                        <p className="text-xs text-red-500 font-medium px-1">{error}</p>
+                    )}
+
+                    <DialogFooter className="pt-2 gap-2 sm:gap-0">
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={onClose}
+                            disabled={isSaving}
+                            className="flex-1 sm:flex-none border-gray-300 hover:bg-gray-50"
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            type="submit"
+                            disabled={isSaving}
+                            className="flex-1 sm:flex-none bg-[#1A3D2B] hover:bg-[#11261B] text-white flex items-center justify-center gap-2"
+                        >
+                            {isSaving ? (
+                                <>
+                                    <Loader2 size={14} className="animate-spin" />
+                                    Saving...
+                                </>
+                            ) : (
+                                "Save Limits"
+                            )}
+                        </Button>
+                    </DialogFooter>
+                </form>
+            </DialogContent>
+        </Dialog>
+    )
+}
+
 export default function FormBuilderPage() {
     const params = useParams()
     const formId = params.formId as string
@@ -385,6 +581,7 @@ export default function FormBuilderPage() {
 
     const [isShareOpen, setIsShareOpen] = useState(false)
     const [isSecurityOpen, setIsSecurityOpen] = useState(false)
+    const [isLimitsOpen, setIsLimitsOpen] = useState(false)
     const [linkCopied, setLinkCopied] = useState(false)
 
     const publicUrl = typeof window !== "undefined"
@@ -442,6 +639,23 @@ export default function FormBuilderPage() {
             },
             onError: (err) => {
                 toast.error(`Failed to update security: ${err.message}`)
+            }
+        })
+    }
+
+    const handleSaveLimits = (payload: { expiresAt: string | null; responseLimit: number | null }) => {
+        updateForm({
+            id: formId,
+            expiresAt: payload.expiresAt,
+            responseLimit: payload.responseLimit
+        }, {
+            onSuccess: () => {
+                refetchForm()
+                setIsLimitsOpen(false)
+                toast.success("Form submission limits and expiry updated successfully!")
+            },
+            onError: (err) => {
+                toast.error(`Failed to update limits: ${err.message}`)
             }
         })
     }
@@ -600,6 +814,16 @@ export default function FormBuilderPage() {
                     <Button
                         variant="outline"
                         size="sm"
+                        onClick={() => setIsLimitsOpen(true)}
+                        className="flex items-center gap-2"
+                    >
+                        <Clock size={14} />
+                        Limits & Expiry
+                    </Button>
+
+                    <Button
+                        variant="outline"
+                        size="sm"
                         onClick={() => window.open(`/f/${formId}?preview=true`, "_blank")}
                         className="flex items-center gap-2"
                     >
@@ -695,6 +919,16 @@ export default function FormBuilderPage() {
                     onClose={() => setIsSecurityOpen(false)}
                     form={form}
                     onSave={handleSaveSecurity}
+                    isSaving={isSavingForm}
+                />
+            )}
+
+            {form && (
+                <LimitsSettingsModal
+                    open={isLimitsOpen}
+                    onClose={() => setIsLimitsOpen(false)}
+                    form={form}
+                    onSave={handleSaveLimits}
                     isSaving={isSavingForm}
                 />
             )}

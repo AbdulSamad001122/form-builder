@@ -57,6 +57,13 @@
       "when": 1779547909371,
       "tag": "0007_fresh_wolverine",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1779549720648,
+      "tag": "0008_daily_penance",
+      "breakpoints": true
     }
   ]
 }

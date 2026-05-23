@@ -7,6 +7,7 @@ import {
     text,
     pgEnum,
     index,
+    integer,
 } from "drizzle-orm/pg-core";
 import { usersTable } from "./user";
 
@@ -27,6 +28,8 @@ export const formsTable = pgTable("forms", {
     isArchived: boolean("is_archived").default(false).notNull(),
     passwordHash: varchar("password_hash", { length: 255 }),
     passwordSalt: varchar("password_salt", { length: 255 }),
+    expiresAt: timestamp("expires_at"),
+    responseLimit: integer("response_limit"),
 
     createdBy: uuid("created_by").references(() => usersTable.id),
 

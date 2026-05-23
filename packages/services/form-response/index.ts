@@ -1,4 +1,4 @@
-import { db, eq, and, desc } from "@repo/database"
+import { db, eq, and, desc, sql } from "@repo/database"
 import { formsTable, formFieldsTable, formResponsesTable, formResponseAnswersTable } from "../../database/schema"
 import {
     submitFormResponseInputModel, type submitFormResponseInputModelType,
@@ -26,7 +26,9 @@ class FormResponseService {
             id: formsTable.id,
             status: formsTable.status,
             title: formsTable.title,
-            description: formsTable.description
+            description: formsTable.description,
+            expiresAt: formsTable.expiresAt,
+            responseLimit: formsTable.responseLimit
         })
             .from(formsTable)
             .where(eq(formsTable.id, formId))
@@ -38,6 +40,22 @@ class FormResponseService {
 
         if (form[0].status !== "PUBLISHED") {
             throw new Error("This form is still a draft and is not accepting responses yet.")
+        }
+
+        if (form[0].expiresAt && new Date() > new Date(form[0].expiresAt)) {
+            throw new Error("This form has expired and is no longer accepting responses.")
+        }
+
+        if (form[0].responseLimit) {
+            const [countResult] = await db.select({
+                count: sql<number>`count(*)::int`
+            })
+            .from(formResponsesTable)
+            .where(eq(formResponsesTable.formId, formId))
+
+            if (countResult && countResult.count >= form[0].responseLimit) {
+                throw new Error("This form has reached its response limit and is no longer accepting submissions.")
+            }
         }
 
         const responseInsert = await db.insert(formResponsesTable).values({

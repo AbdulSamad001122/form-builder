@@ -28,7 +28,9 @@ export const listFormByUserIdOutputModel = z.object({
     createdAt: z.date().nullable().describe("Created at"),
     updatedAt: z.date().nullable().describe("Updated at"),
     isPasswordProtected: z.boolean().optional(),
-    isArchived: z.boolean().describe("Whether the form is archived")
+    isArchived: z.boolean().describe("Whether the form is archived"),
+    expiresAt: z.date().nullable().optional(),
+    responseLimit: z.number().nullable().optional()
 })
 
 export const updateFormInputModel = z.object({
@@ -42,6 +44,8 @@ export const updateFormInputModel = z.object({
     isPasswordProtected: z.boolean().optional(),
     password: z.string().optional(),
     isArchived: z.boolean().optional(),
+    expiresAt: z.string().nullable().optional(),
+    responseLimit: z.number().nullable().optional(),
 })
 
 export const updateFormOutputModel = z.object({
@@ -87,6 +91,8 @@ export const getFormByIdOutputModel = z.object({
     updatedAt: z.date().nullable(),
     isPasswordProtected: z.boolean().optional(),
     isArchived: z.boolean().optional(),
+    expiresAt: z.date().nullable().optional(),
+    responseLimit: z.number().nullable().optional(),
     fields: z.array(z.any())
 })
 

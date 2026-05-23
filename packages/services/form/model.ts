@@ -33,6 +33,8 @@ export const updateFormInputModel = z.object({
     isPasswordProtected: z.boolean().optional(),
     password: z.string().min(4, "Your password must be at least 4 characters long.").describe("Form password").optional(),
     isArchived: z.boolean().optional(),
+    expiresAt: z.string().nullable().optional(),
+    responseLimit: z.number().nullable().optional(),
 })
 
 export type updateFormInputModelType = z.infer<typeof updateFormInputModel>

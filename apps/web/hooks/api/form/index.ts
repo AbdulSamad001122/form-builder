@@ -27,7 +27,9 @@ export const useCreateForm = () => {
                 status: newForm.status || "DRAFT",
                 createdAt: new Date().toISOString(),
                 updatedAt: new Date().toISOString(),
-                isArchived: false
+                isArchived: false,
+                expiresAt: null,
+                responseLimit: null
             }
             utils.form.listFormByUserId.setData(undefined, (old) => {
                 return old ? [tempForm, ...old] : [tempForm]
@@ -130,6 +132,8 @@ export const useUpdateForm = () => {
                             visibility: updatedForm.visibility !== undefined ? updatedForm.visibility : f.visibility,
                             status: updatedForm.status !== undefined ? updatedForm.status : f.status,
                             isArchived: updatedForm.isArchived !== undefined ? updatedForm.isArchived : f.isArchived,
+                            expiresAt: updatedForm.expiresAt !== undefined ? updatedForm.expiresAt : f.expiresAt,
+                            responseLimit: updatedForm.responseLimit !== undefined ? updatedForm.responseLimit : f.responseLimit,
                             updatedAt: new Date().toISOString()
                         }
                     }
@@ -148,6 +152,8 @@ export const useUpdateForm = () => {
                     visibility: updatedForm.visibility !== undefined ? updatedForm.visibility : old.visibility,
                     status: updatedForm.status !== undefined ? updatedForm.status : old.status,
                     isArchived: updatedForm.isArchived !== undefined ? updatedForm.isArchived : old.isArchived,
+                    expiresAt: updatedForm.expiresAt !== undefined ? updatedForm.expiresAt : old.expiresAt,
+                    responseLimit: updatedForm.responseLimit !== undefined ? updatedForm.responseLimit : old.responseLimit,
                     updatedAt: new Date().toISOString()
                 }
             })

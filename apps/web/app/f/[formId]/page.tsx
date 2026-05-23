@@ -97,7 +97,8 @@ export default function PublicFormPage() {
     // ─── Error ─────────────────────────────────────────────────────────────────
     if (isError || !form) {
         const message = (error as any)?.message ?? ""
-        const isClosed = message.includes("not currently accepting")
+        const isClosed = message.includes("not accepting") || message.includes("expired") || message.includes("limit")
+        const displayMessage = message || "This form does not exist or the link may be incorrect."
         return (
             <div className="flex h-screen items-center justify-center bg-gray-950 p-4">
                 <div className="w-full max-w-md bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-10 text-center space-y-4">
@@ -114,12 +115,10 @@ export default function PublicFormPage() {
                         )}
                     </div>
                     <p className={`font-semibold text-lg ${isClosed ? "text-yellow-300" : "text-red-400"}`}>
-                        {isClosed ? "Form Closed" : "Form Not Found"}
+                        {message.includes("expired") ? "Form Expired" : message.includes("limit") ? "Limit Reached" : isClosed ? "Form Closed" : "Form Not Found"}
                     </p>
-                    <p className="text-gray-400 text-sm leading-relaxed">
-                        {isClosed
-                            ? "This form is not currently accepting responses. The creator may have unpublished it."
-                            : "This form does not exist or the link may be incorrect."}
+                    <p className="text-gray-400 text-sm leading-relaxed font-normal">
+                        {displayMessage}
                     </p>
                 </div>
             </div>
