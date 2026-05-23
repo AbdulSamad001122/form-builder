@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams } from "next/navigation";
 import { useListFormResponses } from "~/hooks/api/form-response";
 import { useGetFormById } from "~/hooks/api/form";
@@ -42,6 +42,8 @@ import {
 import { Search, X, Filter, LayoutGrid, Eye, Download } from "lucide-react";
 import { downloadResponsesAsCSV } from "~/lib/csv";
 
+
+
 export default function FormResponsesPage() {
     const params = useParams();
     const formId = params.formId as string;
@@ -54,6 +56,63 @@ export default function FormResponsesPage() {
     const [filterValue, setFilterValue] = useState("");
     const [hiddenFieldIds, setHiddenFieldIds] = useState<Set<string>>(new Set());
     const [selectedResponse, setSelectedResponse] = useState<any>(null);
+    const [visibleCount, setVisibleCount] = useState(10);
+    const observerRef = useRef<HTMLDivElement | null>(null);
+
+    const filteredResponses = (responses || []).filter((response: any) => {
+        if (searchQuery.trim() !== "") {
+            const query = searchQuery.toLowerCase();
+            const emailMatch = response.respondentEmail && response.respondentEmail.toLowerCase().includes(query);
+            const answerMatch = response.answers.some((answer: any) => 
+                answer.value && answer.value.toLowerCase().includes(query)
+            );
+            if (!emailMatch && !answerMatch) return false;
+        }
+
+        if (filterValue.trim() !== "") {
+            const filterVal = filterValue.toLowerCase();
+
+            if (selectedFieldId === "all") {
+                const emailMatch = response.respondentEmail && response.respondentEmail.toLowerCase().includes(filterVal);
+                const answerMatch = response.answers.some((answer: any) => 
+                    answer.value && answer.value.toLowerCase().includes(filterVal)
+                );
+                return emailMatch || answerMatch;
+            }
+
+            if (selectedFieldId === "email") {
+                return response.respondentEmail && response.respondentEmail.toLowerCase().includes(filterVal);
+            }
+
+            const answer = response.answers.find((a: any) => a.fieldId === selectedFieldId);
+            if (!answer) return false;
+            
+            return answer.value && answer.value.toLowerCase().includes(filterVal);
+        }
+
+        return true;
+    });
+
+    const paginatedResponses = filteredResponses.slice(0, visibleCount);
+
+    useEffect(() => {
+        const sentinel = observerRef.current
+        if (!sentinel) return
+
+        const observer = new IntersectionObserver(
+            (entries) => {
+                if (entries[0]?.isIntersecting) {
+                    setVisibleCount((prev) => Math.min(prev + 10, filteredResponses.length));
+                }
+            },
+            { threshold: 0.1 }
+        )
+
+        observer.observe(sentinel)
+        return () => {
+            if (sentinel) observer.unobserve(sentinel)
+        }
+    }, [filteredResponses.length])
 
     if (isFormLoading || isResponsesLoading) {
         return (
@@ -140,6 +199,7 @@ export default function FormResponsesPage() {
     const handleFieldChange = (val: string) => {
         setSelectedFieldId(val);
         setFilterValue("");
+        setVisibleCount(10);
     };
 
     const toggleFieldVisibility = (fieldId: string) => {
@@ -156,39 +216,7 @@ export default function FormResponsesPage() {
 
     const visibleFields = form.fields.filter((field: any) => !hiddenFieldIds.has(field.id));
 
-    const filteredResponses = responses.filter((response: any) => {
-        if (searchQuery.trim() !== "") {
-            const query = searchQuery.toLowerCase();
-            const emailMatch = response.respondentEmail && response.respondentEmail.toLowerCase().includes(query);
-            const answerMatch = response.answers.some((answer: any) => 
-                answer.value && answer.value.toLowerCase().includes(query)
-            );
-            if (!emailMatch && !answerMatch) return false;
-        }
 
-        if (filterValue.trim() !== "") {
-            const filterVal = filterValue.toLowerCase();
-
-            if (selectedFieldId === "all") {
-                const emailMatch = response.respondentEmail && response.respondentEmail.toLowerCase().includes(filterVal);
-                const answerMatch = response.answers.some((answer: any) => 
-                    answer.value && answer.value.toLowerCase().includes(filterVal)
-                );
-                return emailMatch || answerMatch;
-            }
-
-            if (selectedFieldId === "email") {
-                return response.respondentEmail && response.respondentEmail.toLowerCase().includes(filterVal);
-            }
-
-            const answer = response.answers.find((a: any) => a.fieldId === selectedFieldId);
-            if (!answer) return false;
-            
-            return answer.value && answer.value.toLowerCase().includes(filterVal);
-        }
-
-        return true;
-    });
 
     return (
         <div className="p-4 lg:p-8 space-y-8">
@@ -235,7 +263,10 @@ export default function FormResponsesPage() {
                                 <Input
                                     placeholder="Search by email or answer..."
                                     value={searchQuery}
-                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                    onChange={(e) => {
+                                        setSearchQuery(e.target.value);
+                                        setVisibleCount(10);
+                                    }}
                                     className="pl-9 w-full bg-background"
                                     id="responses-search"
                                 />
@@ -257,7 +288,10 @@ export default function FormResponsesPage() {
                                 </Select>
 
                                 {filterOptions ? (
-                                    <Select value={filterValue} onValueChange={setFilterValue}>
+                                    <Select value={filterValue} onValueChange={(val) => {
+                                        setFilterValue(val);
+                                        setVisibleCount(10);
+                                    }}>
                                         <SelectTrigger className="w-[180px] bg-background">
                                             <SelectValue placeholder="Select Option" />
                                         </SelectTrigger>
@@ -274,7 +308,10 @@ export default function FormResponsesPage() {
                                     <Input
                                         placeholder="Filter value..."
                                         value={filterValue}
-                                        onChange={(e) => setFilterValue(e.target.value)}
+                                        onChange={(e) => {
+                                            setFilterValue(e.target.value);
+                                            setVisibleCount(10);
+                                        }}
                                         className="w-[180px] bg-background"
                                         id="responses-filter"
                                     />
@@ -316,6 +353,7 @@ export default function FormResponsesPage() {
                                         setSelectedFieldId("all");
                                         setFilterValue("");
                                         setHiddenFieldIds(new Set());
+                                        setVisibleCount(10);
                                     }}
                                     className="h-9 px-2 lg:px-3 text-muted-foreground hover:text-foreground"
                                 >
@@ -346,7 +384,7 @@ export default function FormResponsesPage() {
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    {filteredResponses.map((response: any) => (
+                                    {paginatedResponses.map((response: any) => (
                                         <TableRow key={response.id} className="divide-x hover:bg-muted/10">
                                             <TableCell className="font-medium text-blue-500 border-r py-3 px-4">
                                                 {response.respondentEmail || <span className="text-muted-foreground italic">No email</span>}
@@ -386,6 +424,19 @@ export default function FormResponsesPage() {
                                     ))}
                                 </TableBody>
                             </Table>
+                        </div>
+                    )}
+                    {visibleCount < filteredResponses.length && (
+                        <div ref={observerRef} className="flex justify-center py-6">
+                            <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                        </div>
+                    )}
+                    {visibleCount >= filteredResponses.length && filteredResponses.length > 0 && (
+                        <div className="flex flex-col items-center justify-center py-8 border-t border-dashed mt-6">
+                            <p className="text-xs text-muted-foreground font-medium bg-muted/30 px-3 py-1.5 rounded-full flex items-center gap-1.5">
+                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                                All submissions are listed
+                            </p>
                         </div>
                     )}
                 </CardContent>

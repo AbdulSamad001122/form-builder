@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
 import { useListArchivedForms, useUpdateForm } from "~/hooks/api/form"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "~/components/ui/card"
@@ -31,9 +31,13 @@ function ThemeSwatch({ themeId }: { themeId?: string | null }) {
     )
 }
 
+
+
 export default function ArchivePage() {
     const [searchQuery, setSearchQuery] = useState("")
     const [sortOrder, setSortOrder] = useState<"newest" | "oldest">("newest")
+    const [visibleCount, setVisibleCount] = useState(6)
+    const observerRef = useRef<HTMLDivElement | null>(null)
 
     const { data: forms, isLoading } = useListArchivedForms()
     const { updateForm } = useUpdateForm()
@@ -61,6 +65,27 @@ export default function ArchivePage() {
               })
         : []
 
+    const paginatedForms = filteredAndSortedForms.slice(0, visibleCount)
+
+    useEffect(() => {
+        const sentinel = observerRef.current
+        if (!sentinel) return
+
+        const observer = new IntersectionObserver(
+            (entries) => {
+                if (entries[0]?.isIntersecting) {
+                    setVisibleCount((prev) => Math.min(prev + 6, filteredAndSortedForms.length))
+                }
+            },
+            { threshold: 0.1 }
+        )
+
+        observer.observe(sentinel)
+        return () => {
+            if (sentinel) observer.unobserve(sentinel)
+        }
+    }, [filteredAndSortedForms.length])
+
     return (
         <div className="p-4 lg:p-6">
             <div className="flex justify-between items-center mb-4">
@@ -76,13 +101,19 @@ export default function ArchivePage() {
                         <Input
                             placeholder="Search archived forms by title..."
                             value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
+                            onChange={(e) => {
+                                setSearchQuery(e.target.value)
+                                setVisibleCount(6)
+                            }}
                             className="pl-10 w-full bg-card"
                         />
                     </div>
                     <div className="w-full sm:w-[220px] flex items-center gap-2">
                         <span className="text-sm font-medium text-muted-foreground shrink-0 hidden sm:inline">Sort:</span>
-                        <Select value={sortOrder} onValueChange={(value: any) => setSortOrder(value)}>
+                        <Select value={sortOrder} onValueChange={(value: any) => {
+                            setSortOrder(value)
+                            setVisibleCount(6)
+                        }}>
                             <SelectTrigger className="w-full bg-card">
                                 <SelectValue placeholder="Sort order" />
                             </SelectTrigger>
@@ -119,62 +150,77 @@ export default function ArchivePage() {
                 </div>
             ) : forms && forms.length > 0 ? (
                 filteredAndSortedForms.length > 0 ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {filteredAndSortedForms.map((form) => (
-                            <Card 
-                                key={form.id} 
-                                className="group relative flex flex-col justify-between hover:shadow-lg hover:border-primary/20 hover:-translate-y-1 transition-all duration-300 rounded-xl overflow-hidden"
-                            >
-                                <div
-                                    className="h-1.5 w-full absolute top-0 left-0 transition-all duration-300 group-hover:h-2"
-                                    style={{ background: getThemeById(form.theme).previewGradient }}
-                                />
-                                <CardHeader className="pb-2 pt-5">
-                                    <CardTitle className="flex items-start justify-between gap-2 flex-wrap">
-                                        <span className="truncate max-w-[150px] font-semibold text-foreground group-hover:text-primary transition-colors">{form.title}</span>
-                                        <div className="flex gap-1.5 shrink-0 flex-wrap">
-                                            <Badge variant={form.status === "PUBLISHED" ? "default" : "secondary"}>
-                                                {form.status}
-                                            </Badge>
-                                            <Badge variant="outline">{form.visibility}</Badge>
-                                            {form.isPasswordProtected && (
-                                                <Badge variant="outline" className="border-amber-500/30 text-amber-600 dark:text-amber-400 bg-amber-500/5 flex items-center gap-1">
-                                                    <Lock size={10} className="shrink-0" />
-                                                    Locked
+                    <div className="space-y-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            {paginatedForms.map((form) => (
+                                <Card 
+                                    key={form.id} 
+                                    className="group relative flex flex-col justify-between hover:shadow-lg hover:border-primary/20 hover:-translate-y-1 transition-all duration-300 rounded-xl overflow-hidden"
+                                >
+                                    <div
+                                        className="h-1.5 w-full absolute top-0 left-0 transition-all duration-300 group-hover:h-2"
+                                        style={{ background: getThemeById(form.theme).previewGradient }}
+                                    />
+                                    <CardHeader className="pb-2 pt-5">
+                                        <CardTitle className="flex items-start justify-between gap-2 flex-wrap">
+                                            <span className="truncate max-w-[150px] font-semibold text-foreground group-hover:text-primary transition-colors">{form.title}</span>
+                                            <div className="flex gap-1.5 shrink-0 flex-wrap">
+                                                <Badge variant={form.status === "PUBLISHED" ? "default" : "secondary"}>
+                                                    {form.status}
                                                 </Badge>
-                                            )}
+                                                <Badge variant="outline">{form.visibility}</Badge>
+                                                {form.isPasswordProtected && (
+                                                    <Badge variant="outline" className="border-amber-500/30 text-amber-600 dark:text-amber-400 bg-amber-500/5 flex items-center gap-1">
+                                                        <Lock size={10} className="shrink-0" />
+                                                        Locked
+                                                    </Badge>
+                                                )}
+                                            </div>
+                                        </CardTitle>
+                                        {form.description && (
+                                            <CardDescription className="line-clamp-2 mt-1">{form.description}</CardDescription>
+                                        )}
+                                    </CardHeader>
+                                    <CardContent className="py-2 space-y-2.5 flex-1 flex flex-col justify-between">
+                                        <div className="space-y-2">
+                                            <ThemeSwatch themeId={form.theme} />
+                                            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                                                <Calendar size={12} className="shrink-0" />
+                                                <span>Created: {new Date(form.createdAt!).toLocaleDateString()}</span>
+                                            </div>
                                         </div>
-                                    </CardTitle>
-                                    {form.description && (
-                                        <CardDescription className="line-clamp-2 mt-1">{form.description}</CardDescription>
-                                    )}
-                                </CardHeader>
-                                <CardContent className="py-2 space-y-2.5 flex-1 flex flex-col justify-between">
-                                    <div className="space-y-2">
-                                        <ThemeSwatch themeId={form.theme} />
-                                        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                                            <Calendar size={12} className="shrink-0" />
-                                            <span>Created: {new Date(form.createdAt!).toLocaleDateString()}</span>
-                                        </div>
-                                    </div>
-                                    {form.status === "PUBLISHED" && (
-                                        <div className="mt-1">
-                                            <Button variant="link" className="p-0 h-auto text-blue-500 hover:text-blue-600 flex items-center gap-1 text-xs" asChild>
-                                                <Link href={`/f/${form.id}`} target="_blank">
-                                                    Open Public Form <ExternalLink size={12} />
-                                                </Link>
-                                            </Button>
-                                        </div>
-                                    )}
-                                </CardContent>
-                                <CardFooter className="flex justify-end gap-2 pt-4 border-t mt-3">
-                                    <Button variant="outline" size="sm" className="flex items-center gap-1.5 text-primary hover:bg-primary/5 border-primary/20 hover:border-primary/40" onClick={() => handleRestoreForm(form.id)}>
-                                        <ArchiveRestore size={13} />
-                                        <span>Restore Form</span>
-                                    </Button>
-                                </CardFooter>
-                            </Card>
-                        ))}
+                                        {form.status === "PUBLISHED" && (
+                                            <div className="mt-1">
+                                                <Button variant="link" className="p-0 h-auto text-blue-500 hover:text-blue-600 flex items-center gap-1 text-xs" asChild>
+                                                    <Link href={`/f/${form.id}`} target="_blank">
+                                                        Open Public Form <ExternalLink size={12} />
+                                                    </Link>
+                                                </Button>
+                                            </div>
+                                        )}
+                                    </CardContent>
+                                    <CardFooter className="flex justify-end gap-2 pt-4 border-t mt-3">
+                                        <Button variant="outline" size="sm" className="flex items-center gap-1.5 text-primary hover:bg-primary/5 border-primary/20 hover:border-primary/40" onClick={() => handleRestoreForm(form.id)}>
+                                            <ArchiveRestore size={13} />
+                                            <span>Restore Form</span>
+                                        </Button>
+                                    </CardFooter>
+                                </Card>
+                            ))}
+                        </div>
+                        {visibleCount < filteredAndSortedForms.length && (
+                            <div ref={observerRef} className="flex justify-center py-6">
+                                <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                            </div>
+                        )}
+                        {visibleCount >= filteredAndSortedForms.length && filteredAndSortedForms.length > 0 && (
+                            <div className="flex flex-col items-center justify-center py-8 border-t border-dashed mt-6">
+                                <p className="text-xs text-muted-foreground font-medium bg-muted/30 px-3 py-1.5 rounded-full flex items-center gap-1.5">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                                    All archived forms are listed
+                                </p>
+                            </div>
+                        )}
                     </div>
                 ) : (
                     <div className="rounded-lg border border-dashed p-12 text-center bg-muted/10">

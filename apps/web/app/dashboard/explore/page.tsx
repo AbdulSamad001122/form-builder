@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef, useCallback } from "react"
+import { useState, useRef, useCallback, useEffect } from "react"
 import Link from "next/link"
 import { useListExploreForms } from "~/hooks/api/form"
 import { getThemeById } from "~/lib/form-themes"
@@ -269,12 +269,39 @@ function ExploreFormCard({ form }: { form: any }) {
     )
 }
 
+
+
 export default function ExplorePage() {
     const [searchQuery, setSearchQuery] = useState("")
+    const [visibleCount, setVisibleCount] = useState(6)
+    const observerRef = useRef<HTMLDivElement | null>(null)
 
     const { data: forms, isLoading } = useListExploreForms(
         searchQuery.trim().length > 0 ? searchQuery.trim() : undefined
     )
+
+    const paginatedForms = forms
+        ? forms.slice(0, visibleCount)
+        : []
+
+    useEffect(() => {
+        const sentinel = observerRef.current
+        if (!sentinel) return
+
+        const observer = new IntersectionObserver(
+            (entries) => {
+                if (entries[0]?.isIntersecting) {
+                    setVisibleCount((prev) => Math.min(prev + 6, forms?.length || 0))
+                }
+            },
+            { threshold: 0.1 }
+        )
+
+        observer.observe(sentinel)
+        return () => {
+            if (sentinel) observer.unobserve(sentinel)
+        }
+    }, [forms?.length])
 
     return (
         <div className="p-4 lg:p-6">
@@ -293,7 +320,10 @@ export default function ExplorePage() {
                     id="explore-search"
                     placeholder="Search forms by title..."
                     value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onChange={(e) => {
+                        setSearchQuery(e.target.value)
+                        setVisibleCount(6)
+                    }}
                     className="pl-10 bg-card"
                 />
             </div>
@@ -305,16 +335,29 @@ export default function ExplorePage() {
                     ))}
                 </div>
             ) : forms && forms.length > 0 ? (
-                <>
-                    <p className="text-xs text-muted-foreground mb-4">
+                <div className="space-y-4">
+                    <p className="text-xs text-muted-foreground mb-1">
                         {forms.length} form{forms.length !== 1 ? "s" : ""} found
                     </p>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {forms.map((form) => (
+                        {paginatedForms.map((form) => (
                             <ExploreFormCard key={form.id} form={form} />
                         ))}
                     </div>
-                </>
+                    {forms && visibleCount < forms.length && (
+                        <div ref={observerRef} className="flex justify-center py-6">
+                            <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                        </div>
+                    )}
+                    {forms && visibleCount >= forms.length && forms.length > 0 && (
+                        <div className="flex flex-col items-center justify-center py-8 border-t border-dashed mt-6">
+                            <p className="text-xs text-muted-foreground font-medium bg-muted/30 px-3 py-1.5 rounded-full flex items-center gap-1.5">
+                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                                All public forms are listed
+                            </p>
+                        </div>
+                    )}
+                </div>
             ) : (
                 <div className="rounded-lg border border-dashed p-12 text-center bg-muted/10">
                     <QrCode size={36} className="mx-auto mb-3 text-muted-foreground/40" />
@@ -333,7 +376,10 @@ export default function ExplorePage() {
                             variant="outline"
                             size="sm"
                             className="mt-4"
-                            onClick={() => setSearchQuery("")}
+                             onClick={() => {
+                                 setSearchQuery("")
+                                 setVisibleCount(6)
+                             }}
                         >
                             Clear Search
                         </Button>
