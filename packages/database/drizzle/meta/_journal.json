@@ -50,6 +50,13 @@
       "when": 1779456722994,
       "tag": "0006_chilly_the_stranger",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1779547909371,
+      "tag": "0007_fresh_wolverine",
+      "breakpoints": true
     }
   ]
 }

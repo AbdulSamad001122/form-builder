@@ -37,9 +37,7 @@ class FormService {
     }
 
     public async listFormById(payload: listFormByUserIdInputModelType) {
-
         const { userId } = await listFormByUserIdInputModel.parseAsync(payload)
-
 
         const forms = await db.select({
             id: formsTable.id,
@@ -51,17 +49,37 @@ class FormService {
             status: formsTable.status,
             createdAt: formsTable.createdAt,
             updatedAt: formsTable.updatedAt,
-            isPasswordProtected: formsTable.isPasswordProtected
+            isPasswordProtected: formsTable.isPasswordProtected,
+            isArchived: formsTable.isArchived
         }).from(formsTable)
-            .where(eq(formsTable.createdBy, userId))
-
+            .where(and(eq(formsTable.createdBy, userId), eq(formsTable.isArchived, false)))
 
         return forms
+    }
 
+    public async listArchivedForms(payload: listFormByUserIdInputModelType) {
+        const { userId } = await listFormByUserIdInputModel.parseAsync(payload)
+
+        const forms = await db.select({
+            id: formsTable.id,
+            title: formsTable.title,
+            description: formsTable.description,
+            slug: formsTable.slug,
+            theme: formsTable.theme,
+            visibility: formsTable.visibility,
+            status: formsTable.status,
+            createdAt: formsTable.createdAt,
+            updatedAt: formsTable.updatedAt,
+            isPasswordProtected: formsTable.isPasswordProtected,
+            isArchived: formsTable.isArchived
+        }).from(formsTable)
+            .where(and(eq(formsTable.createdBy, userId), eq(formsTable.isArchived, true)))
+
+        return forms
     }
 
     public async updateForm(payload: updateFormInputModelType) {
-        const { id, userId, title, description, slug, theme, visibility, status, isPasswordProtected, password } = await updateFormInputModel.parseAsync(payload)
+        const { id, userId, title, description, slug, theme, visibility, status, isPasswordProtected, password, isArchived } = await updateFormInputModel.parseAsync(payload)
 
         const valuesToUpdate: any = {}
         if (title !== undefined) valuesToUpdate.title = title
@@ -85,6 +103,10 @@ class FormService {
             valuesToUpdate.passwordHash = hash
             valuesToUpdate.passwordSalt = salt
             valuesToUpdate.isPasswordProtected = true
+        }
+
+        if (isArchived !== undefined) {
+            valuesToUpdate.isArchived = isArchived
         }
 
         valuesToUpdate.updatedAt = new Date()
@@ -194,7 +216,8 @@ class FormService {
             visibility: formsTable.visibility,
             createdAt: formsTable.createdAt,
             updatedAt: formsTable.updatedAt,
-            isPasswordProtected: formsTable.isPasswordProtected
+            isPasswordProtected: formsTable.isPasswordProtected,
+            isArchived: formsTable.isArchived
         }).from(formsTable)
             .where(and(eq(formsTable.id, id), eq(formsTable.createdBy, userId)))
             .limit(1)

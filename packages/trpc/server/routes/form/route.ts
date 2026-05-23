@@ -55,6 +55,23 @@ export const formRouter = router({
             });
         }),
 
+    listArchivedForms: authenticatedProcedure
+        .meta({
+            openapi: {
+                method: "GET",
+                path: getPath("listArchivedForms"),
+                tags: TAGS,
+                protect: true,
+            }
+        })
+        .input(z.undefined())
+        .output(z.array(listFormByUserIdOutputModel))
+        .query(async ({ ctx }) => {
+            return formService.listArchivedForms({
+                userId: ctx.user!.id,
+            });
+        }),
+
     updateForm: authenticatedProcedure
         .meta({
             openapi: {

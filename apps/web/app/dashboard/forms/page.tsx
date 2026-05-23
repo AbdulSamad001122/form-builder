@@ -21,7 +21,7 @@ import { Input } from "~/components/ui/input"
 import { Label } from "~/components/ui/label"
 import { Textarea } from "~/components/ui/textarea"
 import { FORM_THEMES, DEFAULT_THEME_ID, getThemeById } from "~/lib/form-themes"
-import { Check, Palette, Search, ArrowUpDown, Loader2 } from "lucide-react"
+import { Check, Palette, Search, ArrowUpDown, Loader2, Lock, Calendar, BarChart3, Edit3, Trash2, ExternalLink, Archive } from "lucide-react"
 import { toast } from "sonner"
 import { Skeleton } from "~/components/ui/skeleton"
 
@@ -91,6 +91,13 @@ function ThemeSwatch({ themeId }: { themeId?: string | null }) {
 // ─── Main Page ─────────────────────────────────────────────────────────────────
 export default function FormsPage() {
     const router = useRouter()
+    const handleCardClick = (formId: string, e: React.MouseEvent) => {
+        const target = e.target as HTMLElement
+        if (target.closest('button') || target.closest('a')) {
+            return
+        }
+        router.push(`/dashboard/forms/${formId}`)
+    }
     const [open, setOpen] = useState(false)
     const [title, setTitle] = useState("")
     const [description, setDescription] = useState("")
@@ -194,6 +201,17 @@ export default function FormsPage() {
             },
             onError: (err) => {
                 toast.error(`Failed to delete form: ${err.message}`)
+            }
+        })
+    }
+
+    const handleArchiveForm = (formId: string) => {
+        updateForm({ id: formId, isArchived: true }, {
+            onSuccess: () => {
+                toast.success("Form archived successfully!")
+            },
+            onError: (err) => {
+                toast.error(`Failed to archive form: ${err.message}`)
             }
         })
     }
@@ -320,49 +338,71 @@ export default function FormsPage() {
                 filteredAndSortedForms.length > 0 ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         {filteredAndSortedForms.map((form) => (
-                            <Card key={form.id} className="hover:shadow-md transition-shadow relative overflow-hidden">
-                                {/* Theme accent strip */}
+                            <Card 
+                                key={form.id} 
+                                className="group relative flex flex-col justify-between hover:shadow-lg hover:border-primary/20 hover:-translate-y-1 transition-all duration-300 rounded-xl cursor-pointer active:scale-[0.995] overflow-hidden"
+                                onClick={(e) => handleCardClick(form.id, e)}
+                            >
                                 <div
-                                    className="h-1.5 w-full absolute top-0 left-0"
+                                    className="h-1.5 w-full absolute top-0 left-0 transition-all duration-300 group-hover:h-2"
                                     style={{ background: getThemeById(form.theme).previewGradient }}
                                 />
-                                <Link href={`/dashboard/forms/${form.id}`} className="absolute inset-0 z-0" />
-                                <CardHeader className="relative z-10 pointer-events-none pb-2 pt-5">
-                                    <CardTitle className="flex items-center justify-between gap-2 flex-wrap">
-                                        <span className="truncate">{form.title}</span>
-                                        <div className="flex gap-2 shrink-0">
+                                <CardHeader className="pb-2 pt-5">
+                                    <CardTitle className="flex items-start justify-between gap-2 flex-wrap">
+                                        <span className="truncate max-w-[150px] font-semibold text-foreground group-hover:text-primary transition-colors">{form.title}</span>
+                                        <div className="flex gap-1.5 shrink-0 flex-wrap">
                                             <Badge variant={form.status === "PUBLISHED" ? "default" : "secondary"}>
                                                 {form.status}
                                             </Badge>
                                             <Badge variant="outline">{form.visibility}</Badge>
+                                            {form.isPasswordProtected && (
+                                                <Badge variant="outline" className="border-amber-500/30 text-amber-600 dark:text-amber-400 bg-amber-500/5 flex items-center gap-1">
+                                                    <Lock size={10} className="shrink-0" />
+                                                    Locked
+                                                </Badge>
+                                            )}
                                         </div>
                                     </CardTitle>
                                     {form.description && (
-                                        <CardDescription className="line-clamp-2">{form.description}</CardDescription>
+                                        <CardDescription className="line-clamp-2 mt-1">{form.description}</CardDescription>
                                     )}
                                 </CardHeader>
-                                <CardContent className="relative z-10 pointer-events-none py-2 space-y-2">
-                                    {/* Theme badge */}
-                                    <ThemeSwatch themeId={form.theme} />
-                                    <p className="text-xs text-muted-foreground">
-                                        Created: {new Date(form.createdAt!).toLocaleDateString()}
-                                    </p>
+                                <CardContent className="py-2 space-y-2.5 flex-1 flex flex-col justify-between">
+                                    <div className="space-y-2">
+                                        <ThemeSwatch themeId={form.theme} />
+                                        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                                            <Calendar size={12} className="shrink-0" />
+                                            <span>Created: {new Date(form.createdAt!).toLocaleDateString()}</span>
+                                        </div>
+                                    </div>
                                     {form.status === "PUBLISHED" && (
-                                        <div className="mt-2 pointer-events-auto">
-                                            <Button variant="link" className="p-0 h-auto text-blue-500" asChild>
-                                                <Link href={`/f/${form.id}`} target="_blank" onClick={(e) => e.stopPropagation()}>
-                                                    Open Public Form ↗
+                                        <div className="mt-1">
+                                            <Button variant="link" className="p-0 h-auto text-blue-500 hover:text-blue-600 flex items-center gap-1 text-xs" asChild onClick={(e) => e.stopPropagation()}>
+                                                <Link href={`/f/${form.id}`} target="_blank">
+                                                    Open Public Form <ExternalLink size={12} />
                                                 </Link>
                                             </Button>
                                         </div>
                                     )}
                                 </CardContent>
-                                <CardFooter className="flex justify-end gap-2 relative z-10">
-                                    <Button variant="outline" size="sm" asChild>
-                                        <Link href={`/dashboard/forms/${form.id}/responses`}>Responses</Link>
+                                <CardFooter className="flex justify-end gap-2 pt-4 border-t mt-3" onClick={(e) => e.stopPropagation()}>
+                                    <Button variant="outline" size="sm" className="flex items-center gap-1.5" asChild>
+                                        <Link href={`/dashboard/forms/${form.id}/responses`}>
+                                            <BarChart3 size={13} />
+                                            <span>Responses</span>
+                                        </Link>
                                     </Button>
-                                    <Button variant="outline" size="sm" onClick={() => openEditModal(form)}>Edit</Button>
-                                    <Button variant="destructive" size="sm" onClick={() => openDeleteModal(form)}>Delete</Button>
+                                    <Button variant="outline" size="sm" className="flex items-center gap-1.5" onClick={() => openEditModal(form)}>
+                                        <Edit3 size={13} />
+                                        <span>Edit</span>
+                                    </Button>
+                                    <Button variant="outline" size="sm" className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground" onClick={() => handleArchiveForm(form.id)}>
+                                        <Archive size={13} />
+                                        <span>Archive</span>
+                                    </Button>
+                                    <Button variant="ghost" size="sm" className="text-destructive hover:bg-destructive/10 hover:text-destructive flex items-center gap-1.5" onClick={() => openDeleteModal(form)}>
+                                        <Trash2 size={13} />
+                                    </Button>
                                 </CardFooter>
                             </Card>
                         ))}

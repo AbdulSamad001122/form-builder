@@ -26,7 +26,8 @@ export const useCreateForm = () => {
                 visibility: newForm.visibility || "UNLISTED",
                 status: newForm.status || "DRAFT",
                 createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString()
+                updatedAt: new Date().toISOString(),
+                isArchived: false
             }
             utils.form.listFormByUserId.setData(undefined, (old) => {
                 return old ? [tempForm, ...old] : [tempForm]
@@ -77,6 +78,28 @@ export const useListFormsByUserId = () => {
     }
 }
 
+export const useListArchivedForms = () => {
+    const {
+        data,
+        error,
+        isError,
+        isPending,
+        isLoading,
+        isSuccess,
+        refetch
+    } = trpc.form.listArchivedForms.useQuery(undefined)
+
+    return {
+        data,
+        error,
+        isError,
+        isPending,
+        isLoading,
+        isSuccess,
+        refetch
+    }
+}
+
 export const useUpdateForm = () => {
     const utils = trpc.useUtils()
 
@@ -106,6 +129,7 @@ export const useUpdateForm = () => {
                             theme: updatedForm.theme !== undefined ? updatedForm.theme : f.theme,
                             visibility: updatedForm.visibility !== undefined ? updatedForm.visibility : f.visibility,
                             status: updatedForm.status !== undefined ? updatedForm.status : f.status,
+                            isArchived: updatedForm.isArchived !== undefined ? updatedForm.isArchived : f.isArchived,
                             updatedAt: new Date().toISOString()
                         }
                     }
@@ -123,6 +147,7 @@ export const useUpdateForm = () => {
                     theme: updatedForm.theme !== undefined ? updatedForm.theme : old.theme,
                     visibility: updatedForm.visibility !== undefined ? updatedForm.visibility : old.visibility,
                     status: updatedForm.status !== undefined ? updatedForm.status : old.status,
+                    isArchived: updatedForm.isArchived !== undefined ? updatedForm.isArchived : old.isArchived,
                     updatedAt: new Date().toISOString()
                 }
             })
@@ -139,6 +164,7 @@ export const useUpdateForm = () => {
         },
         onSettled: (data, error, variables) => {
             utils.form.listFormByUserId.invalidate()
+            utils.form.listArchivedForms.invalidate()
             utils.form.getFormById.invalidate({ id: variables.id })
         }
     })
@@ -181,6 +207,7 @@ export const useDeleteForm = () => {
         },
         onSettled: () => {
             utils.form.listFormByUserId.invalidate()
+            utils.form.listArchivedForms.invalidate()
         }
     })
 
