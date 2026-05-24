@@ -3,6 +3,7 @@ import Hero from "./components/Hero";
 import LogosStrip from "./components/LogosStrip";
 import FeatureBuilder from "./components/FeatureBuilder";
 import FeatureFieldTypes from "./components/FeatureFieldTypes";
+import FeatureVisualLogicAndBranding from "./components/FeatureVisualLogicAndBranding";
 import FeatureNotifications from "./components/FeatureNotifications";
 import FeatureAnalytics from "./components/FeatureAnalytics";
 import Testimonials from "./components/Testimonials";
@@ -19,6 +20,7 @@ export default function LandingPage() {
         <LogosStrip />
         <FeatureBuilder />
         <FeatureFieldTypes />
+        <FeatureVisualLogicAndBranding />
         <FeatureNotifications />
         <FeatureAnalytics />
         <Testimonials />
