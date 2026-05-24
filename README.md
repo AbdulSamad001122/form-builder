@@ -6,13 +6,13 @@ A production-style Typeform-inspired form builder built with Turborepo, tRPC, Dr
 
 ## 🚀 Live Demo
 
-**Frontend:** [https://formfit-builder-web.vercel.app](https://formfit-builder-web.vercel.app)
+**Frontend:** [https://formit-web.vercel.app](https://formit-web.vercel.app)
 
-**API / Backend:** Deployed separately (Express + tRPC)
+**API / Backend:** [https://formit-api.onrender.com](https://formit-api.onrender.com) (Deployed separately)
 
-**API Docs (Scalar):** `<your-api-base-url>/docs`
+**API Docs (Scalar):** [https://formit-api.onrender.com/docs](https://formit-api.onrender.com/docs)
 
-**OpenAPI JSON:** `<your-api-base-url>/openapi.json`
+**OpenAPI JSON:** [https://formit-api.onrender.com/openapi.json](https://formit-api.onrender.com/openapi.json)
 
 ---
 
@@ -238,9 +238,9 @@ The Express API is deployed as a Node.js web service. Set all required environme
 
 | Item                  | Value                                                |
 |-----------------------|------------------------------------------------------|
-| GitHub Repository     | [github.com/your-username/trpc-monorepo](https://github.com) |
-| Deployed Demo         | [https://formfit-builder-web.vercel.app](https://formfit-builder-web.vercel.app) |
-| API Documentation     | `<your-api-url>/docs`                                |
+| GitHub Repository     | [github.com/AbdulSamad001122/form-builder](https://github.com/AbdulSamad001122/form-builder) |
+| Deployed Demo         | [https://formit-web.vercel.app](https://formit-web.vercel.app) |
+| API Documentation     | [https://formit-api.onrender.com/docs](https://formit-api.onrender.com/docs) |
 | Demo Email            | `demo@formit.dev`                                    |
 | Demo Password         | `Demo@1234`                                          |
 
