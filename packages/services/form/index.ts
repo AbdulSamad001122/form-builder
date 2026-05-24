@@ -1,6 +1,6 @@
 import { type createFormFieldInputModelType, createFormInputModel, listFormByUserIdInputModel, type listFormByUserIdInputModelType, updateFormInputModel, type updateFormInputModelType, deleteFormInputModel, type deleteFormInputModelType, getFormByIdInputModel, type getFormByIdInputModelType } from "./model"
 import { db, eq, and, asc, desc, ilike, sql } from "@repo/database"
-import { formsTable, formFieldsTable, formResponsesTable, usersTable } from "../../database/schema"
+import { formsTable, formFieldsTable, formResponsesTable, usersTable, customBrandsTable } from "../../database/schema"
 import { randomBytes, createHmac } from "node:crypto"
 import * as JWT from "jsonwebtoken"
 import { env } from "../env"
@@ -160,7 +160,8 @@ class FormService {
             passwordHash: formsTable.passwordHash,
             passwordSalt: formsTable.passwordSalt,
             expiresAt: formsTable.expiresAt,
-            responseLimit: formsTable.responseLimit
+            responseLimit: formsTable.responseLimit,
+            createdBy: formsTable.createdBy
         }).from(formsTable)
             .where(eq(formsTable.id, id))
             .limit(1)
@@ -191,6 +192,22 @@ class FormService {
 
         const formDetails = form[0]
 
+        const brandRecord = formDetails.createdBy ? await db
+            .select()
+            .from(customBrandsTable)
+            .where(eq(customBrandsTable.userId, formDetails.createdBy))
+            .limit(1) : []
+
+        const brand = brandRecord[0] ? {
+            logoUrl: brandRecord[0].logoUrl,
+            backgroundColor: brandRecord[0].backgroundColor,
+            cardBgColor: brandRecord[0].cardBgColor,
+            textColor: brandRecord[0].textColor,
+            inputBgColor: brandRecord[0].inputBgColor,
+            inputTextColor: brandRecord[0].inputTextColor,
+            inputBorderColor: brandRecord[0].inputBorderColor,
+        } : null
+
         if (formDetails.isPasswordProtected) {
             let isAuthorized = false
             if (accessToken) {
@@ -212,7 +229,8 @@ class FormService {
                     theme: formDetails.theme,
                     status: formDetails.status,
                     isPasswordProtected: true,
-                    fields: []
+                    fields: [],
+                    brand
                 }
             }
         }
@@ -229,7 +247,8 @@ class FormService {
             theme: formDetails.theme,
             status: formDetails.status,
             isPasswordProtected: formDetails.isPasswordProtected,
-            fields
+            fields,
+            brand
         }
     }
 
@@ -249,7 +268,8 @@ class FormService {
             isPasswordProtected: formsTable.isPasswordProtected,
             isArchived: formsTable.isArchived,
             expiresAt: formsTable.expiresAt,
-            responseLimit: formsTable.responseLimit
+            responseLimit: formsTable.responseLimit,
+            createdBy: formsTable.createdBy
         }).from(formsTable)
             .where(and(eq(formsTable.id, id), eq(formsTable.createdBy, userId)))
             .limit(1)
@@ -258,12 +278,28 @@ class FormService {
             throw new Error("This form could not be found, or you do not have permission to view it.")
         }
 
+        const brandRecord = form[0].createdBy ? await db
+            .select()
+            .from(customBrandsTable)
+            .where(eq(customBrandsTable.userId, form[0].createdBy))
+            .limit(1) : []
+
+        const brand = brandRecord[0] ? {
+            logoUrl: brandRecord[0].logoUrl,
+            backgroundColor: brandRecord[0].backgroundColor,
+            cardBgColor: brandRecord[0].cardBgColor,
+            textColor: brandRecord[0].textColor,
+            inputBgColor: brandRecord[0].inputBgColor,
+            inputTextColor: brandRecord[0].inputTextColor,
+            inputBorderColor: brandRecord[0].inputBorderColor,
+        } : null
+
         const fields = await db.select()
             .from(formFieldsTable)
             .where(eq(formFieldsTable.formId, id))
             .orderBy(asc(formFieldsTable.index))
 
-        return { ...form[0], fields }
+        return { ...form[0], fields, brand }
     }
 
     public async getDashboardStats(payload: { userId: string }) {

@@ -10,3 +10,6 @@ export const formFieldService = new FormFieldService();
 
 import FormResponseService from "@repo/services/form-response";
 export const formResponseService = new FormResponseService();
+
+import CustomBrandService from "@repo/services/custom-brand";
+export const customBrandService = new CustomBrandService();

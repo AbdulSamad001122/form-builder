@@ -1,0 +1,1 @@
+ALTER TABLE "custom_brands" ADD COLUMN "card_bg_color" varchar(50) DEFAULT 'rgba(255,255,255,0.03)' NOT NULL;

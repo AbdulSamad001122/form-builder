@@ -1,0 +1,1 @@
+ALTER TABLE "forms" ADD COLUMN "use_custom_branding" boolean DEFAULT false NOT NULL;

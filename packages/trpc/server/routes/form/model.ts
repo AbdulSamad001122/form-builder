@@ -65,6 +65,16 @@ export const getPublicFormInputModel = z.object({
     accessToken: z.string().optional(),
 })
 
+export const brandModel = z.object({
+    logoUrl: z.string().nullable().optional(),
+    backgroundColor: z.string(),
+    cardBgColor: z.string(),
+    textColor: z.string(),
+    inputBgColor: z.string(),
+    inputTextColor: z.string(),
+    inputBorderColor: z.string(),
+}).nullable().optional();
+
 export const getPublicFormOutputModel = z.object({
     id: z.string().uuid(),
     title: z.string(),
@@ -72,7 +82,8 @@ export const getPublicFormOutputModel = z.object({
     theme: z.string().nullable(),
     status: z.string(),
     isPasswordProtected: z.boolean().optional(),
-    fields: z.array(z.any())
+    fields: z.array(z.any()),
+    brand: brandModel,
 })
 
 export const getFormByIdInputModel = z.object({
@@ -93,7 +104,8 @@ export const getFormByIdOutputModel = z.object({
     isArchived: z.boolean().optional(),
     expiresAt: z.date().nullable().optional(),
     responseLimit: z.number().nullable().optional(),
-    fields: z.array(z.any())
+    fields: z.array(z.any()),
+    brand: brandModel,
 })
 
 export const getDashboardStatsOutputModel = z.object({

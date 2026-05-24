@@ -57,8 +57,29 @@ export default function PublicFormPage() {
     const [currentFieldId, setCurrentFieldId] = useState("");
     const [fieldHistory, setFieldHistory] = useState<string[]>([]);
 
-    // Resolve theme (after form loads)
     const theme = getThemeById(form?.theme);
+
+    const brandStyle = form?.brand ? {
+        backgroundColor: form.brand.backgroundColor,
+        color: form.brand.textColor,
+        backgroundImage: "none",
+    } : {};
+
+    const brandCardStyle = form?.brand ? {
+        backgroundColor: form.brand.cardBgColor,
+        color: form.brand.textColor,
+        borderColor: form.brand.inputBorderColor,
+    } : {};
+
+    const brandTextStyle = form?.brand ? {
+        color: form.brand.textColor,
+    } : {};
+
+    const brandInputStyle = form?.brand ? {
+        backgroundColor: form.brand.inputBgColor,
+        color: form.brand.inputTextColor,
+        borderColor: form.brand.inputBorderColor,
+    } : {};
 
     const isLocked = !isPreview && form?.isPasswordProtected && (!form.fields || form.fields.length === 0);
 
@@ -130,28 +151,37 @@ export default function PublicFormPage() {
 
     if (isLocked) {
         return (
-            <div className={`${theme.page} flex items-center justify-center relative py-12`}>
+            <div className={`${theme.page} flex items-center justify-center relative py-12`} style={brandStyle}>
                 <div className="w-full max-w-md space-y-6">
                     <div className="text-center space-y-2">
-                        <h1 className={`text-3xl font-extrabold tracking-tight ${theme.title}`}>{form.title}</h1>
+                        {form.brand?.logoUrl && (
+                            <div className="flex justify-center mb-6">
+                                <img
+                                    src={form.brand.logoUrl}
+                                    alt="Company Logo"
+                                    className="max-h-16 object-contain rounded-lg"
+                                />
+                            </div>
+                        )}
+                        <h1 className={`text-3xl font-extrabold tracking-tight ${theme.title}`} style={brandTextStyle}>{form.title}</h1>
                         {form.description && (
-                            <p className={`${theme.subtitle}`}>{form.description}</p>
+                            <p className={`${theme.subtitle}`} style={brandTextStyle}>{form.description}</p>
                         )}
                     </div>
 
-                    <div className={theme.emailCard}>
+                    <div className={theme.emailCard} style={brandCardStyle}>
                         <div className="p-6 space-y-4">
                             <div>
-                                <h2 className={`text-lg font-semibold flex items-center gap-2 ${theme.label}`}>
+                                <h2 className={`text-lg font-semibold flex items-center gap-2 ${theme.label}`} style={brandTextStyle}>
                                     🔒 Protected Form
                                 </h2>
-                                <p className={`text-sm mt-1 opacity-60 ${theme.label}`}>
+                                <p className={`text-sm mt-1 opacity-60 ${theme.label}`} style={brandTextStyle}>
                                     This form is password protected. Enter the password to unlock and view fields.
                                 </p>
                             </div>
                             <form onSubmit={handleUnlock} className="space-y-4">
                                 <div className="space-y-2 relative">
-                                    <Label htmlFor="form-password" className={theme.label}>
+                                    <Label htmlFor="form-password" className={theme.label} style={brandTextStyle}>
                                         Form Password <span className="text-red-400">*</span>
                                     </Label>
                                     <div className="relative">
@@ -165,6 +195,7 @@ export default function PublicFormPage() {
                                                 if (passwordError) setPasswordError("");
                                             }}
                                             className={`${theme.input} pr-10 ${passwordError ? "border-red-500" : ""}`}
+                                            style={brandInputStyle}
                                             autoFocus
                                         />
                                         <button
@@ -193,6 +224,7 @@ export default function PublicFormPage() {
                                     type="submit"
                                     disabled={isVerifying}
                                     className={`w-full flex items-center justify-center gap-2 ${theme.button}`}
+                                    style={form.brand ? { backgroundColor: form.brand.textColor, color: form.brand.backgroundColor } : undefined}
                                 >
                                     {isVerifying ? (
                                         <>
@@ -210,7 +242,7 @@ export default function PublicFormPage() {
                         </div>
                     </div>
 
-                    <p className={`text-center ${theme.footer}`}>
+                    <p className={`text-center ${theme.footer}`} style={brandTextStyle}>
                         Powered by <strong>Formit</strong>
                     </p>
                 </div>
@@ -221,7 +253,7 @@ export default function PublicFormPage() {
     // ─── Submitted ─────────────────────────────────────────────────────────────
     if (step === "submitted") {
         return (
-            <div className={`${theme.page} flex items-center justify-center relative`}>
+            <div className={`${theme.page} flex items-center justify-center relative`} style={brandStyle}>
                 {isPreview && (
                     <div className="absolute top-0 left-0 right-0 z-50 w-full bg-amber-500/10 backdrop-blur-md border-b border-amber-500/20 px-4 py-2.5 text-center">
                         <div className="flex items-center justify-center gap-2 text-xs font-semibold">
@@ -232,18 +264,29 @@ export default function PublicFormPage() {
                         </div>
                     </div>
                 )}
-                <div className="w-full max-w-lg text-center p-8 space-y-6">
-                    <div className="w-20 h-20 rounded-full flex items-center justify-center mx-auto shadow-xl"
-                        style={{ background: "linear-gradient(135deg, #22c55e, #16a34a)" }}>
-                        <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
-                        </svg>
-                    </div>
+                <div className="w-full max-w-lg text-center p-10 space-y-6 border rounded-2xl shadow-sm" style={brandCardStyle}>
+                    {form.brand?.logoUrl && (
+                        <div className="flex justify-center mb-6">
+                            <img
+                                src={form.brand.logoUrl}
+                                alt="Company Logo"
+                                className="max-h-16 object-contain rounded-lg"
+                            />
+                        </div>
+                    )}
+                    {!form.brand?.logoUrl && (
+                        <div className="w-20 h-20 rounded-full flex items-center justify-center mx-auto shadow-xl"
+                            style={{ background: "linear-gradient(135deg, #22c55e, #16a34a)" }}>
+                            <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
+                            </svg>
+                        </div>
+                    )}
                     <div>
-                        <h2 className={`text-3xl font-extrabold mb-2 ${theme.title}`}>Thank you!</h2>
-                        <p className={`${theme.subtitle} opacity-80`}>Your response has been recorded successfully.</p>
+                        <h2 className={`text-3xl font-extrabold mb-2 ${theme.title}`} style={brandTextStyle}>Thank you!</h2>
+                        <p className={`${theme.subtitle} opacity-80`} style={brandTextStyle}>Your response has been recorded successfully.</p>
                         {respondentEmail && (
-                            <p className={`text-sm mt-2 ${theme.footer}`}>
+                            <p className={`text-sm mt-2 ${theme.footer}`} style={brandTextStyle}>
                                 Submitted as <strong>{respondentEmail}</strong>
                             </p>
                         )}
@@ -394,6 +437,7 @@ export default function PublicFormPage() {
                         value={answers[field.id] || ""}
                         onChange={(e) => handleFieldChange(field.id, e.target.value)}
                         className={`${theme.input} ${errorMsg ? "border-red-500" : ""}`}
+                        style={brandInputStyle}
                     />
                 );
                 break;
@@ -406,6 +450,7 @@ export default function PublicFormPage() {
                         value={answers[field.id] || ""}
                         onChange={(e) => handleFieldChange(field.id, e.target.value)}
                         className={`${theme.input} ${errorMsg ? "border-red-500" : ""}`}
+                        style={brandInputStyle}
                     />
                 );
                 break;
@@ -417,6 +462,7 @@ export default function PublicFormPage() {
                         value={answers[field.id] || ""}
                         onChange={(e) => handleFieldChange(field.id, e.target.value)}
                         className={`${theme.input} ${errorMsg ? "border-red-500" : ""}`}
+                        style={brandInputStyle}
                         rows={4}
                     />
                 );
@@ -432,7 +478,7 @@ export default function PublicFormPage() {
                         {["Yes", "No"].map((opt) => (
                             <div key={opt} className="flex items-center space-x-2">
                                 <RadioGroupItem value={opt} id={`${field.id}-${opt}`} />
-                                <Label htmlFor={`${field.id}-${opt}`} className={`font-normal cursor-pointer ${theme.label}`}>{opt}</Label>
+                                <Label htmlFor={`${field.id}-${opt}`} className={`font-normal cursor-pointer ${theme.label}`} style={brandTextStyle}>{opt}</Label>
                             </div>
                         ))}
                     </RadioGroup>
@@ -443,7 +489,7 @@ export default function PublicFormPage() {
             case "DROPDOWN":
                 inputEl = (
                     <Select onValueChange={(val) => handleFieldChange(field.id, val)} value={answers[field.id] || ""}>
-                        <SelectTrigger className={`${theme.input} ${errorMsg ? "border-red-500" : ""}`}>
+                        <SelectTrigger className={`${theme.input} ${errorMsg ? "border-red-500" : ""}`} style={brandInputStyle}>
                             <SelectValue placeholder={field.placeholder || "Select an option"} />
                         </SelectTrigger>
                         <SelectContent>
@@ -474,7 +520,7 @@ export default function PublicFormPage() {
                                         )
                                     }
                                 />
-                                <Label htmlFor={`${field.id}-${i}`} className={`font-normal cursor-pointer ${theme.label}`}>{opt}</Label>
+                                <Label htmlFor={`${field.id}-${i}`} className={`font-normal cursor-pointer ${theme.label}`} style={brandTextStyle}>{opt}</Label>
                             </div>
                         ))}
                     </div>
@@ -499,7 +545,7 @@ export default function PublicFormPage() {
                                             )
                                         }
                                     />
-                                    <Label htmlFor={`${field.id}-${i}`} className={`font-normal cursor-pointer ${theme.label}`}>{opt}</Label>
+                                    <Label htmlFor={`${field.id}-${i}`} className={`font-normal cursor-pointer ${theme.label}`} style={brandTextStyle}>{opt}</Label>
                                 </div>
                             ))}
                         </div>
@@ -515,7 +561,7 @@ export default function PublicFormPage() {
                                     handleFieldChange(field.id, checked ? "true" : "false")
                                 }
                             />
-                            <Label htmlFor={`${field.id}-single`} className={`font-normal cursor-pointer ${theme.label}`}>
+                            <Label htmlFor={`${field.id}-single`} className={`font-normal cursor-pointer ${theme.label}`} style={brandTextStyle}>
                                 {field.placeholder || "Check to confirm"}
                             </Label>
                         </div>
@@ -531,6 +577,7 @@ export default function PublicFormPage() {
                         value={answers[field.id] || ""}
                         onChange={(e) => handleFieldChange(field.id, e.target.value)}
                         className={`${theme.input} ${errorMsg ? "border-red-500" : ""}`}
+                        style={brandInputStyle}
                     />
                 );
                 break;
@@ -545,7 +592,7 @@ export default function PublicFormPage() {
                         {[1, 2, 3, 4, 5].map((rating) => (
                             <div key={rating} className="flex flex-col items-center space-y-2">
                                 <RadioGroupItem value={rating.toString()} id={`${field.id}-${rating}`} />
-                                <Label htmlFor={`${field.id}-${rating}`} className={`font-normal cursor-pointer ${theme.label}`}>{rating}</Label>
+                                <Label htmlFor={`${field.id}-${rating}`} className={`font-normal cursor-pointer ${theme.label}`} style={brandTextStyle}>{rating}</Label>
                             </div>
                         ))}
                     </RadioGroup>
@@ -553,18 +600,18 @@ export default function PublicFormPage() {
                 break;
 
             default:
-                inputEl = <Input placeholder="Unsupported field type" disabled className={theme.input} />;
+                inputEl = <Input placeholder="Unsupported field type" disabled className={theme.input} style={brandInputStyle} />;
         }
 
         return (
-            <div key={field.id} id={`field-${field.id}`} className={theme.fieldCard}>
+            <div key={field.id} id={`field-${field.id}`} className={theme.fieldCard} style={brandCardStyle}>
                 <div className="space-y-1">
-                    <Label className={`${theme.label} flex items-center`}>
+                    <Label className={`${theme.label} flex items-center`} style={brandTextStyle}>
                         {field.label}
                         {field.isRequired && <span className="text-red-400 ml-1">*</span>}
                     </Label>
                     {field.description && (
-                        <p className={`text-sm opacity-60 ${theme.label}`}>{field.description}</p>
+                        <p className={`text-sm opacity-60 ${theme.label}`} style={brandTextStyle}>{field.description}</p>
                     )}
                 </div>
                 <div className="pt-1">{inputEl}</div>
@@ -583,7 +630,7 @@ export default function PublicFormPage() {
     // ─── Email Step ───────────────────────────────────────────────────────────
     if (step === "email") {
         return (
-            <div className={`${theme.page} flex items-center justify-center relative`}>
+            <div className={`${theme.page} flex items-center justify-center relative`} style={brandStyle}>
                 {isPreview && (
                     <div className="absolute top-0 left-0 right-0 z-50 w-full bg-amber-500/10 backdrop-blur-md border-b border-amber-500/20 px-4 py-2.5 text-center">
                         <div className="flex items-center justify-center gap-2 text-xs font-semibold">
@@ -596,26 +643,35 @@ export default function PublicFormPage() {
                 )}
                 <div className="w-full max-w-md space-y-6">
                     <div className="text-center space-y-2">
-                        <h1 className={`text-3xl font-extrabold tracking-tight ${theme.title}`}>{form.title}</h1>
+                        {form.brand?.logoUrl && (
+                            <div className="flex justify-center mb-6">
+                                <img
+                                    src={form.brand.logoUrl}
+                                    alt="Company Logo"
+                                    className="max-h-16 object-contain rounded-lg"
+                                />
+                            </div>
+                        )}
+                        <h1 className={`text-3xl font-extrabold tracking-tight ${theme.title}`} style={brandTextStyle}>{form.title}</h1>
                         {form.description && (
-                            <p className={`${theme.subtitle}`}>{form.description}</p>
+                            <p className={`${theme.subtitle}`} style={brandTextStyle}>{form.description}</p>
                         )}
                     </div>
 
-                    <div className={theme.emailCard}>
+                    <div className={theme.emailCard} style={brandCardStyle}>
                         <div className="p-6 space-y-4">
                             <div>
-                                <h2 className={`text-lg font-semibold flex items-center gap-2 ${theme.label}`}>
+                                <h2 className={`text-lg font-semibold flex items-center gap-2 ${theme.label}`} style={brandTextStyle}>
                                     <Mail size={18} />
                                     Enter Your Email to Continue
                                 </h2>
-                                <p className={`text-sm mt-1 opacity-60 ${theme.label}`}>
+                                <p className={`text-sm mt-1 opacity-60 ${theme.label}`} style={brandTextStyle}>
                                     Your email is required to submit this form.
                                 </p>
                             </div>
                             <form onSubmit={handleEmailSubmit} className="space-y-4">
                                 <div className="space-y-2">
-                                    <Label htmlFor="respondent-email" className={theme.label}>
+                                    <Label htmlFor="respondent-email" className={theme.label} style={brandTextStyle}>
                                         Email address <span className="text-red-400">*</span>
                                     </Label>
                                     <Input
@@ -628,6 +684,7 @@ export default function PublicFormPage() {
                                             if (emailError) setEmailError("");
                                         }}
                                         className={`${theme.input} ${emailError ? "border-red-500" : ""}`}
+                                        style={brandInputStyle}
                                         autoFocus
                                     />
                                     {emailError && (
@@ -638,6 +695,7 @@ export default function PublicFormPage() {
                                     type="submit"
                                     disabled={isContinuing}
                                     className={`w-full flex items-center justify-center gap-2 ${theme.button}`}
+                                    style={form.brand ? { backgroundColor: form.brand.textColor, color: form.brand.backgroundColor } : undefined}
                                 >
                                     {isContinuing ? (
                                         <>
@@ -655,7 +713,7 @@ export default function PublicFormPage() {
                         </div>
                     </div>
 
-                    <p className={`text-center ${theme.footer}`}>
+                    <p className={`text-center ${theme.footer}`} style={brandTextStyle}>
                         Powered by <strong>Formit</strong>
                     </p>
                 </div>
@@ -665,7 +723,7 @@ export default function PublicFormPage() {
 
     // ─── Form Step ────────────────────────────────────────────────────────────
     return (
-        <div className={`${theme.page} relative`}>
+        <div className={`${theme.page} relative`} style={brandStyle}>
             {isPreview && (
                 <div className="absolute top-0 left-0 right-0 z-50 w-full bg-amber-500/10 backdrop-blur-md border-b border-amber-500/20 px-4 py-2.5 text-center">
                     <div className="flex items-center justify-center gap-2 text-xs font-semibold">
@@ -678,17 +736,27 @@ export default function PublicFormPage() {
             )}
             <div className="max-w-2xl mx-auto space-y-2">
                 <div className="text-center space-y-3 mb-8">
-                    <h1 className={`text-3xl font-extrabold tracking-tight ${theme.title}`}>{form.title}</h1>
-                    {form.description && (
-                        <p className={`text-lg max-w-xl mx-auto ${theme.subtitle}`}>{form.description}</p>
+                    {form.brand?.logoUrl && (
+                        <div className="flex justify-center mb-6">
+                            <img
+                                src={form.brand.logoUrl}
+                                alt="Company Logo"
+                                className="max-h-16 object-contain rounded-lg"
+                            />
+                        </div>
                     )}
-                    <div className={`inline-flex items-center gap-2 ${theme.emailBadge}`}>
+                    <h1 className={`text-3xl font-extrabold tracking-tight ${theme.title}`} style={brandTextStyle}>{form.title}</h1>
+                    {form.description && (
+                        <p className={`text-lg max-w-xl mx-auto ${theme.subtitle}`} style={brandTextStyle}>{form.description}</p>
+                    )}
+                    <div className={`inline-flex items-center gap-2 ${theme.emailBadge}`} style={brandStyle}>
                         <Mail size={13} />
-                        Responding as <strong>{respondentEmail}</strong>
+                        Responding as <strong style={brandTextStyle}>{respondentEmail}</strong>
                         <button
                             type="button"
                             onClick={() => setStep("email")}
                             className="text-xs opacity-60 hover:opacity-100 underline ml-1"
+                            style={brandTextStyle}
                         >
                             Change
                         </button>
@@ -705,6 +773,7 @@ export default function PublicFormPage() {
                                 size="lg"
                                 onClick={handleBack}
                                 className="w-full sm:w-auto px-8"
+                                style={brandStyle}
                             >
                                 Back
                             </Button>
@@ -714,6 +783,7 @@ export default function PublicFormPage() {
                             size="lg"
                             disabled={isSubmitting}
                             className={`w-full sm:w-auto px-10 ${theme.button}`}
+                            style={form.brand ? { backgroundColor: form.brand.textColor, color: form.brand.backgroundColor } : undefined}
                         >
                             {isSubmitting ? (
                                 <>

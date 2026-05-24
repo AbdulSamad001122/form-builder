@@ -8,6 +8,7 @@ import {
   IconSettings,
   IconCompass,
   IconArchive,
+  IconPalette,
 } from "@tabler/icons-react"
 
 import { NavMain } from "~/components/nav-main"
@@ -39,6 +40,11 @@ const navMain = [
     title: "Explore",
     url: "/dashboard/explore",
     icon: IconCompass,
+  },
+  {
+    title: "Branding",
+    url: "/dashboard/branding",
+    icon: IconPalette,
   },
   {
     title: "Archive",

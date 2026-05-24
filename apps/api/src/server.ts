@@ -55,7 +55,7 @@ app.use(
 
 app.use(cookieParser())
 
-app.use(express.json({ limit: "10kb" }));
+app.use(express.json({ limit: "10mb" }));
 
 app.get("/", (req, res) => {
   return res.json({ message: "Formit is up and running..." });
