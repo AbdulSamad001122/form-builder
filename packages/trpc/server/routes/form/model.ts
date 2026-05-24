@@ -42,6 +42,7 @@ export const updateFormInputModel = z.object({
     visibility: formVisibilityEnumSchema.optional(),
     status: formStatusEnumSchema.optional(),
     isPasswordProtected: z.boolean().optional(),
+    applyBranding: z.boolean().optional(),
     password: z.string().optional(),
     isArchived: z.boolean().optional(),
     expiresAt: z.string().nullable().optional(),
@@ -82,6 +83,7 @@ export const getPublicFormOutputModel = z.object({
     theme: z.string().nullable(),
     status: z.string(),
     isPasswordProtected: z.boolean().optional(),
+    applyBranding: z.boolean().optional(),
     fields: z.array(z.any()),
     brand: brandModel,
 })
@@ -101,6 +103,7 @@ export const getFormByIdOutputModel = z.object({
     createdAt: z.date().nullable(),
     updatedAt: z.date().nullable(),
     isPasswordProtected: z.boolean().optional(),
+    applyBranding: z.boolean().optional(),
     isArchived: z.boolean().optional(),
     expiresAt: z.date().nullable().optional(),
     responseLimit: z.number().nullable().optional(),

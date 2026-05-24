@@ -377,6 +377,46 @@ export default function PublicFormPage() {
         setValidationErrors({});
     };
 
+    const getNextFieldId = (field: any) => {
+        if (!field) return "submit";
+        const val = answers[field.id];
+        const isMissing = val === undefined || val === null || val === "" ||
+            (Array.isArray(val) && val.length === 0);
+
+        let nextFieldId: string = "";
+        const rules = field.conditionalRules;
+
+        if (rules && Array.isArray(rules) && rules.length > 0) {
+            if (!isMissing) {
+                const matchedRule = rules.find((rule: any) => {
+                    if (rule.value === "default") return false;
+                    if (Array.isArray(val)) {
+                        return val.includes(rule.value);
+                    }
+                    return String(val) === String(rule.value);
+                });
+                if (matchedRule) {
+                    nextFieldId = matchedRule.targetFieldId || "";
+                }
+            }
+
+            if (!nextFieldId) {
+                const defaultRule = rules.find((rule: any) => rule.value === "default");
+                if (defaultRule) {
+                    nextFieldId = defaultRule.targetFieldId || "";
+                }
+            }
+        }
+
+        if (!nextFieldId) {
+            const currentIndex = sortedFields.findIndex((f: any) => f.id === field.id);
+            const nextField = sortedFields[currentIndex + 1];
+            nextFieldId = nextField ? nextField.id : "submit";
+        }
+
+        return nextFieldId;
+    };
+
     const handleNext = () => {
         if (!activeField) return;
 
@@ -391,26 +431,7 @@ export default function PublicFormPage() {
 
         setValidationErrors({});
 
-        let nextFieldId: string = "";
-        const rules = activeField.conditionalRules;
-
-        if (rules && Array.isArray(rules) && rules.length > 0 && !isMissing) {
-            const matchedRule = rules.find((rule: any) => {
-                if (Array.isArray(val)) {
-                    return val.includes(rule.value);
-                }
-                return String(val) === String(rule.value);
-            });
-            if (matchedRule) {
-                nextFieldId = matchedRule.targetFieldId || "";
-            }
-        }
-
-        if (!nextFieldId) {
-            const currentIndex = sortedFields.findIndex((f: any) => f.id === activeField.id);
-            const nextField = sortedFields[currentIndex + 1];
-            nextFieldId = nextField ? nextField.id : "submit";
-        }
+        const nextFieldId = getNextFieldId(activeField);
 
         if (nextFieldId === "submit") {
             triggerSubmit();
@@ -722,6 +743,10 @@ export default function PublicFormPage() {
     }
 
     // ─── Form Step ────────────────────────────────────────────────────────────
+    const currentQuestionStep = fieldHistory.length + 1;
+    const totalQuestions = sortedFields.length;
+    const isLastQuestion = activeField ? getNextFieldId(activeField) === "submit" : false;
+
     return (
         <div className={`${theme.page} relative`} style={brandStyle}>
             {isPreview && (
@@ -764,6 +789,23 @@ export default function PublicFormPage() {
                 </div>
 
                 <form onSubmit={(e) => { e.preventDefault(); handleNext(); }}>
+                    {activeField && (
+                        <div className="flex justify-between items-center mb-2 px-1 text-xs opacity-75 font-semibold" style={brandTextStyle}>
+                            <span>Question {currentQuestionStep} of {totalQuestions}</span>
+                            <span className="opacity-60">{Math.round((currentQuestionStep / totalQuestions) * 100)}% Complete</span>
+                        </div>
+                    )}
+                    {activeField && (
+                        <div className="w-full bg-muted rounded-full h-1.5 mb-6 overflow-hidden border border-border/10">
+                            <div 
+                                className="bg-primary h-full transition-all duration-300 rounded-full" 
+                                style={{ 
+                                    width: `${(currentQuestionStep / totalQuestions) * 100}%`,
+                                    backgroundColor: form.brand?.textColor || undefined
+                                }} 
+                            />
+                        </div>
+                    )}
                     {activeField && renderField(activeField)}
                     <div className="mt-8 flex flex-col sm:flex-row justify-between gap-4">
                         {fieldHistory.length > 0 ? (
@@ -791,7 +833,7 @@ export default function PublicFormPage() {
                                     Submitting...
                                 </>
                             ) : (
-                                activeField && sortedFields.indexOf(activeField) === sortedFields.length - 1 ? "Submit Response" : "Next"
+                                isLastQuestion ? "Submit" : "Next"
                             )}
                         </Button>
                     </div>

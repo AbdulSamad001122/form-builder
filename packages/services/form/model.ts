@@ -31,6 +31,7 @@ export const updateFormInputModel = z.object({
     visibility: formVisibilityEnumSchema.optional(),
     status: formStatusEnumSchema.optional(),
     isPasswordProtected: z.boolean().optional(),
+    applyBranding: z.boolean().optional(),
     password: z.string().min(4, "Your password must be at least 4 characters long.").describe("Form password").optional(),
     isArchived: z.boolean().optional(),
     expiresAt: z.string().nullable().optional(),

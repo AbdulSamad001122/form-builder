@@ -25,6 +25,7 @@ export const formsTable = pgTable("forms", {
     status: formStatusEnum("status").default("DRAFT").notNull(),
 
     isPasswordProtected: boolean("is_password_protected").default(false).notNull(),
+    applyBranding: boolean("apply_branding").default(true).notNull(),
     isArchived: boolean("is_archived").default(false).notNull(),
     passwordHash: varchar("password_hash", { length: 255 }),
     passwordSalt: varchar("password_salt", { length: 255 }),

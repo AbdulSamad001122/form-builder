@@ -71,7 +71,7 @@ export const QuestionNode = memo(function QuestionNode({ data }: any) {
                     {label}
                 </h4>
 
-                {currentOptions.length > 0 ? (
+                {currentOptions.length > 0 && (
                     <div className="space-y-2 mt-2">
                         {currentOptions.map((opt: string, idx: number) => (
                             <div 
@@ -91,20 +91,20 @@ export const QuestionNode = memo(function QuestionNode({ data }: any) {
                             </div>
                         ))}
                     </div>
-                ) : (
-                    <div className="flex justify-between items-center bg-muted/30 p-1.5 rounded border border-border/40 hover:bg-muted/50 transition-colors">
-                        <span className="text-[10px] text-muted-foreground italic pl-1 select-none">
-                            Default path
-                        </span>
-                        <Handle
-                            type="source"
-                            position={Position.Right}
-                            id="default"
-                            className="w-2.5 h-2.5 !bg-muted-foreground border-2 border-background hover:scale-125 transition-transform !right-[-5px]"
-                            style={{ transform: "translateY(-50%)" }}
-                        />
-                    </div>
                 )}
+
+                <div className="relative flex justify-between items-center bg-muted/30 p-1.5 mt-3 rounded border border-border/40 hover:bg-muted/50 transition-colors">
+                    <span className="text-[10px] text-muted-foreground italic pl-1 select-none">
+                        Otherwise
+                    </span>
+                    <Handle
+                        type="source"
+                        position={Position.Right}
+                        id="default"
+                        className="w-2.5 h-2.5 !bg-muted-foreground border-2 border-background hover:scale-125 transition-transform !right-[-5px]"
+                        style={{ transform: "translateY(-50%)" }}
+                    />
+                </div>
             </div>
         </div>
     )

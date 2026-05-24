@@ -83,7 +83,7 @@ class FormService {
     }
 
     public async updateForm(payload: updateFormInputModelType) {
-        const { id, userId, title, description, slug, theme, visibility, status, isPasswordProtected, password, isArchived, expiresAt, responseLimit } = await updateFormInputModel.parseAsync(payload)
+        const { id, userId, title, description, slug, theme, visibility, status, isPasswordProtected, applyBranding, password, isArchived, expiresAt, responseLimit } = await updateFormInputModel.parseAsync(payload)
 
         const valuesToUpdate: any = {}
         if (title !== undefined) valuesToUpdate.title = title
@@ -99,6 +99,10 @@ class FormService {
                 valuesToUpdate.passwordHash = null
                 valuesToUpdate.passwordSalt = null
             }
+        }
+
+        if (applyBranding !== undefined) {
+            valuesToUpdate.applyBranding = applyBranding
         }
 
         if (password !== undefined && password !== "") {
@@ -157,6 +161,7 @@ class FormService {
             theme: formsTable.theme,
             status: formsTable.status,
             isPasswordProtected: formsTable.isPasswordProtected,
+            applyBranding: formsTable.applyBranding,
             passwordHash: formsTable.passwordHash,
             passwordSalt: formsTable.passwordSalt,
             expiresAt: formsTable.expiresAt,
@@ -198,7 +203,7 @@ class FormService {
             .where(eq(customBrandsTable.userId, formDetails.createdBy))
             .limit(1) : []
 
-        const brand = brandRecord[0] ? {
+        const brand = (formDetails.applyBranding && brandRecord[0]) ? {
             logoUrl: brandRecord[0].logoUrl,
             backgroundColor: brandRecord[0].backgroundColor,
             cardBgColor: brandRecord[0].cardBgColor,
@@ -229,6 +234,7 @@ class FormService {
                     theme: formDetails.theme,
                     status: formDetails.status,
                     isPasswordProtected: true,
+                    applyBranding: formDetails.applyBranding,
                     fields: [],
                     brand
                 }
@@ -247,6 +253,7 @@ class FormService {
             theme: formDetails.theme,
             status: formDetails.status,
             isPasswordProtected: formDetails.isPasswordProtected,
+            applyBranding: formDetails.applyBranding,
             fields,
             brand
         }
@@ -266,6 +273,7 @@ class FormService {
             createdAt: formsTable.createdAt,
             updatedAt: formsTable.updatedAt,
             isPasswordProtected: formsTable.isPasswordProtected,
+            applyBranding: formsTable.applyBranding,
             isArchived: formsTable.isArchived,
             expiresAt: formsTable.expiresAt,
             responseLimit: formsTable.responseLimit,
@@ -284,7 +292,7 @@ class FormService {
             .where(eq(customBrandsTable.userId, form[0].createdBy))
             .limit(1) : []
 
-        const brand = brandRecord[0] ? {
+        const brand = (form[0].applyBranding && brandRecord[0]) ? {
             logoUrl: brandRecord[0].logoUrl,
             backgroundColor: brandRecord[0].backgroundColor,
             cardBgColor: brandRecord[0].cardBgColor,

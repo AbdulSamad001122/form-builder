@@ -239,8 +239,28 @@ export default function LogicFlowCanvas({
 
     const handleSave = useCallback(async () => {
         try {
+            const areRulesEqual = (r1: any, r2: any) => {
+                const list1 = [...(Array.isArray(r1) ? r1 : [])].sort((a: any, b: any) => String(a.id || a.value).localeCompare(String(b.id || b.value)));
+                const list2 = [...(Array.isArray(r2) ? r2 : [])].sort((a: any, b: any) => String(a.id || a.value).localeCompare(String(b.id || b.value)));
+                if (list1.length !== list2.length) return false;
+                for (let i = 0; i < list1.length; i++) {
+                    const item1 = list1[i];
+                    const item2 = list2[i];
+                    if (!item1 || !item2) return false;
+                    if (item1.value !== item2.value) return false;
+                    if (item1.targetFieldId !== item2.targetFieldId) return false;
+                    if (item1.edgeType !== item2.edgeType) return false;
+                    if (item1.color !== item2.color) return false;
+                    if (item1.stylePattern !== item2.stylePattern) return false;
+                    if (item1.animated !== item2.animated) return false;
+                    if (item1.cx !== item2.cx) return false;
+                    if (item1.cy !== item2.cy) return false;
+                }
+                return true;
+            };
+
             const updatedFields = sortedFields.map((field) => {
-                const fieldEdges = edges.filter((e) => e.source === field.id)
+                const fieldEdges = edges.filter((e) => e.source === field.id);
                 const fieldRules = fieldEdges.map((e) => ({
                     id: e.id,
                     value: e.sourceHandle,
@@ -251,17 +271,27 @@ export default function LogicFlowCanvas({
                     animated: e.animated !== false,
                     cx: e.data?.cx,
                     cy: e.data?.cy
-                }))
+                }));
                 return {
                     ...field,
                     conditionalRules: fieldRules
-                }
-            })
+                };
+            });
 
-            await onSaveLogic(updatedFields)
-            toast.success("✨ Visual logic flow map saved successfully!")
+            const changedFields = updatedFields.filter((field) => {
+                const originalField = sortedFields.find((f) => f.id === field.id);
+                return !areRulesEqual(originalField?.conditionalRules, field.conditionalRules);
+            });
+
+            if (changedFields.length === 0) {
+                toast.info("No changes to save.");
+                return;
+            }
+
+            await onSaveLogic(changedFields);
+            toast.success("✨ Visual logic flow map saved successfully!");
         } catch (err: any) {
-            toast.error(`Failed to save logic flow: ${err.message}`)
+            toast.error(`Failed to save logic flow: ${err.message}`);
         }
     }, [edges, sortedFields, onSaveLogic])
 

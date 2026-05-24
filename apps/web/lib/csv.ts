@@ -29,14 +29,14 @@ export function downloadResponsesAsCSV(
             let displayValue = answer?.value || "";
 
             try {
-                if (displayValue.startsWith("[") && displayValue.endsWith("]")) {
-                    const parsed = JSON.parse(displayValue);
+                const cleaned = displayValue.replace(/&quot;/g, '"');
+                if (cleaned.startsWith("[") && cleaned.endsWith("]")) {
+                    const parsed = JSON.parse(cleaned);
                     if (Array.isArray(parsed)) {
                         displayValue = parsed.join(", ");
                     }
                 }
             } catch (e) {
-                // Return original displayValue if JSON parsing fails
             }
 
             return displayValue;
