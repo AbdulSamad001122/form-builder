@@ -32,6 +32,8 @@ export const formFieldsTable = pgTable("form_fields", {
     
     options: jsonb("options"),
 
+    conditionalRules: jsonb("conditional_rules"),
+
     isRequired: boolean("is_required").default(false).notNull(),
 
     index: numeric("index", { scale: 2 }).notNull(),

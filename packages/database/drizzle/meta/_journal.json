@@ -64,6 +64,20 @@
       "when": 1779549720648,
       "tag": "0008_daily_penance",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1779553411374,
+      "tag": "0009_overjoyed_jamie_braddock",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1779555008461,
+      "tag": "0010_bored_weapon_omega",
+      "breakpoints": true
     }
   ]
 }

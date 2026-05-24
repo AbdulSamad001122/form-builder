@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef, useCallback } from "react"
+import { useState, useRef, useCallback, useEffect } from "react"
 import { useParams } from "next/navigation"
 import {
     DndContext,
@@ -34,7 +34,9 @@ import { Checkbox } from "~/components/ui/checkbox"
 import { Badge } from "~/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/components/ui/select"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "~/components/ui/dialog"
-import { GripVertical, Edit, Trash2, Copy, Check, Globe, Lock, Eye, EyeOff, Loader2, QrCode, Download, CheckCheck, Clock, Calendar } from "lucide-react"
+import { GripVertical, Edit, Trash2, Copy, Check, Globe, Lock, Eye, EyeOff, Loader2, QrCode, Download, CheckCheck, Clock, Calendar, Workflow } from "lucide-react"
+import { Switch } from "~/components/ui/switch"
+import LogicFlowCanvas from "~/components/canvas/LogicFlowCanvas"
 import { toast } from "sonner"
 import { Skeleton } from "~/components/ui/skeleton"
 import { QRCodeCanvas } from "qrcode.react"
@@ -563,7 +565,7 @@ export default function FormBuilderPage() {
     const { data: form, isLoading: isFormLoading, refetch: refetchForm } = useGetFormById(formId)
     const { data: fields, isLoading } = useListFormFields(formId)
     const { createFormField, isPending: isCreating } = useCreateFormField()
-    const { updateFormField, isPending: isUpdating } = useUpdateFormField()
+    const { updateFormField, updateFormFieldAsync, isPending: isUpdating } = useUpdateFormField()
     const { deleteFormField, isPending: isDeleting } = useDeleteFormField()
     const { reorderFormField } = useReorderFormField()
     const { updateForm, isPending: isSavingForm } = useUpdateForm()
@@ -583,6 +585,42 @@ export default function FormBuilderPage() {
     const [isSecurityOpen, setIsSecurityOpen] = useState(false)
     const [isLimitsOpen, setIsLimitsOpen] = useState(false)
     const [linkCopied, setLinkCopied] = useState(false)
+
+    const [enableLogic, setEnableLogic] = useState(false)
+    const [activeTab, setActiveTab] = useState<"list" | "flow">("list")
+    const [isFlowFullscreen, setIsFlowFullscreen] = useState(false)
+
+    useEffect(() => {
+        if (fields) {
+            const hasRules = fields.some(
+                (f) => f.conditionalRules && Array.isArray(f.conditionalRules) && f.conditionalRules.length > 0
+            )
+            if (hasRules) {
+                setEnableLogic(true)
+            }
+        }
+    }, [fields])
+
+    const handleSaveLogic = async (updatedFields: any[]) => {
+        try {
+            await Promise.all(
+                updatedFields.map((field) => 
+                    updateFormFieldAsync({
+                        id: field.id,
+                        label: field.label,
+                        description: field.description,
+                        placeholder: field.placeholder,
+                        isRequired: field.isRequired,
+                        type: field.type,
+                        options: field.options,
+                        conditionalRules: field.conditionalRules
+                    })
+                )
+            )
+        } catch (err: any) {
+            throw new Error(err.message || "Failed to update logic paths")
+        }
+    }
 
     const publicUrl = typeof window !== "undefined"
         ? `${window.location.origin}/f/${formId}`
@@ -713,7 +751,8 @@ export default function FormBuilderPage() {
             placeholder: editingField.placeholder,
             isRequired: editingField.isRequired,
             type: editingField.type,
-            options: optionsArray
+            options: optionsArray,
+            conditionalRules: editingField.conditionalRules
         }, {
             onSuccess: () => {
                 setIsEditOpen(false)
@@ -733,7 +772,7 @@ export default function FormBuilderPage() {
     }
 
     return (
-        <div className="container mx-auto p-6 max-w-4xl">
+        <div className={`container mx-auto p-6 transition-all duration-300 ${enableLogic ? "max-w-none px-6 w-full" : "max-w-4xl"}`}>
             <div className="flex justify-between items-start mb-6">
                 <div>
                     <h1 className="text-3xl font-bold tracking-tight">Form Builder</h1>
@@ -857,6 +896,67 @@ export default function FormBuilderPage() {
                 </div>
             )}
 
+            {form && fields && fields.length > 0 && (
+                <div className="bg-card border rounded-xl p-4 mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-sm select-none">
+                    <div className="flex items-center gap-3">
+                        <div className="p-2 bg-primary/10 text-primary rounded-lg shrink-0">
+                            <Workflow className="w-5 h-5" />
+                        </div>
+                        <div>
+                            <h3 className="font-semibold text-sm text-foreground">
+                                Conditional Logic & Branching
+                            </h3>
+                            <p className="text-xs text-muted-foreground">
+                                Branch respondent paths based on their choice answers instead of asking questions sequentially.
+                            </p>
+                        </div>
+                    </div>
+                    <div className="flex items-center gap-4 shrink-0">
+                        <div className="flex items-center gap-2">
+                            <Switch 
+                                id="enable-logic-toggle"
+                                checked={enableLogic}
+                                onCheckedChange={(checked) => {
+                                    if (!checked) {
+                                        const hasRules = fields.some(f => f.conditionalRules && Array.isArray(f.conditionalRules) && f.conditionalRules.length > 0)
+                                        if (hasRules) {
+                                            const confirmDisable = window.confirm("Disabling logic jumps will hide the canvas. Your saved visual connections will remain saved but inactive. Proceed?")
+                                            if (!confirmDisable) return
+                                        }
+                                        setActiveTab("list")
+                                    }
+                                    setEnableLogic(checked)
+                                }}
+                            />
+                            <Label htmlFor="enable-logic-toggle" className="text-xs font-semibold cursor-pointer">
+                                Enable Logic Jumps
+                            </Label>
+                        </div>
+
+                        {enableLogic && (
+                            <div className="flex bg-muted p-0.5 rounded-lg border">
+                                <Button 
+                                    variant={activeTab === "list" ? "secondary" : "ghost"}
+                                    size="sm"
+                                    onClick={() => setActiveTab("list")}
+                                    className="h-8 text-xs px-3 shadow-none animate-in fade-in zoom-in-95 duration-150"
+                                >
+                                    Fields Editor
+                                </Button>
+                                <Button 
+                                    variant={activeTab === "flow" ? "secondary" : "ghost"}
+                                    size="sm"
+                                    onClick={() => setActiveTab("flow")}
+                                    className="h-8 text-xs px-3 shadow-none animate-in fade-in zoom-in-95 duration-150"
+                                >
+                                    Visual Flow Map
+                                </Button>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            )}
+
             {isLoading ? (
                 <div className="space-y-3">
                     {[...Array(4)].map((_, i) => (
@@ -878,6 +978,90 @@ export default function FormBuilderPage() {
                     <h3 className="text-lg font-medium">No fields yet</h3>
                     <p className="text-muted-foreground mt-1 mb-4">Add your first field to start building the form.</p>
                     <Button onClick={() => setIsCreateOpen(true)} variant="outline">Add Field</Button>
+                </div>
+            ) : enableLogic ? (
+                <div className={isFlowFullscreen ? "fixed inset-0 w-screen h-screen z-50 bg-background p-6 flex flex-col animate-in fade-in duration-200 overflow-hidden" : ""}>
+                    {isFlowFullscreen && (
+                        <div className="flex items-center justify-between pb-3 border-b mb-4 shrink-0 select-none">
+                            <div className="flex items-center gap-2">
+                                <Workflow className="w-5 h-5 text-primary" />
+                                <h2 className="font-bold text-base text-foreground">Immersive Logic Builder Workspace</h2>
+                            </div>
+                            <Button size="sm" variant="outline" onClick={() => setIsFlowFullscreen(false)} className="h-8 text-xs">
+                                Exit Workspace
+                            </Button>
+                        </div>
+                    )}
+                    <div className={`grid grid-cols-1 lg:grid-cols-4 gap-6 items-start ${isFlowFullscreen ? "flex-1 min-h-0 h-full w-full" : ""}`}>
+                        <div className={`lg:col-span-1 bg-card border rounded-xl p-4 shadow-sm space-y-4 overflow-y-auto pr-1 ${isFlowFullscreen ? "h-full max-h-none" : "max-h-[650px]"}`}>
+                            <div className="flex items-center justify-between pb-2 border-b">
+                                <h3 className="font-semibold text-xs text-foreground uppercase tracking-wider">Questions List</h3>
+                                <Button size="sm" variant="outline" className="h-7 text-[10px] px-2" onClick={() => setIsCreateOpen(true)}>
+                                    + Add Field
+                                </Button>
+                            </div>
+                            <div className="space-y-2">
+                                {fields?.map((field, idx) => (
+                                    <div key={field.id} className="bg-muted/30 border rounded-lg p-2.5 flex items-center justify-between gap-2 hover:border-primary/30 transition-colors group">
+                                        <div className="min-w-0 flex-1">
+                                            <div className="flex items-center gap-1.5 mb-1">
+                                                <span className="bg-primary/10 text-primary text-[9px] font-bold px-1 rounded shrink-0">
+                                                    Q{idx + 1}
+                                                </span>
+                                                <span className="text-[9px] bg-muted px-1 py-0.5 rounded text-muted-foreground truncate uppercase font-semibold">
+                                                    {field.type}
+                                                </span>
+                                            </div>
+                                            <h4 className="text-[11px] font-semibold text-foreground truncate">{field.label}</h4>
+                                        </div>
+                                        <div className="flex items-center shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <Button variant="ghost" size="icon" onClick={() => { setEditingField(field); setIsEditOpen(true) }} className="h-6 w-6">
+                                                <Edit size={10} />
+                                            </Button>
+                                            <Button variant="ghost" size="icon" onClick={() => { setDeletingField(field); setIsDeleteOpen(true) }} className="h-6 w-6 text-destructive hover:bg-destructive/10">
+                                                <Trash2 size={10} />
+                                            </Button>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className={`lg:col-span-3 ${isFlowFullscreen ? "h-full flex flex-col min-h-0" : ""}`}>
+                            {activeTab === "flow" ? (
+                                <LogicFlowCanvas 
+                                    formId={formId}
+                                    fields={fields || []}
+                                    onSaveLogic={handleSaveLogic}
+                                    isSaving={isUpdating}
+                                    isFullscreen={isFlowFullscreen}
+                                    setIsFullscreen={setIsFlowFullscreen}
+                                />
+                            ) : (
+                                <DndContext
+                                    sensors={sensors}
+                                    collisionDetection={closestCenter}
+                                    onDragEnd={handleDragEnd}
+                                >
+                                    <SortableContext
+                                        items={fields?.map(f => f.id) || []}
+                                        strategy={verticalListSortingStrategy}
+                                    >
+                                        <div className="space-y-1">
+                                            {fields?.map(field => (
+                                                <SortableFieldItem
+                                                    key={field.id}
+                                                    field={field}
+                                                    onEdit={(f) => { setEditingField(f); setIsEditOpen(true) }}
+                                                    onDelete={(f) => { setDeletingField(f); setIsDeleteOpen(true) }}
+                                                />
+                                            ))}
+                                        </div>
+                                    </SortableContext>
+                                </DndContext>
+                            )}
+                        </div>
+                    </div>
                 </div>
             ) : (
                 <DndContext
@@ -1072,6 +1256,103 @@ export default function FormBuilderPage() {
                                     Required field
                                 </label>
                             </div>
+                            {["YES_NO", "SINGLE_SELECT", "MULTI_SELECT", "CHECKBOX", "DROPDOWN"].includes(editingField.type) && (
+                                <div className="space-y-3 pt-3 border-t">
+                                    <div className="space-y-1">
+                                        <Label className="text-sm font-semibold tracking-tight text-foreground">Logic Jumps (Conditional Routing)</Label>
+                                        <p className="text-[11px] text-muted-foreground leading-normal">
+                                            Define where to navigate the respondent based on their selected answer. By default, they go to the next question.
+                                        </p>
+                                    </div>
+                                    <div className="space-y-2 max-h-[240px] overflow-y-auto pr-1">
+                                        {(() => {
+                                            const currentOptions = ["SINGLE_SELECT", "MULTI_SELECT", "DROPDOWN"].includes(editingField.type)
+                                                ? (typeof editingField.options === 'string'
+                                                    ? editingField.options.split(",").map((s: string) => s.trim()).filter(Boolean)
+                                                    : (Array.isArray(editingField.options) ? editingField.options : []))
+                                                : (editingField.type === "YES_NO"
+                                                    ? ["Yes", "No"]
+                                                    : (editingField.type === "CHECKBOX"
+                                                        ? (editingField.options && (typeof editingField.options === 'string' || Array.isArray(editingField.options))
+                                                            ? (typeof editingField.options === 'string'
+                                                                ? editingField.options.split(",").map((s: string) => s.trim()).filter(Boolean)
+                                                                : editingField.options)
+                                                            : ["Checked"])
+                                                        : []));
+
+                                            if (currentOptions.length === 0) {
+                                                return (
+                                                    <p className="text-xs text-muted-foreground italic py-1">
+                                                        Add options to this field first to configure logic jumps.
+                                                    </p>
+                                                );
+                                            }
+
+                                            const otherFields = fields?.filter((f: any) => f.id !== editingField.id) || [];
+                                            const rules = Array.isArray(editingField.conditionalRules) ? editingField.conditionalRules : [];
+
+                                            return currentOptions.map((opt: string, idx: number) => {
+                                                const activeRule = rules.find((r: any) => String(r.value) === String(opt));
+                                                return (
+                                                    <div key={idx} className="flex items-center gap-3 bg-muted/30 p-2 rounded-lg border border-border/50 hover:bg-muted/50 transition-colors">
+                                                        <div className="flex-1 min-w-0">
+                                                            <div className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider mb-0.5">If answer is</div>
+                                                            <div className="text-xs font-semibold truncate text-foreground">{opt}</div>
+                                                        </div>
+                                                        <div className="text-xs text-muted-foreground font-bold shrink-0">➜</div>
+                                                        <div className="flex-[2] min-w-0">
+                                                            <Select
+                                                                value={activeRule?.targetFieldId || "default"}
+                                                                onValueChange={(val) => {
+                                                                    let nextRules = [...rules];
+                                                                    const ruleIndex = nextRules.findIndex((r: any) => String(r.value) === String(opt));
+                                                                    if (val === "default") {
+                                                                        if (ruleIndex > -1) {
+                                                                            nextRules.splice(ruleIndex, 1);
+                                                                        }
+                                                                    } else {
+                                                                        if (ruleIndex > -1) {
+                                                                            nextRules[ruleIndex] = {
+                                                                                ...nextRules[ruleIndex],
+                                                                                targetFieldId: val
+                                                                            };
+                                                                        } else {
+                                                                            nextRules.push({
+                                                                                id: `rule-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
+                                                                                value: opt,
+                                                                                targetFieldId: val
+                                                                            });
+                                                                        }
+                                                                    }
+                                                                    setEditingField({
+                                                                        ...editingField,
+                                                                        conditionalRules: nextRules
+                                                                    });
+                                                                }}
+                                                            >
+                                                                <SelectTrigger className="h-8 text-xs bg-background">
+                                                                    <SelectValue placeholder="Next Question (Default)" />
+                                                                </SelectTrigger>
+                                                                <SelectContent>
+                                                                    <SelectItem value="default">Next Question (Default)</SelectItem>
+                                                                    {otherFields.map((f: any) => (
+                                                                        <SelectItem key={f.id} value={f.id} className="text-xs max-w-[260px] truncate">
+                                                                            {f.label}
+                                                                        </SelectItem>
+                                                                    ))}
+                                                                    <SelectItem value="submit" className="text-xs font-medium text-primary">
+                                                                        Submit Form (End)
+                                                                    </SelectItem>
+                                                                </SelectContent>
+                                                            </Select>
+                                                        </div>
+                                                    </div>
+                                                );
+                                            });
+                                        })()}
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     )}
                     <DialogFooter>

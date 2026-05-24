@@ -1,0 +1,1 @@
+ALTER TABLE "forms" ADD COLUMN "enable_logic" boolean DEFAULT false NOT NULL;

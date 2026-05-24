@@ -1,0 +1,1 @@
+ALTER TABLE "form_fields" ADD COLUMN "conditional_rules" jsonb;

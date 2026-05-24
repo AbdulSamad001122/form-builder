@@ -1,20 +1,21 @@
-"use client";
+"use client"
 
-import { useState, useEffect, useRef } from "react";
-import { useParams } from "next/navigation";
-import { useListFormResponses } from "~/hooks/api/form-response";
-import { useGetFormById } from "~/hooks/api/form";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/ui/card";
-import { Skeleton } from "~/components/ui/skeleton";
-import { Input } from "~/components/ui/input";
-import { Button } from "~/components/ui/button";
+import { useState, useEffect, useRef, useMemo } from "react"
+import { useParams } from "next/navigation"
+import { useListFormResponses } from "~/hooks/api/form-response"
+import { useGetFormById } from "~/hooks/api/form"
+import { useListFormFields } from "~/hooks/api/form-field"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/ui/card"
+import { Skeleton } from "~/components/ui/skeleton"
+import { Input } from "~/components/ui/input"
+import { Button } from "~/components/ui/button"
 import {
     Select,
     SelectContent,
     SelectItem,
     SelectTrigger,
     SelectValue,
-} from "~/components/ui/select";
+} from "~/components/ui/select"
 import {
     Table,
     TableBody,
@@ -22,7 +23,7 @@ import {
     TableHead,
     TableHeader,
     TableRow,
-} from "~/components/ui/table";
+} from "~/components/ui/table"
 import {
     DropdownMenu,
     DropdownMenuCheckboxItem,
@@ -30,7 +31,7 @@ import {
     DropdownMenuLabel,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
-} from "~/components/ui/dropdown-menu";
+} from "~/components/ui/dropdown-menu"
 import {
     Dialog,
     DialogContent,
@@ -38,62 +39,61 @@ import {
     DialogFooter,
     DialogHeader,
     DialogTitle,
-} from "~/components/ui/dialog";
-import { Search, X, Filter, LayoutGrid, Eye, Download } from "lucide-react";
-import { downloadResponsesAsCSV } from "~/lib/csv";
-
-
+} from "~/components/ui/dialog"
+import { Search, X, Filter, LayoutGrid, Eye, Download } from "lucide-react"
+import { downloadResponsesAsCSV } from "~/lib/csv"
 
 export default function FormResponsesPage() {
-    const params = useParams();
-    const formId = params.formId as string;
+    const params = useParams()
+    const formId = params.formId as string
 
-    const { data: form, isLoading: isFormLoading, error: formError } = useGetFormById(formId);
-    const { data: responses, isLoading: isResponsesLoading } = useListFormResponses(formId);
+    const { data: form, isLoading: isFormLoading, error: formError } = useGetFormById(formId)
+    const { data: responses, isLoading: isResponsesLoading } = useListFormResponses(formId)
+    const { data: fields, isLoading: isFieldsLoading } = useListFormFields(formId)
 
-    const [searchQuery, setSearchQuery] = useState("");
-    const [selectedFieldId, setSelectedFieldId] = useState<string>("all");
-    const [filterValue, setFilterValue] = useState("");
-    const [hiddenFieldIds, setHiddenFieldIds] = useState<Set<string>>(new Set());
-    const [selectedResponse, setSelectedResponse] = useState<any>(null);
-    const [visibleCount, setVisibleCount] = useState(10);
-    const observerRef = useRef<HTMLDivElement | null>(null);
+    const [searchQuery, setSearchQuery] = useState("")
+    const [selectedFieldId, setSelectedFieldId] = useState<string>("all")
+    const [filterValue, setFilterValue] = useState("")
+    const [hiddenFieldIds, setHiddenFieldIds] = useState<Set<string>>(new Set())
+    const [selectedResponse, setSelectedResponse] = useState<any>(null)
+    const [visibleCount, setVisibleCount] = useState(10)
+    const observerRef = useRef<HTMLDivElement | null>(null)
 
     const filteredResponses = (responses || []).filter((response: any) => {
         if (searchQuery.trim() !== "") {
-            const query = searchQuery.toLowerCase();
-            const emailMatch = response.respondentEmail && response.respondentEmail.toLowerCase().includes(query);
+            const query = searchQuery.toLowerCase()
+            const emailMatch = response.respondentEmail && response.respondentEmail.toLowerCase().includes(query)
             const answerMatch = response.answers.some((answer: any) => 
                 answer.value && answer.value.toLowerCase().includes(query)
-            );
-            if (!emailMatch && !answerMatch) return false;
+            )
+            if (!emailMatch && !answerMatch) return false
         }
 
         if (filterValue.trim() !== "") {
-            const filterVal = filterValue.toLowerCase();
+            const filterVal = filterValue.toLowerCase()
 
             if (selectedFieldId === "all") {
-                const emailMatch = response.respondentEmail && response.respondentEmail.toLowerCase().includes(filterVal);
+                const emailMatch = response.respondentEmail && response.respondentEmail.toLowerCase().includes(filterVal)
                 const answerMatch = response.answers.some((answer: any) => 
                     answer.value && answer.value.toLowerCase().includes(filterVal)
-                );
-                return emailMatch || answerMatch;
+                )
+                return emailMatch || answerMatch
             }
 
             if (selectedFieldId === "email") {
-                return response.respondentEmail && response.respondentEmail.toLowerCase().includes(filterVal);
+                return response.respondentEmail && response.respondentEmail.toLowerCase().includes(filterVal)
             }
 
-            const answer = response.answers.find((a: any) => a.fieldId === selectedFieldId);
-            if (!answer) return false;
+            const answer = response.answers.find((a: any) => a.fieldId === selectedFieldId)
+            if (!answer) return false
             
-            return answer.value && answer.value.toLowerCase().includes(filterVal);
+            return answer.value && answer.value.toLowerCase().includes(filterVal)
         }
 
-        return true;
-    });
+        return true
+    })
 
-    const paginatedResponses = filteredResponses.slice(0, visibleCount);
+    const paginatedResponses = filteredResponses.slice(0, visibleCount)
 
     useEffect(() => {
         const sentinel = observerRef.current
@@ -102,7 +102,7 @@ export default function FormResponsesPage() {
         const observer = new IntersectionObserver(
             (entries) => {
                 if (entries[0]?.isIntersecting) {
-                    setVisibleCount((prev) => Math.min(prev + 10, filteredResponses.length));
+                    setVisibleCount((prev) => Math.min(prev + 10, filteredResponses.length))
                 }
             },
             { threshold: 0.1 }
@@ -114,7 +114,15 @@ export default function FormResponsesPage() {
         }
     }, [filteredResponses.length])
 
-    if (isFormLoading || isResponsesLoading) {
+    const formWithFields = useMemo(() => {
+        if (!form) return null
+        return {
+            ...form,
+            fields: fields || []
+        }
+    }, [form, fields])
+
+    if (isFormLoading || isResponsesLoading || isFieldsLoading) {
         return (
             <div className="p-4 lg:p-8 space-y-8 animate-pulse">
                 <div className="space-y-2">
@@ -154,10 +162,10 @@ export default function FormResponsesPage() {
                     </CardContent>
                 </Card>
             </div>
-        );
+        )
     }
 
-    if (!form || !responses) {
+    if (!form || !responses || !fields || !formWithFields) {
         return (
             <div className="flex h-64 items-center justify-center">
                 <div className="text-center">
@@ -165,58 +173,56 @@ export default function FormResponsesPage() {
                     {formError && <p className="text-muted-foreground text-sm mt-1">{formError.message}</p>}
                 </div>
             </div>
-        );
+        )
     }
 
-    const selectedField = form.fields.find((f: any) => f.id === selectedFieldId);
+    const selectedField = fields.find((f: any) => f.id === selectedFieldId)
 
     const getFilterOptions = () => {
         if (selectedFieldId === "yes_no") {
-            return ["Yes", "No"];
+            return ["Yes", "No"]
         }
         if (selectedField) {
             if (selectedField.type === "YES_NO") {
-                return ["Yes", "No"];
+                return ["Yes", "No"]
             }
             if (selectedField.options) {
                 try {
                     const opts = typeof selectedField.options === "string"
                         ? JSON.parse(selectedField.options)
-                        : selectedField.options;
+                        : selectedField.options
                     if (Array.isArray(opts)) {
-                        return opts.map((opt: any) => typeof opt === "object" ? opt.value || opt.label : String(opt));
+                        return opts.map((opt: any) => typeof opt === "object" ? opt.value || opt.label : String(opt))
                     }
                 } catch (e) {
-                    console.error("Failed to parse options for filtering", e);
+                    console.error("Failed to parse options for filtering", e)
                 }
             }
         }
-        return null;
-    };
+        return null
+    }
 
-    const filterOptions = getFilterOptions();
+    const filterOptions = getFilterOptions()
 
     const handleFieldChange = (val: string) => {
-        setSelectedFieldId(val);
-        setFilterValue("");
-        setVisibleCount(10);
-    };
+        setSelectedFieldId(val)
+        setFilterValue("")
+        setVisibleCount(10)
+    }
 
     const toggleFieldVisibility = (fieldId: string) => {
         setHiddenFieldIds(prev => {
-            const next = new Set(prev);
+            const next = new Set(prev)
             if (next.has(fieldId)) {
-                next.delete(fieldId);
+                next.delete(fieldId)
             } else {
-                next.add(fieldId);
+                next.add(fieldId)
             }
-            return next;
-        });
-    };
+            return next
+        })
+    }
 
-    const visibleFields = form.fields.filter((field: any) => !hiddenFieldIds.has(field.id));
-
-
+    const visibleFields = fields.filter((field: any) => !hiddenFieldIds.has(field.id))
 
     return (
         <div className="p-4 lg:p-8 space-y-8">
@@ -226,7 +232,7 @@ export default function FormResponsesPage() {
                     <p className="text-muted-foreground">View and analyze submissions for this form.</p>
                 </div>
                 <Button
-                    onClick={() => downloadResponsesAsCSV(form, filteredResponses)}
+                    onClick={() => downloadResponsesAsCSV(formWithFields, filteredResponses)}
                     className="w-full md:w-auto bg-green-600 hover:bg-green-700 text-white font-medium gap-2 shadow-sm"
                 >
                     <Download className="h-4 w-4" />
@@ -264,8 +270,8 @@ export default function FormResponsesPage() {
                                     placeholder="Search by email or answer..."
                                     value={searchQuery}
                                     onChange={(e) => {
-                                        setSearchQuery(e.target.value);
-                                        setVisibleCount(10);
+                                        setSearchQuery(e.target.value)
+                                        setVisibleCount(10)
                                     }}
                                     className="pl-9 w-full bg-background"
                                     id="responses-search"
@@ -279,7 +285,7 @@ export default function FormResponsesPage() {
                                     <SelectContent>
                                         <SelectItem value="all">All Columns</SelectItem>
                                         <SelectItem value="email">Respondent Email</SelectItem>
-                                        {form.fields.map((field: any) => (
+                                        {fields.map((field: any) => (
                                             <SelectItem key={field.id} value={field.id}>
                                                 {field.label}
                                             </SelectItem>
@@ -289,8 +295,8 @@ export default function FormResponsesPage() {
 
                                 {filterOptions ? (
                                     <Select value={filterValue} onValueChange={(val) => {
-                                        setFilterValue(val);
-                                        setVisibleCount(10);
+                                        setFilterValue(val)
+                                        setVisibleCount(10)
                                     }}>
                                         <SelectTrigger className="w-[180px] bg-background">
                                             <SelectValue placeholder="Select Option" />
@@ -309,8 +315,8 @@ export default function FormResponsesPage() {
                                         placeholder="Filter value..."
                                         value={filterValue}
                                         onChange={(e) => {
-                                            setFilterValue(e.target.value);
-                                            setVisibleCount(10);
+                                            setFilterValue(e.target.value)
+                                            setVisibleCount(10)
                                         }}
                                         className="w-[180px] bg-background"
                                         id="responses-filter"
@@ -330,8 +336,8 @@ export default function FormResponsesPage() {
                                 <DropdownMenuContent align="end" className="w-[200px]">
                                     <DropdownMenuLabel>Toggle Columns</DropdownMenuLabel>
                                     <DropdownMenuSeparator />
-                                    {form.fields.map((field: any) => {
-                                        const isVisible = !hiddenFieldIds.has(field.id);
+                                    {fields.map((field: any) => {
+                                        const isVisible = !hiddenFieldIds.has(field.id)
                                         return (
                                             <DropdownMenuCheckboxItem
                                                 key={field.id}
@@ -340,7 +346,7 @@ export default function FormResponsesPage() {
                                             >
                                                 {field.label}
                                             </DropdownMenuCheckboxItem>
-                                        );
+                                        )
                                     })}
                                 </DropdownMenuContent>
                             </DropdownMenu>
@@ -349,11 +355,11 @@ export default function FormResponsesPage() {
                                 <Button
                                     variant="ghost"
                                     onClick={() => {
-                                        setSearchQuery("");
-                                        setSelectedFieldId("all");
-                                        setFilterValue("");
-                                        setHiddenFieldIds(new Set());
-                                        setVisibleCount(10);
+                                        setSearchQuery("")
+                                        setSelectedFieldId("all")
+                                        setFilterValue("")
+                                        setHiddenFieldIds(new Set())
+                                        setVisibleCount(10)
                                     }}
                                     className="h-9 px-2 lg:px-3 text-muted-foreground hover:text-foreground"
                                 >
@@ -393,13 +399,13 @@ export default function FormResponsesPage() {
                                                 {new Date(response.submittedAt).toLocaleString()}
                                             </TableCell>
                                             {visibleFields.map((field: any) => {
-                                                const answer = response.answers.find((a: any) => a.fieldId === field.id);
-                                                let displayValue = answer?.value || "-";
+                                                const answer = response.answers.find((a: any) => a.fieldId === field.id)
+                                                let displayValue = answer?.value || "-"
                                                 
                                                 try {
                                                     if (displayValue.startsWith("[") && displayValue.endsWith("]")) {
-                                                        const parsed = JSON.parse(displayValue);
-                                                        if (Array.isArray(parsed)) displayValue = parsed.join(", ");
+                                                        const parsed = JSON.parse(displayValue)
+                                                        if (Array.isArray(parsed)) displayValue = parsed.join(", ")
                                                     }
                                                 } catch (e) {}
 
@@ -407,7 +413,7 @@ export default function FormResponsesPage() {
                                                     <TableCell key={field.id} className="border-r py-3 px-4 max-w-[300px] truncate">
                                                         {displayValue}
                                                     </TableCell>
-                                                );
+                                                )
                                             })}
                                             <TableCell className="border-r py-3 px-4 text-center">
                                                 <Button
@@ -451,14 +457,14 @@ export default function FormResponsesPage() {
                         </DialogDescription>
                     </DialogHeader>
                     <div className="space-y-4 my-4">
-                        {form.fields.map((field: any) => {
-                            const answer = selectedResponse?.answers.find((a: any) => a.fieldId === field.id);
-                            let displayValue = answer?.value || "-";
+                        {fields.map((field: any) => {
+                            const answer = selectedResponse?.answers.find((a: any) => a.fieldId === field.id)
+                            let displayValue = answer?.value || "-"
                             
                             try {
                                 if (displayValue.startsWith("[") && displayValue.endsWith("]")) {
-                                    const parsed = JSON.parse(displayValue);
-                                    if (Array.isArray(parsed)) displayValue = parsed.join(", ");
+                                    const parsed = JSON.parse(displayValue)
+                                    if (Array.isArray(parsed)) displayValue = parsed.join(", ")
                                 }
                             } catch (e) {}
 
@@ -476,7 +482,7 @@ export default function FormResponsesPage() {
                                         {displayValue}
                                     </p>
                                 </div>
-                            );
+                            )
                         })}
                     </div>
                     <DialogFooter>
@@ -485,5 +491,5 @@ export default function FormResponsesPage() {
                 </DialogContent>
             </Dialog>
         </div>
-    );
+    )
 }

@@ -54,6 +54,9 @@ export default function PublicFormPage() {
     const [passwordError, setPasswordError] = useState("");
     const [showPassword, setShowPassword] = useState(false);
 
+    const [currentFieldId, setCurrentFieldId] = useState("");
+    const [fieldHistory, setFieldHistory] = useState<string[]>([]);
+
     // Resolve theme (after form loads)
     const theme = getThemeById(form?.theme);
 
@@ -281,34 +284,24 @@ export default function PublicFormPage() {
         }
     };
 
-    const handleFormSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
+    const sortedFields = form?.fields ? [...form.fields].sort((a: any, b: any) => Number(a.index) - Number(b.index)) : [];
 
-        const newErrors: Record<string, string> = {};
-        let isValid = true;
+    if (!currentFieldId && sortedFields.length > 0) {
+        setCurrentFieldId(sortedFields[0].id);
+    }
 
-        form.fields.forEach((field: any) => {
-            const val = answers[field.id];
-            const isMissing =
-                val === undefined || val === null || val === "" ||
-                (Array.isArray(val) && val.length === 0);
-            if (field.isRequired && isMissing) {
-                newErrors[field.id] = "This field is required";
-                isValid = false;
-            }
-        });
+    const activeField = sortedFields.find((f: any) => f.id === currentFieldId);
 
-        if (!isValid) {
-            setValidationErrors(newErrors);
-            const firstId = Object.keys(newErrors)[0];
-            document.getElementById(`field-${firstId}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
-            return;
-        }
+    const triggerSubmit = () => {
+        if (!activeField) return;
 
-        const formattedAnswers = Object.entries(answers).map(([fieldId, value]) => ({
-            fieldId,
-            value: typeof value === "object" ? JSON.stringify(value) : String(value),
-        }));
+        const visitedFieldIds = new Set([...fieldHistory, activeField.id]);
+        const formattedAnswers = Object.entries(answers)
+            .filter(([fieldId]) => visitedFieldIds.has(fieldId))
+            .map(([fieldId, value]) => ({
+                fieldId,
+                value: typeof value === "object" ? JSON.stringify(value) : String(value),
+            }));
 
         if (isPreview) {
             toast.success("✨ (Preview Mode) Submission simulated successfully!", {
@@ -330,6 +323,58 @@ export default function PublicFormPage() {
                 },
             }
         );
+    };
+
+    const handleBack = () => {
+        if (fieldHistory.length === 0) return;
+        const prevHistory = [...fieldHistory];
+        const prevFieldId = prevHistory.pop()!;
+        setFieldHistory(prevHistory);
+        setCurrentFieldId(prevFieldId);
+        setValidationErrors({});
+    };
+
+    const handleNext = () => {
+        if (!activeField) return;
+
+        const val = answers[activeField.id];
+        const isMissing = val === undefined || val === null || val === "" ||
+            (Array.isArray(val) && val.length === 0);
+
+        if (activeField.isRequired && isMissing) {
+            setValidationErrors({ [activeField.id]: "This field is required" });
+            return;
+        }
+
+        setValidationErrors({});
+
+        let nextFieldId: string = "";
+        const rules = activeField.conditionalRules;
+
+        if (rules && Array.isArray(rules) && rules.length > 0 && !isMissing) {
+            const matchedRule = rules.find((rule: any) => {
+                if (Array.isArray(val)) {
+                    return val.includes(rule.value);
+                }
+                return String(val) === String(rule.value);
+            });
+            if (matchedRule) {
+                nextFieldId = matchedRule.targetFieldId || "";
+            }
+        }
+
+        if (!nextFieldId) {
+            const currentIndex = sortedFields.findIndex((f: any) => f.id === activeField.id);
+            const nextField = sortedFields[currentIndex + 1];
+            nextFieldId = nextField ? nextField.id : "submit";
+        }
+
+        if (nextFieldId === "submit") {
+            triggerSubmit();
+        } else {
+            setFieldHistory((prev) => [...prev, activeField.id]);
+            setCurrentFieldId(nextFieldId);
+        }
     };
 
     // ─── Field Renderer ───────────────────────────────────────────────────────
@@ -650,9 +695,20 @@ export default function PublicFormPage() {
                     </div>
                 </div>
 
-                <form onSubmit={handleFormSubmit}>
-                    {form.fields.map(renderField)}
-                    <div className="mt-8 flex justify-end">
+                <form onSubmit={(e) => { e.preventDefault(); handleNext(); }}>
+                    {activeField && renderField(activeField)}
+                    <div className="mt-8 flex flex-col sm:flex-row justify-between gap-4">
+                        {fieldHistory.length > 0 ? (
+                            <Button
+                                type="button"
+                                variant="outline"
+                                size="lg"
+                                onClick={handleBack}
+                                className="w-full sm:w-auto px-8"
+                            >
+                                Back
+                            </Button>
+                        ) : <div />}
                         <Button
                             type="submit"
                             size="lg"
@@ -664,7 +720,9 @@ export default function PublicFormPage() {
                                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                                     Submitting...
                                 </>
-                            ) : "Submit Response"}
+                            ) : (
+                                activeField && sortedFields.indexOf(activeField) === sortedFields.length - 1 ? "Submit Response" : "Next"
+                            )}
                         </Button>
                     </div>
                 </form>

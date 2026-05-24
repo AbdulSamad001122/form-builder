@@ -7,6 +7,7 @@ export const createFormFieldInputModel = z.object({
     description: z.string().optional(),
     placeholder: z.string().optional(),
     options: z.any().optional(),
+    conditionalRules: z.any().optional(),
     isRequired: z.boolean().default(false),
     type: fieldTypeEnumSchema,
 })
@@ -17,6 +18,7 @@ export const updateFormFieldInputModel = z.object({
     description: z.string().optional(),
     placeholder: z.string().optional(),
     options: z.any().optional(),
+    conditionalRules: z.any().optional(),
     isRequired: z.boolean().optional(),
     type: fieldTypeEnumSchema.optional(),
     index: z.string().optional(),
@@ -43,6 +45,7 @@ export const listFormFieldsOutputModel = z.object({
     description: z.string().nullable(),
     placeholder: z.string().nullable(),
     options: z.any().nullable(),
+    conditionalRules: z.any().nullable().optional(),
     isRequired: z.boolean(),
     type: z.string(),
     index: z.string()
