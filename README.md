@@ -67,41 +67,36 @@ trpc-monorepo/
 ## ✨ Features
 
 ### Creator Features
-- **Authentication** — Email/password sign up and sign in
-- **Form Builder** — Create forms with a drag-and-drop field editor
+- **Authentication** — Secure credential-based creator auth (self-hosted HMAC-SHA256 + salt)
+- **Form Builder** — Drag-and-drop field editor with fractional indexing for smooth field reordering
 - **Field Types** — TEXT, LONG_TEXT, EMAIL, NUMBER, YES_NO, PASSWORD, SINGLE_SELECT, MULTI_SELECT, CHECKBOX, DROPDOWN, RATING, DATE
-- **Field Config** — Required/optional, placeholder text, options for select fields
-- **Drag & Drop Reorder** — Fractional indexing for stable field ordering
-- **Themes** — Multiple visual themes with live preview (gradient accent strips)
-- **Publish / Unpublish** — Toggle form status with one click
-- **Copy Link** — Instantly copy the shareable public form URL
-- **QR Code Sharing** — Generate, copy image, and download a QR code for any published form
-- **Visibility Modes** — `PUBLIC` (visible in Explore) or `UNLISTED` (direct link only)
-- **Response Analytics** — 7-day submission trend chart, total stats, recent submissions table
-- **Response Management** — View all responses and individual answers per submission
-- **Search & Sort** — Filter forms by title and sort by newest/oldest
-- **Edit & Delete Forms** — Full CRUD management
-- 
+- **Field Config** — Required/optional toggle, placeholders, and choice values
+- **Visual Logic branching & Canvas** — Interactive logic map mapping paths visually with specific option handles (blue dots) and generic "Otherwise" fallback handles (black dots)
+- **Custom Slugs (Bonus)** — Custom slug support enabling public form URLs like `/f/my-survey-slug` which resolve dynamically in the backend (with fallback UUID query support)
+- **Workspace Custom Branding** — Live brand image uploads stored in Cloudinary and custom color palette overrides (background, text, cards, and input fields)
+- **Password Protected Forms (Bonus)** — Secure, cookie-based authenticated form filling using encrypted password verification
+- **Form Expiry & Response Limit (Bonus)** — Automatic expiration and limits validation during response submissions
+- **QR Code Sharing** — Generates and downloads high-quality QR codes for instant sharing
+- **Visibility Modes** — `PUBLIC` (visible in explore page listings) or `UNLISTED` (hidden from Explore, accessible only via direct URL)
+- **Response Analytics** — Interactive dashboards showing 7-day trend charts, total forms, submissions, published/draft status, and list of responses
+- **CSV Response Export (Bonus)** — Client-side CSV generation and download of responses data
+- **Edit & Delete Forms** — Core CRUD features
 
 ### Respondent Features
-- **Public Form Filling** — No login required
-- **Email Capture** — Two-step flow: enter email → fill form → submit
-- **Thank-You Screen** — Animated confirmation on successful submission
-- **Graceful Error States** — Friendly messages for invalid, unpublished or unavailable forms
+- **Public Form Filling** — Fast, unauthenticated form filling with a two-step capture flow
+- **Dynamic UX Progress (Bonus)** — Responsive indicators that dynamically show "Final Question" and "Ready to submit" on logic forms, hiding absolute step counts to maintain fluid progress
+- **Thank-You Confirmation** — Polished confirmation splash screens on successful submission
+- **Graceful Error Handling** — Safe, descriptive error cards for drafts, expired links, and response limit blocks
 
 ### Discovery Features
-- **Explore Page** — Browse all public published forms from all creators
-- **Search in Explore** — Filter community forms by title
-
-### Product Pages
-- **Landing Page** — Hero, features, testimonials, pricing and CTA sections
-- **Pricing Page** — Embedded in landing page (no real payments needed)
+- **Explore Gallery** — Live community dashboard containing all public published forms
+- **Live Search** — Interactive exploring search by title
 
 ### Infrastructure
-- **Rate Limiting** — 5 req/min on public form submission, 20 req/min general API
-- **Email Notifications** — Resend API sends creator an email on every new submission
-- **API Documentation** — Full OpenAPI spec via Scalar at `/docs`
-- **Seed Data** — 3 themed demo forms with realistic responses pre-loaded
+- **API Rate Limiting** — Secure express-rate-limit protection (5 req/min on form responses, 20 req/min general traffic)
+- **Email Notifications** — Automated inbox alerts on every submission via Resend integration
+- **Scalar API Docs** — Comprehensive OpenAPI documentation at `/docs` (including tRPC health routers)
+- **Demo-ready Seed script** — Seeds demo user (`demo@formit.dev` / `Demo@1234`) with 3 themed forms and 16 responses
 
 ---
 
@@ -111,7 +106,8 @@ trpc-monorepo/
 
 - Node.js >= 18
 - pnpm >= 9
-- PostgreSQL database (local or hosted)
+- PostgreSQL database
+- Cloudinary account (for brand logo uploads)
 
 ### 1. Clone the repository
 
@@ -140,6 +136,11 @@ DATABASE_URL=postgresql://user:password@localhost:5432/formit
 DATABASE_URL=postgresql://user:password@localhost:5432/formit
 JWT_SECRET=your_jwt_secret_here
 RESEND_API_KEY=your_resend_api_key
+
+CLOUDINARY_CLOUD_NAME=your_cloudinary_cloud_name
+CLOUDINARY_API_KEY=your_cloudinary_api_key
+CLOUDINARY_API_SECRET=your_cloudinary_api_secret
+CLOUDINARY_FOLDER=your_cloudinary_folder_name
 ```
 
 **`apps/api/.env`**
@@ -149,6 +150,11 @@ JWT_SECRET=your_jwt_secret_here
 RESEND_API_KEY=your_resend_api_key
 BASE_URL=http://localhost:4000
 PORT=4000
+
+CLOUDINARY_CLOUD_NAME=your_cloudinary_cloud_name
+CLOUDINARY_API_KEY=your_cloudinary_api_key
+CLOUDINARY_API_SECRET=your_cloudinary_api_secret
+CLOUDINARY_FOLDER=your_cloudinary_folder_name
 ```
 
 **`apps/web/.env`**

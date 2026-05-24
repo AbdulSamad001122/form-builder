@@ -2,7 +2,7 @@ import { randomBytes, createHmac, createHash } from "node:crypto"
 import * as JWT from "jsonwebtoken"
 import { type CreateUserWithEmailAndPasswordInputType, createUserWithEmailAndPasswordInput, generateUserTokenPayload, generateUserTokenPayloadType, type ResetPasswordInputType } from "./model"
 import { type SiginUserWithEmailAndPasswordInputType, siginUserWithEmailAndPasswordInput } from "./model"
-import { db, eq } from "@repo/database"
+import { db, eq, and } from "@repo/database"
 import { usersTable, passwordResetTokensTable } from "../../database/schema"
 import { env } from "../env"
 import { Resend } from "resend"
@@ -212,7 +212,12 @@ class UserService {
         const [activeToken] = await db
             .select()
             .from(passwordResetTokensTable)
-            .where(eq(passwordResetTokensTable.userId, existingUser.id))
+            .where(
+                and(
+                    eq(passwordResetTokensTable.userId, existingUser.id),
+                    eq(passwordResetTokensTable.tokenHash, incomingHash)
+                )
+            )
             .limit(1)
 
         if (!activeToken || activeToken.tokenHash !== incomingHash) {

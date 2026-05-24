@@ -746,6 +746,8 @@ export default function PublicFormPage() {
     const currentQuestionStep = fieldHistory.length + 1;
     const totalQuestions = sortedFields.length;
     const isLastQuestion = activeField ? getNextFieldId(activeField) === "submit" : false;
+    const hasLogic = sortedFields.some((f: any) => f.conditionalRules && Array.isArray(f.conditionalRules) && f.conditionalRules.length > 0);
+    const progressPercent = isLastQuestion ? 100 : Math.round((currentQuestionStep / totalQuestions) * 100);
 
     return (
         <div className={`${theme.page} relative`} style={brandStyle}>
@@ -787,12 +789,20 @@ export default function PublicFormPage() {
                         </button>
                     </div>
                 </div>
-
+ 
                 <form onSubmit={(e) => { e.preventDefault(); handleNext(); }}>
                     {activeField && (
                         <div className="flex justify-between items-center mb-2 px-1 text-xs opacity-75 font-semibold" style={brandTextStyle}>
-                            <span>Question {currentQuestionStep} of {totalQuestions}</span>
-                            <span className="opacity-60">{Math.round((currentQuestionStep / totalQuestions) * 100)}% Complete</span>
+                            <span>
+                                {isLastQuestion 
+                                    ? "Final Question" 
+                                    : hasLogic 
+                                        ? `Question ${currentQuestionStep}` 
+                                        : `Question ${currentQuestionStep} of ${totalQuestions}`}
+                            </span>
+                            <span className="opacity-60">
+                                {isLastQuestion ? "Ready to submit" : `${progressPercent}% Complete`}
+                            </span>
                         </div>
                     )}
                     {activeField && (
@@ -800,7 +810,7 @@ export default function PublicFormPage() {
                             <div 
                                 className="bg-primary h-full transition-all duration-300 rounded-full" 
                                 style={{ 
-                                    width: `${(currentQuestionStep / totalQuestions) * 100}%`,
+                                    width: `${progressPercent}%`,
                                     backgroundColor: form.brand?.textColor || undefined
                                 }} 
                             />

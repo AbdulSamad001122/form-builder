@@ -62,7 +62,7 @@ export const deleteFormOutputModel = z.object({
 })
 
 export const getPublicFormInputModel = z.object({
-    id: z.string().uuid(),
+    id: z.string(),
     accessToken: z.string().optional(),
 })
 

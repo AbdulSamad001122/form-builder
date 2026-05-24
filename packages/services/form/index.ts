@@ -154,6 +154,9 @@ class FormService {
     }
 
     public async getPublicForm(id: string, accessToken?: string) {
+        const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+        const condition = isUuid ? eq(formsTable.id, id) : eq(formsTable.slug, id);
+
         const form = await db.select({
             id: formsTable.id,
             title: formsTable.title,
@@ -168,7 +171,7 @@ class FormService {
             responseLimit: formsTable.responseLimit,
             createdBy: formsTable.createdBy
         }).from(formsTable)
-            .where(eq(formsTable.id, id))
+            .where(condition)
             .limit(1)
 
         if (!form || form.length === 0 || !form[0]) {
@@ -188,7 +191,7 @@ class FormService {
                 count: sql<number>`count(*)::int`
             })
             .from(formResponsesTable)
-            .where(eq(formResponsesTable.formId, id))
+            .where(eq(formResponsesTable.formId, form[0].id))
 
             if (countResult && countResult.count >= form[0].responseLimit) {
                 throw new Error("This form has reached its response limit and is no longer accepting submissions.")
@@ -218,7 +221,7 @@ class FormService {
             if (accessToken) {
                 try {
                     const decoded = JWT.verify(accessToken, env.JWT_SECRET) as { formId: string; verified: boolean }
-                    if (decoded.formId === id && decoded.verified === true) {
+                    if (decoded.formId === formDetails.id && decoded.verified === true) {
                         isAuthorized = true
                     }
                 } catch {
@@ -243,7 +246,7 @@ class FormService {
 
         const fields = await db.select()
             .from(formFieldsTable)
-            .where(eq(formFieldsTable.formId, id))
+            .where(eq(formFieldsTable.formId, formDetails.id))
             .orderBy(asc(formFieldsTable.index))
 
         return {
