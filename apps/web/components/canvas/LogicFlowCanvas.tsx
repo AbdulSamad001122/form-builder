@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from "react"
+import { useState, useEffect, useCallback, useMemo, useRef } from "react"
 import {
     ReactFlow,
     MiniMap,
@@ -74,6 +74,16 @@ export default function LogicFlowCanvas({
     const [nodes, setNodes, onNodesChange] = useNodesState<Node>([])
     const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([])
     const [selectedEdgeId, setSelectedEdgeId] = useState<string | null>(null)
+    const nodesRef = useRef(nodes)
+    const edgesRef = useRef(edges)
+
+    useEffect(() => {
+        nodesRef.current = nodes
+    }, [nodes])
+
+    useEffect(() => {
+        edgesRef.current = edges
+    }, [edges])
     const [edgeType, setEdgeType] = useState<"default" | "smoothstep" | "straight">(() => {
         if (typeof window !== "undefined") {
             const saved = localStorage.getItem(`form-edge-style-${formId}`)
@@ -168,8 +178,169 @@ export default function LogicFlowCanvas({
     }, [formId, sortedFields, setNodes, setEdges, edgeType, updateControlPoint])
 
     useEffect(() => {
-        initFlow()
-    }, [initFlow])
+        if (nodes.length === 0 && sortedFields && sortedFields.length > 0) {
+            initFlow()
+        }
+    }, [initFlow, nodes.length, sortedFields])
+
+    useEffect(() => {
+        if (nodesRef.current.length === 0) return
+
+        const currentNodes = nodesRef.current
+        const currentEdges = edgesRef.current
+
+        const nextNodes: Node[] = sortedFields.map((field) => {
+            const existingNode = currentNodes.find((n) => n.id === field.id)
+            const idx = sortedFields.findIndex((f) => f.id === field.id)
+            const storageKey = `form-node-positions-${formId}`
+            const savedPositionsStr = typeof window !== "undefined" ? localStorage.getItem(storageKey) : null
+            const savedPositions = savedPositionsStr ? JSON.parse(savedPositionsStr) : {}
+            const savedPos = savedPositions[field.id]
+
+            if (existingNode) {
+                return {
+                    ...existingNode,
+                    data: {
+                        id: field.id,
+                        label: field.label,
+                        type: field.type,
+                        isRequired: field.isRequired,
+                        options: field.options,
+                        index: field.index,
+                        conditionalRules: field.conditionalRules
+                    }
+                }
+            }
+
+            return {
+                id: field.id,
+                type: "question",
+                position: savedPos || { x: idx * 340 + 50, y: 150 },
+                data: {
+                    id: field.id,
+                    label: field.label,
+                    type: field.type,
+                    isRequired: field.isRequired,
+                    options: field.options,
+                    index: field.index,
+                    conditionalRules: field.conditionalRules
+                }
+            }
+        })
+
+        const existingSubmitNode = currentNodes.find((n) => n.id === "submit")
+        const storageKey = `form-node-positions-${formId}`
+        const savedPositionsStr = typeof window !== "undefined" ? localStorage.getItem(storageKey) : null
+        const savedPositions = savedPositionsStr ? JSON.parse(savedPositionsStr) : {}
+        const savedSubmitPos = savedPositions["submit"]
+
+        if (existingSubmitNode) {
+            nextNodes.push(existingSubmitNode)
+        } else {
+            nextNodes.push({
+                id: "submit",
+                type: "end",
+                position: savedSubmitPos || { x: sortedFields.length * 340 + 50, y: 190 },
+                data: {}
+            })
+        }
+
+        setNodes(nextNodes)
+
+        const fieldIds = new Set(sortedFields.map((f) => f.id))
+        fieldIds.add("submit")
+
+        const getFieldOptions = (field: any) => {
+            if (!field) return []
+            return ["SINGLE_SELECT", "MULTI_SELECT", "DROPDOWN"].includes(field.type)
+                ? (typeof field.options === "string"
+                    ? field.options.split(",").map((s: string) => s.trim()).filter(Boolean)
+                    : (Array.isArray(field.options) ? field.options : []))
+                : (field.type === "YES_NO"
+                    ? ["Yes", "No"]
+                    : (field.type === "CHECKBOX"
+                        ? (field.options && (typeof field.options === "string" || Array.isArray(field.options))
+                            ? (typeof field.options === "string"
+                                ? field.options.split(",").map((s: string) => s.trim()).filter(Boolean)
+                                : field.options)
+                            : ["Checked"])
+                        : []))
+        }
+
+        const baseEdges = currentEdges.filter((edge) => {
+            if (!fieldIds.has(edge.source) || !fieldIds.has(edge.target)) {
+                return false
+            }
+            const sourceField = sortedFields.find((f) => f.id === edge.source)
+            if (sourceField) {
+                const validOptions = getFieldOptions(sourceField)
+                if (edge.sourceHandle !== "default" && !validOptions.includes(edge.sourceHandle || "")) {
+                    return false
+                }
+            }
+            return true
+        })
+
+        const reconciledEdges: Edge[] = [...baseEdges]
+
+        sortedFields.forEach((field) => {
+            const rules = Array.isArray(field.conditionalRules) ? field.conditionalRules : []
+            rules.forEach((rule: any) => {
+                if (rule && rule.value && rule.targetFieldId) {
+                    const existingEdgeIndex = reconciledEdges.findIndex(
+                        (e) => e.source === field.id && e.sourceHandle === rule.value
+                    )
+                    const fallbackColor = getEdgeColor(rule.value)
+
+                    const ruleEdge: Edge = {
+                        id: rule.id || `edge-${field.id}-${rule.value}`,
+                        source: field.id,
+                        sourceHandle: rule.value,
+                        target: rule.targetFieldId,
+                        targetHandle: "input",
+                        animated: rule.animated !== undefined ? rule.animated : true,
+                        type: "custom",
+                        data: {
+                            cx: rule.cx,
+                            cy: rule.cy,
+                            edgeType: rule.edgeType || edgeType,
+                            onUpdateControlPoint: updateControlPoint
+                        },
+                        style: {
+                            stroke: rule.color || fallbackColor,
+                            strokeWidth: 2.5,
+                            strokeDasharray: rule.stylePattern === "dashed" ? "5,5" : undefined
+                        }
+                    }
+
+                    if (existingEdgeIndex > -1) {
+                        const existingEdge = reconciledEdges[existingEdgeIndex]!
+                        reconciledEdges[existingEdgeIndex] = {
+                            ...existingEdge,
+                            id: rule.id || existingEdge.id,
+                            target: rule.targetFieldId,
+                            animated: rule.animated !== undefined ? rule.animated : existingEdge.animated,
+                            data: {
+                                ...existingEdge.data,
+                                cx: rule.cx !== undefined ? rule.cx : existingEdge.data?.cx,
+                                cy: rule.cy !== undefined ? rule.cy : existingEdge.data?.cy,
+                                edgeType: rule.edgeType || existingEdge.data?.edgeType || edgeType
+                            },
+                            style: {
+                                ...existingEdge.style,
+                                stroke: rule.color || existingEdge.style?.stroke || fallbackColor,
+                                strokeDasharray: rule.stylePattern === "dashed" ? "5,5" : (rule.stylePattern === "solid" ? undefined : existingEdge.style?.strokeDasharray)
+                            }
+                        }
+                    } else {
+                        reconciledEdges.push(ruleEdge)
+                    }
+                }
+            })
+        })
+
+        setEdges(reconciledEdges)
+    }, [sortedFields, formId, setNodes, setEdges, edgeType, updateControlPoint])
 
     useEffect(() => {
         if (selectedEdgeId && !edges.some((e) => e.id === selectedEdgeId)) {
