@@ -16,6 +16,190 @@ import { getThemeById } from "~/lib/form-themes";
 import { toast } from "sonner";
 import { Skeleton } from "~/components/ui/skeleton";
 
+function DoodleBackground() {
+    return (
+        <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden select-none">
+            <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.05]" 
+                 style={{
+                     backgroundImage: 'radial-gradient(#111111 1px, transparent 1px), radial-gradient(#111111 1px, transparent 1px)',
+                     backgroundSize: '24px 24px',
+                     backgroundPosition: '0 0, 12px 12px'
+                 }} 
+            />
+
+            <style dangerouslySetInnerHTML={{ __html: `
+                @keyframes float-sparkle {
+                    0% { transform: translate(0, 0) scale(0.8) rotate(0deg); opacity: 0; }
+                    50% { opacity: 0.3; }
+                    100% { transform: translate(40px, -60px) scale(1) rotate(180deg); opacity: 0; }
+                }
+                .animate-sparkle-1 {
+                    animation: float-sparkle 8s ease-in-out infinite;
+                }
+                .animate-sparkle-2 {
+                    animation: float-sparkle 12s ease-in-out infinite;
+                }
+            `}} />
+
+            <svg viewBox="0 0 100 60" className="absolute top-10 left-[10%] w-24 h-16 text-[#111111] opacity-[0.15] hidden md:block animate-bounce" style={{ animationDuration: '5s' }}>
+                <path d="M 20 40 C 10 40, 5 30, 15 20 C 10 10, 30 5, 45 15 C 55 5, 75 10, 75 25 C 85 25, 90 35, 80 45 Z" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M 25 38 L 35 38 M 50 38 L 65 38 M 73 38 L 78 38" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
+                <path d="M 25 50 L 22 55 M 45 52 L 42 57 M 65 50 L 62 55" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" />
+            </svg>
+
+            <svg viewBox="0 0 100 100" className="absolute top-12 right-[12%] w-20 h-20 text-[#111111] opacity-[0.15] hidden lg:block animate-pulse" style={{ animationDuration: '3.5s' }}>
+                <path d="M 35 60 C 20 50, 20 20, 50 20 C 80 20, 80 50, 65 60 C 60 65, 60 75, 60 75 H 40 C 40 75, 40 65, 35 60 Z" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M 40 80 H 60 M 42 85 H 58 M 45 90 H 55" stroke="currentColor" strokeWidth="4" strokeLinecap="round" />
+                <path d="M 45 60 V 45 Q 50 40, 50 45 Q 50 40, 55 45 V 60" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+                <path d="M 50 5 V 12 M 20 25 L 26 30 M 80 25 L 74 30 M 10 50 H 17 M 90 50 H 83" stroke="currentColor" strokeWidth="4" strokeLinecap="round" />
+            </svg>
+
+            <svg viewBox="0 0 100 100" className="absolute bottom-16 left-[10%] w-20 h-20 text-[#111111] opacity-[0.15] hidden lg:block animate-bounce" style={{ animationDuration: '7s' }}>
+                <path d="M 25 35 H 75 V 75 C 75 85, 25 85, 25 75 Z" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M 75 45 C 90 45, 90 65, 75 65" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" />
+                <path d="M 35 25 Q 40 15, 35 5 M 50 28 Q 55 18, 50 8 M 65 25 Q 70 15, 65 5" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+                <path d="M 15 85 H 85" stroke="currentColor" strokeWidth="5" strokeLinecap="round" />
+            </svg>
+
+            <svg viewBox="0 0 100 100" className="absolute bottom-12 right-[10%] w-20 h-20 text-[#111111] opacity-[0.15] hidden md:block animate-spin" style={{ animationDuration: '45s' }}>
+                <circle cx="50" cy="50" r="40" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" />
+                <circle cx="35" cy="40" r="4" fill="currentColor" />
+                <circle cx="65" cy="40" r="4" fill="currentColor" />
+                <path d="M 30 60 Q 50 75, 70 60" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" />
+                <path d="M 85 10 L 88 20 L 98 23 L 88 26 L 85 36 L 82 26 L 72 23 L 82 20 Z" fill="currentColor" />
+            </svg>
+
+            <svg viewBox="0 0 24 24" className="absolute top-[30%] left-[25%] w-6 h-6 text-[#111111] opacity-0 animate-sparkle-1 hidden md:block" style={{ animationDelay: '1.5s' }}>
+                <path d="M12,2L14.5,9.5L22,12L14.5,14.5L12,22L9.5,14.5L2,12L9.5,9.5Z" fill="currentColor" />
+            </svg>
+            <svg viewBox="0 0 24 24" className="absolute top-[65%] right-[22%] w-5 h-5 text-[#111111] opacity-0 animate-sparkle-2 hidden md:block" style={{ animationDelay: '4.5s' }}>
+                <path d="M12,2L14.5,9.5L22,12L14.5,14.5L12,22L9.5,14.5L2,12L9.5,9.5Z" fill="currentColor" />
+            </svg>
+        </div>
+    );
+}
+
+function ForestBackground() {
+    return (
+        <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden select-none">
+            <img 
+                src="/forest-theme-assets/forest-theme.svg" 
+                alt="Forest Theme Background" 
+                className="absolute inset-0 w-full h-full object-cover select-none pointer-events-none" 
+            />
+
+            <style dangerouslySetInnerHTML={{ __html: `
+                @keyframes float-leaf-1 {
+                    0% { transform: translate(0, -10px) rotate(0deg); opacity: 0; }
+                    10% { opacity: 0.7; }
+                    90% { opacity: 0.7; }
+                    100% { transform: translate(80px, 150px) rotate(360deg); opacity: 0; }
+                }
+                @keyframes float-leaf-2 {
+                    0% { transform: translate(0, -10px) rotate(0deg); opacity: 0; }
+                    15% { opacity: 0.6; }
+                    85% { opacity: 0.6; }
+                    100% { transform: translate(-100px, 200px) rotate(-180deg); opacity: 0; }
+                }
+                @keyframes fly-bird {
+                    0% { transform: translate(-50px, 50px) scale(0.6); opacity: 0; }
+                    10% { opacity: 0.5; }
+                    90% { opacity: 0.5; }
+                    100% { transform: translate(120px, -30px) scale(0.8); opacity: 0; }
+                }
+                .animate-leaf-1 {
+                    animation: float-leaf-1 12s linear infinite;
+                }
+                .animate-leaf-2 {
+                    animation: float-leaf-2 16s linear infinite;
+                }
+                .animate-bird {
+                    animation: fly-bird 24s linear infinite;
+                }
+            `}} />
+
+            <svg viewBox="0 0 24 24" className="absolute top-[15%] left-[20%] w-6 h-6 text-[#2C5B37] opacity-0 animate-leaf-1 hidden md:block" style={{ animationDelay: '1s' }}>
+                <path d="M17,8C8,10 5.9,16.17 3.82,21.34L21.34,3.82C16.17,5.9 10,8 17,8Z" fill="currentColor" />
+            </svg>
+
+            <svg viewBox="0 0 24 24" className="absolute top-[10%] right-[25%] w-8 h-8 text-[#4B8057] opacity-0 animate-leaf-2 hidden md:block" style={{ animationDelay: '4s' }}>
+                <path d="M17,8C8,10 5.9,16.17 3.82,21.34L21.34,3.82C16.17,5.9 10,8 17,8Z" fill="currentColor" />
+            </svg>
+
+            <svg viewBox="0 0 24 24" className="absolute top-[40%] right-[15%] w-5 h-5 text-[#81C784] opacity-0 animate-leaf-1 hidden md:block" style={{ animationDelay: '7s' }}>
+                <path d="M17,8C8,10 5.9,16.17 3.82,21.34L21.34,3.82C16.17,5.9 10,8 17,8Z" fill="currentColor" />
+            </svg>
+
+            <svg viewBox="0 0 24 24" className="absolute top-[25%] left-[10%] w-8 h-6 text-[#1B3B22] opacity-0 animate-bird hidden lg:block" style={{ animationDelay: '2s' }}>
+                <path d="M 2 12 C 7 2, 11 6, 12 8 C 13 6, 17 2, 22 12 C 16 8, 13 10, 12 11 C 11 10, 8 8, 2 12 Z" fill="currentColor" />
+            </svg>
+
+            <svg viewBox="0 0 24 24" className="absolute top-[35%] right-[20%] w-7 h-5 text-[#2C5B37] opacity-0 animate-bird hidden lg:block" style={{ animationDelay: '14s', animationDuration: '28s' }}>
+                <path d="M 2 12 C 7 2, 11 6, 12 8 C 13 6, 17 2, 22 12 C 16 8, 13 10, 12 11 C 11 10, 8 8, 2 12 Z" fill="currentColor" />
+            </svg>
+
+            <div className="absolute top-0 right-0 w-[40%] h-[50%] bg-gradient-to-bl from-white/10 via-transparent to-transparent pointer-events-none mix-blend-screen" />
+        </div>
+    );
+}
+
+function DeathNoteBorder() {
+    return (
+        <>
+            <div className="absolute inset-2 border border-white/20 pointer-events-none rounded-none" />
+            <svg viewBox="0 0 100 100" className="absolute top-3 left-3 w-10 h-10 text-white/80 pointer-events-none">
+                <path d="M 0 0 L 30 0 Q 15 15 0 30 Z M 0 0 L 0 30 Q 15 15 30 0 Z M 15 15 Q 25 25 35 35" fill="none" stroke="currentColor" strokeWidth="2" />
+                <path d="M 10 10 Q 5 25 5 45 M 10 10 Q 25 5 45 5" fill="none" stroke="currentColor" strokeWidth="1" strokeDasharray="2,2" />
+            </svg>
+            <svg viewBox="0 0 100 100" className="absolute top-3 right-3 w-10 h-10 text-white/80 pointer-events-none rotate-90">
+                <path d="M 0 0 L 30 0 Q 15 15 0 30 Z M 0 0 L 0 30 Q 15 15 30 0 Z M 15 15 Q 25 25 35 35" fill="none" stroke="currentColor" strokeWidth="2" />
+                <path d="M 10 10 Q 5 25 5 45 M 10 10 Q 25 5 45 5" fill="none" stroke="currentColor" strokeWidth="1" strokeDasharray="2,2" />
+            </svg>
+            <svg viewBox="0 0 100 100" className="absolute bottom-3 left-3 w-10 h-10 text-white/80 pointer-events-none -rotate-90">
+                <path d="M 0 0 L 30 0 Q 15 15 0 30 Z M 0 0 L 0 30 Q 15 15 30 0 Z M 15 15 Q 25 25 35 35" fill="none" stroke="currentColor" strokeWidth="2" />
+                <path d="M 10 10 Q 5 25 5 45 M 10 10 Q 25 5 45 5" fill="none" stroke="currentColor" strokeWidth="1" strokeDasharray="2,2" />
+            </svg>
+            <svg viewBox="0 0 100 100" className="absolute bottom-3 right-3 w-10 h-10 text-white/80 pointer-events-none rotate-180">
+                <path d="M 0 0 L 30 0 Q 15 15 0 30 Z M 0 0 L 0 30 Q 15 15 30 0 Z M 15 15 Q 25 25 35 35" fill="none" stroke="currentColor" strokeWidth="2" />
+                <path d="M 10 10 Q 5 25 5 45 M 10 10 Q 25 5 45 5" fill="none" stroke="currentColor" strokeWidth="1" strokeDasharray="2,2" />
+            </svg>
+        </>
+    );
+}
+
+function DeathNoteHeader() {
+    return (
+        <div className="flex flex-col items-center justify-center space-y-4 mb-6">
+            <img 
+                src="/death-note-logo-test.png" 
+                alt="Death Note" 
+                className="w-56 md:w-64 h-auto object-contain select-none pointer-events-none mix-blend-screen" 
+            />
+            <p className="text-xs font-normal text-gray-400 tracking-[0.2em] font-death-rules text-center lowercase">
+                how to use it
+            </p>
+        </div>
+    );
+}
+
+function DeathNoteFonts() {
+    return (
+        <>
+            <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Pirata+One&family=Special+Elite&family=Sedgwick+Ave+Display&display=swap" rel="stylesheet" />
+            <style dangerouslySetInnerHTML={{ __html: `
+                .font-gothic {
+                    font-family: 'Cinzel Decorative', 'Pirata One', serif !important;
+                }
+                .font-death-rules {
+                    font-family: 'Special Elite', 'Sedgwick Ave Display', cursive !important;
+                    line-height: 1.8 !important;
+                    letter-spacing: 0.05em !important;
+                }
+            `}} />
+        </>
+    );
+}
+
 type Step = "email" | "form" | "submitted";
 
 export default function PublicFormPage() {
@@ -59,26 +243,29 @@ export default function PublicFormPage() {
 
     const theme = getThemeById(form?.theme);
 
-    const brandStyle = form?.brand ? {
-        backgroundColor: form.brand.backgroundColor,
-        color: form.brand.textColor,
+    const hasBrand = form?.brand ? form.brand : null;
+    const isCustomTheme = form?.theme === "custom" || theme.id === "custom";
+
+    const brandStyle = (hasBrand && isCustomTheme) ? {
+        backgroundColor: hasBrand.backgroundColor,
+        color: hasBrand.textColor,
         backgroundImage: "none",
     } : {};
 
-    const brandCardStyle = form?.brand ? {
-        backgroundColor: form.brand.cardBgColor,
-        color: form.brand.textColor,
-        borderColor: form.brand.inputBorderColor,
+    const brandCardStyle = (hasBrand && isCustomTheme) ? {
+        backgroundColor: hasBrand.cardBgColor,
+        color: hasBrand.textColor,
+        borderColor: hasBrand.inputBorderColor,
     } : {};
 
-    const brandTextStyle = form?.brand ? {
-        color: form.brand.textColor,
+    const brandTextStyle = (hasBrand && isCustomTheme) ? {
+        color: hasBrand.textColor,
     } : {};
 
-    const brandInputStyle = form?.brand ? {
-        backgroundColor: form.brand.inputBgColor,
-        color: form.brand.inputTextColor,
-        borderColor: form.brand.inputBorderColor,
+    const brandInputStyle = (hasBrand && isCustomTheme) ? {
+        backgroundColor: hasBrand.inputBgColor,
+        color: hasBrand.inputTextColor,
+        borderColor: hasBrand.inputBorderColor,
     } : {};
 
     const isLocked = !isPreview && form?.isPasswordProtected && (!form.fields || form.fields.length === 0);
@@ -152,24 +339,34 @@ export default function PublicFormPage() {
     if (isLocked) {
         return (
             <div className={`${theme.page} flex items-center justify-center relative py-12`} style={brandStyle}>
-                <div className="w-full max-w-md space-y-6">
+                {form?.theme === "doodle" && <DoodleBackground />}
+                {form?.theme === "forest" && <ForestBackground />}
+                {form?.theme === "death-note" && <DeathNoteFonts />}
+                <div className="w-full max-w-md space-y-6 z-10">
                     <div className="text-center space-y-2">
-                        {form.brand?.logoUrl && (
+                        {(hasBrand?.logoUrl && isCustomTheme) && (
                             <div className="flex justify-center mb-6">
                                 <img
-                                    src={form.brand.logoUrl}
+                                    src={hasBrand.logoUrl}
                                     alt="Company Logo"
                                     className="max-h-16 object-contain rounded-lg"
                                 />
                             </div>
                         )}
-                        <h1 className={`text-3xl font-extrabold tracking-tight ${theme.title}`} style={brandTextStyle}>{form.title}</h1>
-                        {form.description && (
-                            <p className={`${theme.subtitle}`} style={brandTextStyle}>{form.description}</p>
+                        {form?.theme === "death-note" ? (
+                            <DeathNoteHeader />
+                        ) : (
+                            <>
+                                <h1 className={`text-3xl font-extrabold tracking-tight ${theme.title}`} style={brandTextStyle}>{form.title}</h1>
+                                {form.description && (
+                                    <p className={`${theme.subtitle}`} style={brandTextStyle}>{form.description}</p>
+                                )}
+                            </>
                         )}
                     </div>
 
-                    <div className={theme.emailCard} style={brandCardStyle}>
+                    <div className={`${theme.emailCard} relative`} style={brandCardStyle}>
+                        {form?.theme === "death-note" && <DeathNoteBorder />}
                         <div className="p-6 space-y-4">
                             <div>
                                 <h2 className={`text-lg font-semibold flex items-center gap-2 ${theme.label}`} style={brandTextStyle}>
@@ -224,7 +421,7 @@ export default function PublicFormPage() {
                                     type="submit"
                                     disabled={isVerifying}
                                     className={`w-full flex items-center justify-center gap-2 ${theme.button}`}
-                                    style={form.brand ? { backgroundColor: form.brand.textColor, color: form.brand.backgroundColor } : undefined}
+                                    style={(hasBrand && isCustomTheme) ? { backgroundColor: hasBrand.textColor, color: hasBrand.backgroundColor } : undefined}
                                 >
                                     {isVerifying ? (
                                         <>
@@ -254,6 +451,9 @@ export default function PublicFormPage() {
     if (step === "submitted") {
         return (
             <div className={`${theme.page} flex items-center justify-center relative`} style={brandStyle}>
+                {form?.theme === "doodle" && <DoodleBackground />}
+                {form?.theme === "forest" && <ForestBackground />}
+                {form?.theme === "death-note" && <DeathNoteFonts />}
                 {isPreview && (
                     <div className="absolute top-0 left-0 right-0 z-50 w-full bg-amber-500/10 backdrop-blur-md border-b border-amber-500/20 px-4 py-2.5 text-center">
                         <div className="flex items-center justify-center gap-2 text-xs font-semibold">
@@ -264,23 +464,36 @@ export default function PublicFormPage() {
                         </div>
                     </div>
                 )}
-                <div className="w-full max-w-lg text-center p-10 space-y-6 border rounded-2xl shadow-sm" style={brandCardStyle}>
-                    {form.brand?.logoUrl && (
-                        <div className="flex justify-center mb-6">
-                            <img
-                                src={form.brand.logoUrl}
-                                alt="Company Logo"
-                                className="max-h-16 object-contain rounded-lg"
-                            />
-                        </div>
-                    )}
-                    {!form.brand?.logoUrl && (
-                        <div className="w-20 h-20 rounded-full flex items-center justify-center mx-auto shadow-xl"
-                            style={{ background: "linear-gradient(135deg, #22c55e, #16a34a)" }}>
-                            <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
-                            </svg>
-                        </div>
+                <div className={`w-full max-w-lg text-center p-10 space-y-6 relative z-10 ${theme.emailCard}`} style={brandCardStyle}>
+                    {form?.theme === "death-note" && <DeathNoteBorder />}
+                    {form?.theme === "death-note" ? (
+                        <svg viewBox="0 0 100 100" className="w-16 h-16 mx-auto text-white fill-none stroke-white stroke-[1.5] pointer-events-none mb-4">
+                            <path d="M35 45 C35 30, 65 30, 65 45 C65 52, 60 55, 58 60 H42 C40 55, 35 52, 35 45 Z" fill="#080808" strokeWidth="3" />
+                            <path d="M42 60 L45 68 H55 L58 60" fill="#080808" strokeWidth="3" />
+                            <ellipse cx="44" cy="44" rx="4" ry="6" fill="white" />
+                            <ellipse cx="56" cy="44" rx="4" ry="6" fill="white" />
+                            <path d="M50 48 L48 52 H52 Z" fill="white" />
+                            <path d="M45 64 H55 M48 60 V68 M52 60 V68" strokeWidth="1.5" />
+                        </svg>
+                    ) : (
+                        <>
+                            {(hasBrand?.logoUrl && isCustomTheme) ? (
+                                <div className="flex justify-center mb-6">
+                                    <img
+                                        src={hasBrand.logoUrl}
+                                        alt="Company Logo"
+                                        className="max-h-16 object-contain rounded-lg"
+                                    />
+                                </div>
+                            ) : (
+                                <div className="w-20 h-20 rounded-full flex items-center justify-center mx-auto shadow-xl"
+                                    style={{ background: "linear-gradient(135deg, #22c55e, #16a34a)" }}>
+                                    <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
+                                    </svg>
+                                </div>
+                            )}
+                        </>
                     )}
                     <div>
                         <h2 className={`text-3xl font-extrabold mb-2 ${theme.title}`} style={brandTextStyle}>Thank you!</h2>
@@ -625,7 +838,8 @@ export default function PublicFormPage() {
         }
 
         return (
-            <div key={field.id} id={`field-${field.id}`} className={theme.fieldCard} style={brandCardStyle}>
+            <div key={field.id} id={`field-${field.id}`} className={`${theme.fieldCard} relative`} style={brandCardStyle}>
+                {form?.theme === "death-note" && <DeathNoteBorder />}
                 <div className="space-y-1">
                     <Label className={`${theme.label} flex items-center`} style={brandTextStyle}>
                         {field.label}
@@ -652,6 +866,9 @@ export default function PublicFormPage() {
     if (step === "email") {
         return (
             <div className={`${theme.page} flex items-center justify-center relative`} style={brandStyle}>
+                {form?.theme === "doodle" && <DoodleBackground />}
+                {form?.theme === "forest" && <ForestBackground />}
+                {form?.theme === "death-note" && <DeathNoteFonts />}
                 {isPreview && (
                     <div className="absolute top-0 left-0 right-0 z-50 w-full bg-amber-500/10 backdrop-blur-md border-b border-amber-500/20 px-4 py-2.5 text-center">
                         <div className="flex items-center justify-center gap-2 text-xs font-semibold">
@@ -662,24 +879,31 @@ export default function PublicFormPage() {
                         </div>
                     </div>
                 )}
-                <div className="w-full max-w-md space-y-6">
+                <div className="w-full max-w-md space-y-6 z-10">
                     <div className="text-center space-y-2">
-                        {form.brand?.logoUrl && (
+                        {(hasBrand?.logoUrl && isCustomTheme) && (
                             <div className="flex justify-center mb-6">
                                 <img
-                                    src={form.brand.logoUrl}
+                                    src={hasBrand.logoUrl}
                                     alt="Company Logo"
                                     className="max-h-16 object-contain rounded-lg"
                                 />
                             </div>
                         )}
-                        <h1 className={`text-3xl font-extrabold tracking-tight ${theme.title}`} style={brandTextStyle}>{form.title}</h1>
-                        {form.description && (
-                            <p className={`${theme.subtitle}`} style={brandTextStyle}>{form.description}</p>
+                        {form?.theme === "death-note" ? (
+                            <DeathNoteHeader />
+                        ) : (
+                            <>
+                                <h1 className={`text-3xl font-extrabold tracking-tight ${theme.title}`} style={brandTextStyle}>{form.title}</h1>
+                                {form.description && (
+                                    <p className={`${theme.subtitle}`} style={brandTextStyle}>{form.description}</p>
+                                )}
+                            </>
                         )}
                     </div>
 
-                    <div className={theme.emailCard} style={brandCardStyle}>
+                    <div className={`${theme.emailCard} relative`} style={brandCardStyle}>
+                        {form?.theme === "death-note" && <DeathNoteBorder />}
                         <div className="p-6 space-y-4">
                             <div>
                                 <h2 className={`text-lg font-semibold flex items-center gap-2 ${theme.label}`} style={brandTextStyle}>
@@ -716,7 +940,7 @@ export default function PublicFormPage() {
                                     type="submit"
                                     disabled={isContinuing}
                                     className={`w-full flex items-center justify-center gap-2 ${theme.button}`}
-                                    style={form.brand ? { backgroundColor: form.brand.textColor, color: form.brand.backgroundColor } : undefined}
+                                    style={(hasBrand && isCustomTheme) ? { backgroundColor: hasBrand.textColor, color: hasBrand.backgroundColor } : undefined}
                                 >
                                     {isContinuing ? (
                                         <>
@@ -751,6 +975,9 @@ export default function PublicFormPage() {
 
     return (
         <div className={`${theme.page} relative`} style={brandStyle}>
+            {form?.theme === "doodle" && <DoodleBackground />}
+            {form?.theme === "forest" && <ForestBackground />}
+            {form?.theme === "death-note" && <DeathNoteFonts />}
             {isPreview && (
                 <div className="absolute top-0 left-0 right-0 z-50 w-full bg-amber-500/10 backdrop-blur-md border-b border-amber-500/20 px-4 py-2.5 text-center">
                     <div className="flex items-center justify-center gap-2 text-xs font-semibold">
@@ -761,20 +988,26 @@ export default function PublicFormPage() {
                     </div>
                 </div>
             )}
-            <div className="max-w-2xl mx-auto space-y-2">
+            <div className="max-w-2xl mx-auto space-y-2 z-10 relative">
                 <div className="text-center space-y-3 mb-8">
-                    {form.brand?.logoUrl && (
+                    {(hasBrand?.logoUrl && isCustomTheme) && (
                         <div className="flex justify-center mb-6">
                             <img
-                                src={form.brand.logoUrl}
+                                src={hasBrand.logoUrl}
                                 alt="Company Logo"
                                 className="max-h-16 object-contain rounded-lg"
                             />
                         </div>
                     )}
-                    <h1 className={`text-3xl font-extrabold tracking-tight ${theme.title}`} style={brandTextStyle}>{form.title}</h1>
-                    {form.description && (
-                        <p className={`text-lg max-w-xl mx-auto ${theme.subtitle}`} style={brandTextStyle}>{form.description}</p>
+                    {form?.theme === "death-note" ? (
+                        <DeathNoteHeader />
+                    ) : (
+                        <>
+                            <h1 className={`text-3xl font-extrabold tracking-tight ${theme.title}`} style={brandTextStyle}>{form.title}</h1>
+                            {form.description && (
+                                <p className={`text-lg max-w-xl mx-auto ${theme.subtitle}`} style={brandTextStyle}>{form.description}</p>
+                            )}
+                        </>
                     )}
                     <div className={`inline-flex items-center gap-2 ${theme.emailBadge}`} style={brandStyle}>
                         <Mail size={13} />
@@ -806,12 +1039,24 @@ export default function PublicFormPage() {
                         </div>
                     )}
                     {activeField && (
-                        <div className="w-full bg-muted rounded-full h-1.5 mb-6 overflow-hidden border border-border/10">
+                        <div className="w-full rounded-full h-1.5 mb-6 overflow-hidden border border-border/10"
+                            style={{
+                                backgroundColor: (hasBrand && isCustomTheme)
+                                    ? `${hasBrand.textColor}15`
+                                    : form?.theme === "death-note"
+                                        ? "rgba(255, 255, 255, 0.15)"
+                                        : form?.theme === "forest"
+                                            ? "rgba(27, 59, 34, 0.1)"
+                                            : undefined
+                            }}
+                        >
                             <div 
                                 className="bg-primary h-full transition-all duration-300 rounded-full" 
                                 style={{ 
                                     width: `${progressPercent}%`,
-                                    backgroundColor: form.brand?.textColor || undefined
+                                    backgroundColor: (hasBrand && isCustomTheme) 
+                                        ? hasBrand.textColor 
+                                        : theme.accentColor || undefined
                                 }} 
                             />
                         </div>
@@ -835,7 +1080,7 @@ export default function PublicFormPage() {
                             size="lg"
                             disabled={isSubmitting}
                             className={`w-full sm:w-auto px-10 ${theme.button}`}
-                            style={form.brand ? { backgroundColor: form.brand.textColor, color: form.brand.backgroundColor } : undefined}
+                            style={(hasBrand && isCustomTheme) ? { backgroundColor: hasBrand.textColor, color: hasBrand.backgroundColor } : undefined}
                         >
                             {isSubmitting ? (
                                 <>

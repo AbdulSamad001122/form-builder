@@ -25,8 +25,25 @@ import { Check, Palette, Search, ArrowUpDown, Loader2, Lock, Calendar, BarChart3
 import { toast } from "sonner"
 import { Skeleton } from "~/components/ui/skeleton"
 
-// ─── Theme Picker Component ────────────────────────────────────────────────────
+import { useGetCustomBrand } from "~/hooks/api/custom-brand"
+
 function ThemePicker({ value, onChange }: { value: string; onChange: (id: string) => void }) {
+    const router = useRouter()
+    const { data: brand, isLoading } = useGetCustomBrand()
+
+    const handleSelectTheme = (themeId: string) => {
+        if (themeId === "custom") {
+            if (!isLoading && !brand) {
+                toast.info("Please set up your custom branding details first! Redirecting...")
+                setTimeout(() => {
+                    router.push("/dashboard/branding")
+                }, 1500)
+                return
+            }
+        }
+        onChange(themeId)
+    }
+
     return (
         <div className="grid gap-2">
             <Label className="flex items-center gap-2">
@@ -38,23 +55,20 @@ function ThemePicker({ value, onChange }: { value: string; onChange: (id: string
                     <button
                         key={theme.id}
                         type="button"
-                        onClick={() => onChange(theme.id)}
+                        onClick={() => handleSelectTheme(theme.id)}
                         className={`relative rounded-xl overflow-hidden border-2 transition-all focus:outline-none ${
                             value === theme.id
                                 ? "border-primary shadow-lg scale-105"
                                 : "border-border hover:border-muted-foreground/50 hover:scale-102"
                         }`}
                     >
-                        {/* Preview gradient */}
                         <div
                             className="h-16 w-full"
                             style={{ background: theme.previewGradient }}
                         />
-                        {/* Theme name */}
                         <div className="bg-card px-2 py-1.5 text-center">
                             <p className="text-xs font-medium">{theme.name}</p>
                         </div>
-                        {/* Selected check */}
                         {value === theme.id && (
                             <div className="absolute top-1.5 right-1.5 w-5 h-5 bg-primary rounded-full flex items-center justify-center shadow">
                                 <Check size={11} className="text-primary-foreground" />

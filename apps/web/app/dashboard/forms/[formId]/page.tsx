@@ -34,7 +34,7 @@ import { Checkbox } from "~/components/ui/checkbox"
 import { Badge } from "~/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/components/ui/select"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "~/components/ui/dialog"
-import { GripVertical, Edit, Trash2, Copy, Check, Globe, Lock, Eye, EyeOff, Loader2, QrCode, Download, CheckCheck, Clock, Calendar, Workflow, Palette } from "lucide-react"
+import { GripVertical, Edit, Trash2, Copy, Check, Globe, Lock, Eye, EyeOff, Loader2, QrCode, Download, CheckCheck, Clock, Calendar, Workflow } from "lucide-react"
 import { Switch } from "~/components/ui/switch"
 import LogicFlowCanvas from "~/components/canvas/LogicFlowCanvas"
 import { toast } from "sonner"
@@ -698,21 +698,6 @@ export default function FormBuilderPage() {
         })
     }
 
-    const handleToggleBranding = (checked: boolean) => {
-        updateForm({
-            id: formId,
-            applyBranding: checked
-        }, {
-            onSuccess: () => {
-                refetchForm()
-                toast.success(checked ? "Custom branding enabled for this form!" : "Custom branding disabled (default none).")
-            },
-            onError: (err) => {
-                toast.error(`Failed to update branding: ${err.message}`)
-            }
-        })
-    }
-
     const sensors = useSensors(
         useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
         useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
@@ -913,33 +898,17 @@ export default function FormBuilderPage() {
 
             {form && fields && fields.length > 0 && (
                 <div className="bg-card border rounded-xl p-4 mb-6 flex flex-col lg:flex-row lg:items-center justify-between gap-4 shadow-sm select-none">
-                    <div className="flex flex-col md:flex-row md:items-center gap-6 divide-y md:divide-y-0 md:divide-x divide-border/60">
-                        <div className="flex items-center gap-3">
-                            <div className="p-2 bg-primary/10 text-primary rounded-lg shrink-0">
-                                <Workflow className="w-5 h-5" />
-                            </div>
-                            <div>
-                                <h3 className="font-semibold text-sm text-foreground">
-                                    Conditional Logic & Branching
-                                </h3>
-                                <p className="text-xs text-muted-foreground">
-                                    Branch respondent paths based on their choice answers instead of asking questions sequentially.
-                                </p>
-                            </div>
+                    <div className="flex items-center gap-3">
+                        <div className="p-2 bg-primary/10 text-primary rounded-lg shrink-0">
+                            <Workflow className="w-5 h-5" />
                         </div>
-
-                        <div className="flex items-center gap-3 pt-4 md:pt-0 md:pl-6">
-                            <div className="p-2 bg-primary/10 text-primary rounded-lg shrink-0">
-                                <Palette className="w-5 h-5 text-pink-500" />
-                            </div>
-                            <div>
-                                <h3 className="font-semibold text-sm text-foreground">
-                                    Custom Workspace Branding
-                                </h3>
-                                <p className="text-xs text-muted-foreground">
-                                    Override global form themes with your custom company logo, colors, and input designs.
-                                </p>
-                            </div>
+                        <div>
+                            <h3 className="font-semibold text-sm text-foreground">
+                                Conditional Logic & Branching
+                            </h3>
+                            <p className="text-xs text-muted-foreground">
+                                Branch respondent paths based on their choice answers instead of asking questions sequentially.
+                            </p>
                         </div>
                     </div>
                     
@@ -962,19 +931,6 @@ export default function FormBuilderPage() {
                             />
                             <Label htmlFor="enable-logic-toggle" className="text-xs font-semibold cursor-pointer">
                                 Enable Logic Jumps
-                            </Label>
-                        </div>
-
-                        <div className="flex items-center gap-2 sm:border-l sm:pl-6 border-border/60">
-                            <Switch 
-                                id="apply-branding-toggle"
-                                checked={form.applyBranding}
-                                onCheckedChange={(checked) => {
-                                    handleToggleBranding(checked)
-                                }}
-                            />
-                            <Label htmlFor="apply-branding-toggle" className="text-xs font-semibold cursor-pointer">
-                                Apply Branding
                             </Label>
                         </div>
 
