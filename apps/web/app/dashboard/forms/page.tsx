@@ -269,7 +269,7 @@ export default function FormsPage() {
 
     return (
         <div className="p-4 lg:p-6">
-            <div className="flex justify-between items-center mb-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                 <h2 className="text-2xl font-bold">Forms Management</h2>
                 <Dialog open={open} onOpenChange={setOpen}>
                     <DialogTrigger asChild>
@@ -356,7 +356,7 @@ export default function FormsPage() {
             )}
 
             {isLoading ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                     {[...Array(6)].map((_, i) => (
                         <Card key={i} className="relative overflow-hidden space-y-4 p-5">
                             <div className="h-1.5 w-full bg-muted absolute top-0 left-0" />
@@ -381,7 +381,7 @@ export default function FormsPage() {
             ) : forms && forms.length > 0 ? (
                 filteredAndSortedForms.length > 0 ? (
                     <div className="space-y-4">
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                             {paginatedForms.map((form) => (
                                 <Card 
                                     key={form.id} 
@@ -394,7 +394,7 @@ export default function FormsPage() {
                                     />
                                     <CardHeader className="pb-2 pt-5">
                                         <CardTitle className="flex items-start justify-between gap-2 flex-wrap">
-                                            <span className="truncate max-w-[150px] font-semibold text-foreground group-hover:text-primary transition-colors">{form.title}</span>
+                                            <span className="truncate max-w-[140px] sm:max-w-[220px] md:max-w-[160px] lg:max-w-[220px] xl:max-w-[280px] 2xl:max-w-[340px] font-semibold text-foreground group-hover:text-primary transition-colors">{form.title}</span>
                                             <div className="flex gap-1.5 shrink-0 flex-wrap">
                                                 <Badge variant={form.status === "PUBLISHED" ? "default" : "secondary"}>
                                                     {form.status}
@@ -430,7 +430,7 @@ export default function FormsPage() {
                                             </div>
                                         )}
                                     </CardContent>
-                                    <CardFooter className="flex flex-wrap items-center justify-end gap-1.5 pt-4 border-t mt-3" onClick={(e) => e.stopPropagation()}>
+                                    <CardFooter className="flex flex-wrap items-center justify-start sm:justify-end gap-2 pt-4 border-t mt-3" onClick={(e) => e.stopPropagation()}>
                                         <Button variant="outline" size="sm" className="flex items-center gap-1.5" asChild>
                                             <Link href={`/dashboard/forms/${form.id}/responses`}>
                                                 <BarChart3 size={13} />

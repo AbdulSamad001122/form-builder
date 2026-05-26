@@ -231,13 +231,6 @@ export default function FormResponsesPage() {
                     <h2 className="text-3xl font-bold tracking-tight">{form.title} - Responses</h2>
                     <p className="text-muted-foreground">View and analyze submissions for this form.</p>
                 </div>
-                <Button
-                    onClick={() => downloadResponsesAsCSV(formWithFields, filteredResponses)}
-                    className="w-full md:w-auto bg-green-600 hover:bg-green-700 text-white font-medium gap-2 shadow-sm"
-                >
-                    <Download className="h-4 w-4" />
-                    Export CSV
-                </Button>
             </div>
 
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -249,6 +242,16 @@ export default function FormResponsesPage() {
                         <div className="text-2xl font-bold">{responses.length}</div>
                     </CardContent>
                 </Card>
+            </div>
+
+            <div className="flex">
+                <Button
+                    onClick={() => downloadResponsesAsCSV(formWithFields, filteredResponses)}
+                    className="bg-green-600 hover:bg-green-700 text-white font-medium gap-2 shadow-sm"
+                >
+                    <Download className="h-4 w-4" />
+                    Export CSV
+                </Button>
             </div>
 
             <Card>
