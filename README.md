@@ -9,14 +9,8 @@ A production-style Typeform-inspired form builder built with Turborepo, tRPC, Dr
 Welcome, Judges! I have upgraded Formit's email infrastructure and resolved several critical database/UI bugs to ensure a smooth evaluation experience:
 
 ### ✉️ 1. Brevo Email Migration & Dynamic Creator Delivery
-- **Brevo Integration**: Replaced the restrictive Resend sandbox with a native, zero-dependency **Brevo SMTP API** dispatch.
 - **Dynamic Routing**: Form submissions dynamically notify the form's creator directly. Note that if you test submissions using the pre-seeded demo account (`demo@formit.dev`), you will **not** receive an email because that address is fictional and doesn't have a real inbox.
 - **How to Test Delivery**: Simply **sign up with your own real active email account** and submit a response to one of your forms; the submission notification will land in your inbox instantly!
-
-### 🔧 2. Critical Production Fixes
-- **Fixed UI False-Positives**: Resolved a bug where database errors containing `"limit"` (like Drizzle SQL limits) incorrectly displayed a `"Limit Reached"` screen. It now strictly checks for response limit exhaustions.
-- **Schema & Migrations Synced**: Synchronized all Drizzle schemas (including `apply_branding` columns) with the live database.
-- **Pruned Dead Code**: Removed obsolete developer diagnostic scripts (`check-drizzle.ts`) to keep the codebase clean.
 
 ---
 
