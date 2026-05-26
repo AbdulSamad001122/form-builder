@@ -2,7 +2,7 @@ import { z } from "zod";
 
 const envSchema = z.object({
     JWT_SECRET: z.string().describe("JWT secret for signing tokens"),
-    RESEND_API_KEY: z.string().describe("Resend email service API Key"),
+    BREVO_API_KEY: z.string().describe("Brevo email service API Key"),
     CLOUDINARY_CLOUD_NAME: z.string().describe("Cloudinary Cloud Name"),
     CLOUDINARY_API_KEY: z.string().describe("Cloudinary API Key"),
     CLOUDINARY_API_SECRET: z.string().describe("Cloudinary API Secret"),

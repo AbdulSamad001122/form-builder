@@ -326,7 +326,7 @@ export default function PublicFormPage() {
                         )}
                     </div>
                     <p className={`font-semibold text-lg ${isClosed ? "text-yellow-300" : "text-red-400"}`}>
-                        {message.includes("expired") ? "Form Expired" : message.includes("limit") ? "Limit Reached" : isClosed ? "Form Closed" : "Form Not Found"}
+                        {message.includes("expired") ? "Form Expired" : (message.includes("response limit") || message.includes("reached its response limit")) ? "Limit Reached" : isClosed ? "Form Closed" : "Form Not Found"}
                     </p>
                     <p className="text-gray-400 text-sm leading-relaxed font-normal">
                         {displayMessage}

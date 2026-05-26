@@ -1,7 +1,39 @@
-import { Resend } from "resend";
 import { env } from "../env";
 
-export const resend = new Resend(env.RESEND_API_KEY);
+export async function sendEmail({
+  to,
+  subject,
+  html,
+}: {
+  to: string[];
+  subject: string;
+  html: string;
+}) {
+  const response = await fetch("https://api.brevo.com/v3/smtp/email", {
+    method: "POST",
+    headers: {
+      "accept": "application/json",
+      "content-type": "application/json",
+      "api-key": env.BREVO_API_KEY,
+    },
+    body: JSON.stringify({
+      sender: {
+        name: "Formit",
+        email: "iamabdulsamad2.0@gmail.com",
+      },
+      to: to.map((email) => ({ email })),
+      subject,
+      htmlContent: html,
+    }),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(JSON.stringify(errorData) || `HTTP error! status: ${response.status}`);
+  }
+
+  return await response.json();
+}
 
 interface GenerateEmailPayload {
   formTitle: string;

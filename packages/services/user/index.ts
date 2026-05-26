@@ -5,7 +5,7 @@ import { type SiginUserWithEmailAndPasswordInputType, siginUserWithEmailAndPassw
 import { db, eq, and } from "@repo/database"
 import { usersTable, passwordResetTokensTable } from "../../database/schema"
 import { env } from "../env"
-import { Resend } from "resend"
+import { sendEmail } from "../form-response/utils"
 
 
 class UserService {
@@ -171,12 +171,9 @@ class UserService {
         const cleanWebUrl = webUrl.replace(/\/$/, "")
         const resetLink = `${cleanWebUrl}/reset-password?email=${encodeURIComponent(email)}&token=${rawToken}`
 
-        const resend = new Resend(env.RESEND_API_KEY)
-
         try {
-            await resend.emails.send({
-                from: 'Formit <onboarding@resend.dev>',
-                to: email,
+            await sendEmail({
+                to: [email],
                 subject: 'Reset your Formit password',
                 html: `
                     <div style="font-family: sans-serif; max-width: 500px; margin: 0 auto; padding: 20px; border: 1px solid #D4CFC6; border-radius: 8px;">
@@ -193,7 +190,7 @@ class UserService {
                 `
             })
         } catch (err) {
-            console.error("Failed to send password reset email via Resend:", err)
+            console.error("Failed to send password reset email via Brevo:", err)
         }
 
         return { success: true }

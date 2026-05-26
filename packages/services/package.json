@@ -16,7 +16,6 @@
     "cloudinary": "^2.5.1",
     "google-auth-library": "^10.5.0",
     "jsonwebtoken": "^9.0.3",
-    "resend": "^6.12.3",
     "zod": "^4.3.5"
   }
 }

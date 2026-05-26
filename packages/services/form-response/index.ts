@@ -4,7 +4,7 @@ import {
     submitFormResponseInputModel, type submitFormResponseInputModelType,
     listFormResponsesInputModel, type listFormResponsesInputModelType
 } from "./model"
-import { resend, generateSubmissionEmailHtml } from "./utils"
+import { sendEmail, generateSubmissionEmailHtml } from "./utils"
 
 function sanitizeInput(val: string): string {
     if (!val) return val;
@@ -105,37 +105,23 @@ class FormResponseService {
             : fallbackEmail;
 
         try {
-            const { data, error } = await resend.emails.send({
-                from: 'Formit <onboarding@resend.dev>',
+            await sendEmail({
                 to: [targetEmail],
                 subject: `New Submission: ${form[0].title}`,
                 html: emailHtml,
             });
-
-            if (error) {
-                console.error("Resend API error with dynamic email, falling back to developer email:", error)
-                if (targetEmail !== fallbackEmail) {
-                    await resend.emails.send({
-                        from: 'Formit <onboarding@resend.dev>',
-                        to: [fallbackEmail],
-                        subject: `New Submission (Fallback): ${form[0].title}`,
-                        html: emailHtml,
-                    });
-                }
-            }
         } catch (err) {
-            console.error("Failed to send submission email via Resend:", err)
+            console.error("Failed to send submission email via Brevo:", err);
             try {
                 if (targetEmail !== fallbackEmail) {
-                    await resend.emails.send({
-                        from: 'Formit <onboarding@resend.dev>',
+                    await sendEmail({
                         to: [fallbackEmail],
                         subject: `New Submission (Fallback): ${form[0].title}`,
                         html: emailHtml,
                     });
                 }
             } catch (fallbackErr) {
-                console.error("Resend completely failed:", fallbackErr)
+                console.error("Brevo completely failed:", fallbackErr);
             }
         }
 
