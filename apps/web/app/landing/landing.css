@@ -146,6 +146,8 @@
   transform: rotate(-2deg);
   transition: transform 6s ease-in-out alternate infinite;
   animation: floatHero 6s ease-in-out infinite alternate;
+  max-width: 100%;
+  width: 100%;
 }
 @keyframes floatHero { from { transform: rotate(-2deg) translateY(0); } to { transform: rotate(-2deg) translateY(-8px); } }
 
@@ -183,7 +185,7 @@
 /* ===== FEATURE SECTIONS ===== */
 .fl-root .feature-grid { display: grid; grid-template-columns: 55% 45%; gap: 60px; align-items: center; }
 .fl-root .feature-grid-rev { grid-template-columns: 45% 55%; }
-.fl-root .feature-visual { position: relative; border-radius: 12px; overflow: visible; }
+.fl-root .feature-visual { position: relative; border-radius: 12px; overflow: visible; max-width: 100%; width: 100%; }
 .fl-root .feature-visual img { width: 100%; height: auto; border-radius: 12px; border: 1px solid var(--fl-border); }
 .fl-root .feature-text { padding: 20px 0; }
 .fl-root .feature-bullets { list-style: none; margin: 20px 0 28px; display: flex; flex-direction: column; gap: 12px; }
@@ -339,16 +341,28 @@
   .fl-root *, .fl-root *::before, .fl-root *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
 }
 
+@media (max-width: 1250px) {
+  .fl-root .container { padding: 0 40px; }
+  .fl-root .hero-grid { grid-template-columns: 1fr; gap: 48px; }
+  .fl-root .feature-grid, .fl-root .feature-grid-rev { grid-template-columns: 1fr; gap: 48px; }
+  .fl-root .annotation { display: none; }
+  .fl-root .hero-visual-wrap { margin: 0 auto; max-width: 580px; width: calc(100% - 32px); }
+  .fl-root .feature-visual { margin: 0 auto; max-width: 580px; width: calc(100% - 32px); }
+}
+
+@media (max-width: 640px) {
+  .fl-root .container { padding: 0 24px; }
+  .fl-root .hero-visual-wrap { width: calc(100% - 16px); }
+  .fl-root .feature-visual { width: calc(100% - 16px); }
+}
+
 @media (max-width: 1024px) {
   .fl-root .testimonials-grid { grid-template-columns: repeat(2, 1fr); }
   .fl-root .pricing-grid { grid-template-columns: repeat(2, 1fr); }
   .fl-root .footer-grid { grid-template-columns: 1fr 1fr; gap: 32px; }
-  .fl-root .annotation { display: none; }
 }
 
 @media (max-width: 768px) {
-  .fl-root .hero-grid { grid-template-columns: 1fr; }
-  .fl-root .feature-grid, .fl-root .feature-grid-rev { grid-template-columns: 1fr; }
   .fl-root .testimonials-grid { grid-template-columns: 1fr; }
   .fl-root .pricing-grid { grid-template-columns: 1fr; }
   .fl-root .footer-grid { grid-template-columns: 1fr 1fr; gap: 32px; }

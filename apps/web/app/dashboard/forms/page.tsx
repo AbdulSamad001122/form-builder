@@ -50,7 +50,7 @@ function ThemePicker({ value, onChange }: { value: string; onChange: (id: string
                 <Palette size={14} />
                 Form Theme
             </Label>
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                 {FORM_THEMES.map((theme) => (
                     <button
                         key={theme.id}
@@ -430,20 +430,20 @@ export default function FormsPage() {
                                             </div>
                                         )}
                                     </CardContent>
-                                    <CardFooter className="flex justify-end gap-2 pt-4 border-t mt-3" onClick={(e) => e.stopPropagation()}>
+                                    <CardFooter className="flex flex-wrap items-center justify-end gap-1.5 pt-4 border-t mt-3" onClick={(e) => e.stopPropagation()}>
                                         <Button variant="outline" size="sm" className="flex items-center gap-1.5" asChild>
                                             <Link href={`/dashboard/forms/${form.id}/responses`}>
                                                 <BarChart3 size={13} />
-                                                <span>Responses</span>
+                                                <span className="hidden sm:inline lg:hidden 2xl:inline">Responses</span>
                                             </Link>
                                         </Button>
                                         <Button variant="outline" size="sm" className="flex items-center gap-1.5" onClick={() => openEditModal(form)}>
                                             <Edit3 size={13} />
-                                            <span>Edit</span>
+                                            <span className="hidden sm:inline lg:hidden 2xl:inline">Edit</span>
                                         </Button>
                                         <Button variant="outline" size="sm" className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground" onClick={() => handleArchiveForm(form.id)}>
                                             <Archive size={13} />
-                                            <span>Archive</span>
+                                            <span className="hidden sm:inline lg:hidden 2xl:inline">Archive</span>
                                         </Button>
                                         <Button variant="ghost" size="sm" className="text-destructive hover:bg-destructive/10 hover:text-destructive flex items-center gap-1.5" onClick={() => openDeleteModal(form)}>
                                             <Trash2 size={13} />

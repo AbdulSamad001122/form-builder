@@ -248,7 +248,7 @@ function ExploreFormCard({ form }: { form: any }) {
                     </Button>
                     <Button
                         size="sm"
-                        className="gap-1.5 text-xs"
+                        className="flex-1 gap-1.5 text-xs"
                         asChild
                     >
                         <Link href={`/f/${form.id}`} target="_blank">

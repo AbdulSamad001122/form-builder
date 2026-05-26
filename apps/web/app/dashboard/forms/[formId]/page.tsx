@@ -773,7 +773,7 @@ export default function FormBuilderPage() {
 
     return (
         <div className={`container mx-auto p-6 transition-all duration-300 ${enableLogic ? "max-w-none px-6 w-full" : "max-w-4xl"}`}>
-            <div className="flex justify-between items-start mb-6">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 mb-6">
                 <div>
                     <h1 className="text-3xl font-bold tracking-tight">Form Builder</h1>
                     {form && (
