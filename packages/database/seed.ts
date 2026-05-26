@@ -1,7 +1,7 @@
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 import "dotenv/config";
-import { createHmac, randomBytes } from "node:crypto";
+import { createHmac, randomBytes, randomUUID } from "node:crypto";
 import { eq } from "drizzle-orm";
 import {
     formsTable,
@@ -11,7 +11,6 @@ import {
     formResponseAnswersTable,
 } from "./schema";
 
-
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const db = drizzle(pool);
 
@@ -19,13 +18,7 @@ function generateHash(salt: string, password: string): string {
     return createHmac("sha256", salt).update(password).digest("hex");
 }
 
-function pick<T>(arr: T[]): T {
-    return arr[Math.floor(Math.random() * arr.length)]!;
-}
-
 async function main() {
-    console.log("🌱 Seeding database...");
-
     try {
         const existingUser = await db
             .select()
@@ -37,7 +30,6 @@ async function main() {
 
         if (existingUser.length > 0) {
             userId = existingUser[0]!.id;
-            console.log(`✅ Demo user already exists (id: ${userId})`);
         } else {
             const salt = randomBytes(16).toString("hex");
             const hash = generateHash(salt, "Demo@1234");
@@ -53,22 +45,10 @@ async function main() {
                 .returning();
 
             userId = inserted[0]!.id;
-            console.log(`✅ Created demo user (id: ${userId})`);
         }
 
-        const existingForms = await db
-            .select()
-            .from(formsTable)
-            .where(eq(formsTable.createdBy, userId));
+        await db.delete(formsTable).where(eq(formsTable.createdBy, userId));
 
-
-        if (existingForms.length >= 3) {
-            console.log("✅ Seed data already present. Skipping form creation.");
-            await pool.end();
-            return;
-        }
-
-        // ─── Form 1: Customer Satisfaction Survey ──────────────────────────────────
         const [form1] = await db
             .insert(formsTable)
             .values({
@@ -76,7 +56,7 @@ async function main() {
                 description: "We'd love to hear your thoughts on our latest product updates and service quality.",
                 visibility: "PUBLIC",
                 status: "PUBLISHED",
-                theme: "ocean",
+                theme: "forest",
                 createdBy: userId,
             })
             .returning();
@@ -121,8 +101,6 @@ async function main() {
             ])
             .returning();
 
-        console.log(`✅ Created form: ${form1!.title}`);
-
         const form1Respondents = [
             { email: "alice@example.com", rating: "5", features: JSON.stringify(["Dashboard", "Analytics"]), recommend: "Yes", feedback: "Absolutely love the analytics dashboard!" },
             { email: "bob@example.com", rating: "4", features: JSON.stringify(["Form Builder", "API Access"]), recommend: "Yes", feedback: "Great product, could use more field types." },
@@ -146,9 +124,6 @@ async function main() {
             ]);
         }
 
-        console.log(`✅ Seeded ${form1Respondents.length} responses for form 1`);
-
-        // ─── Form 2: Hackathon Registration ────────────────────────────────────────
         const [form2] = await db
             .insert(formsTable)
             .values({
@@ -156,7 +131,7 @@ async function main() {
                 description: "Register now for our flagship 48-hour hackathon! Build something amazing.",
                 visibility: "PUBLIC",
                 status: "PUBLISHED",
-                theme: "neon",
+                theme: "doodle",
                 createdBy: userId,
             })
             .returning();
@@ -211,8 +186,6 @@ async function main() {
             ])
             .returning();
 
-        console.log(`✅ Created form: ${form2!.title}`);
-
         const form2Respondents = [
             { name: "Zara Khan", email: "zara@dev.io", track: "AI / ML", mentor: "Yes", idea: "Building an AI-powered resume screener for HR teams." },
             { name: "Liam Chen", email: "liam@startup.co", track: "Web3 / Blockchain", mentor: "No", idea: "Decentralized voting platform for DAOs." },
@@ -241,25 +214,31 @@ async function main() {
             await db.insert(formResponseAnswersTable).values(answers);
         }
 
-        console.log(`✅ Seeded ${form2Respondents.length} responses for form 2`);
-
-        // ─── Form 3: Movie Night Picks ─────────────────────────────────────────────
         const [form3] = await db
             .insert(formsTable)
             .values({
                 title: "Movie Night Picks 🎬",
-                description: "Help us choose the best movies for our weekly community movie night! Vote for your favourites.",
+                description: "Help us choose the best movies for our weekly community movie night! Let's choose the best films together.",
                 visibility: "PUBLIC",
                 status: "PUBLISHED",
-                theme: "galaxy",
+                theme: "death-note",
                 createdBy: userId,
             })
             .returning();
 
-        const [f3q1, f3q2, f3q3, f3q4] = await db
+        const f3q1Id = randomUUID();
+        const f3q2Id = randomUUID();
+        const f3q3Id = randomUUID();
+        const f3q4Id = randomUUID();
+        const f3q5Id = randomUUID();
+        const f3q6Id = randomUUID();
+        const f3q7Id = randomUUID();
+
+        await db
             .insert(formFieldsTable)
             .values([
                 {
+                    id: f3q1Id,
                     formId: form3!.id,
                     label: "Your Name",
                     labelKey: "your_name",
@@ -269,42 +248,125 @@ async function main() {
                     index: "1000.00",
                 },
                 {
+                    id: f3q2Id,
                     formId: form3!.id,
                     label: "Pick your favourite genre",
                     labelKey: "genre",
                     type: "SINGLE_SELECT",
-                    options: ["Action", "Comedy", "Sci-Fi", "Thriller", "Horror", "Romance", "Documentary"],
+                    options: ["Sci-Fi", "Comedy", "Documentary"],
+                    conditionalRules: [
+                        {
+                            id: `rule-${f3q2Id}-SciFi`,
+                            value: "Sci-Fi",
+                            targetFieldId: f3q3Id,
+                            edgeType: "smoothstep",
+                            color: "#6366f1",
+                            animated: true,
+                        },
+                        {
+                            id: `rule-${f3q2Id}-Comedy`,
+                            value: "Comedy",
+                            targetFieldId: f3q4Id,
+                            edgeType: "smoothstep",
+                            color: "#10b981",
+                            animated: true,
+                        },
+                        {
+                            id: `rule-${f3q2Id}-Documentary`,
+                            value: "Documentary",
+                            targetFieldId: f3q5Id,
+                            edgeType: "smoothstep",
+                            color: "#f59e0b",
+                            animated: true,
+                        },
+                    ],
                     isRequired: true,
                     index: "2000.00",
                 },
                 {
+                    id: f3q3Id,
                     formId: form3!.id,
-                    label: "Which movies would you like to watch? (pick all that apply)",
-                    labelKey: "movie_picks",
-                    type: "MULTI_SELECT",
-                    options: ["Oppenheimer", "Dune Part Two", "Poor Things", "The Bear", "Interstellar", "Parasite", "Everything Everywhere All at Once"],
+                    label: "Choose a Sci-Fi movie",
+                    labelKey: "scifi_picker",
+                    type: "SINGLE_SELECT",
+                    options: ["Dune Part Two", "Interstellar", "Blade Runner 2049"],
+                    conditionalRules: [
+                        {
+                            id: `rule-${f3q3Id}-Default`,
+                            value: "default",
+                            targetFieldId: f3q6Id,
+                            edgeType: "smoothstep",
+                            color: "#64748b",
+                            animated: true,
+                        },
+                    ],
                     isRequired: true,
                     index: "3000.00",
                 },
                 {
+                    id: f3q4Id,
+                    formId: form3!.id,
+                    label: "Choose a Comedy movie",
+                    labelKey: "comedy_picker",
+                    type: "SINGLE_SELECT",
+                    options: ["Everything Everywhere All at Once", "Poor Things", "Barbie"],
+                    conditionalRules: [
+                        {
+                            id: `rule-${f3q4Id}-Default`,
+                            value: "default",
+                            targetFieldId: f3q6Id,
+                            edgeType: "smoothstep",
+                            color: "#64748b",
+                            animated: true,
+                        },
+                    ],
+                    isRequired: true,
+                    index: "4000.00",
+                },
+                {
+                    id: f3q5Id,
+                    formId: form3!.id,
+                    label: "Choose a Documentary movie",
+                    labelKey: "documentary_picker",
+                    type: "SINGLE_SELECT",
+                    options: ["Parasite", "My Octopus Teacher", "Free Solo"],
+                    conditionalRules: [
+                        {
+                            id: `rule-${f3q5Id}-Default`,
+                            value: "default",
+                            targetFieldId: f3q6Id,
+                            edgeType: "smoothstep",
+                            color: "#64748b",
+                            animated: true,
+                        },
+                    ],
+                    isRequired: true,
+                    index: "5000.00",
+                },
+                {
+                    id: f3q6Id,
                     formId: form3!.id,
                     label: "Rate your excitement for movie night (1–5)",
                     labelKey: "excitement_rating",
                     type: "RATING",
                     isRequired: false,
-                    index: "4000.00",
+                    index: "6000.00",
                 },
-            ])
-            .returning();
-
-        console.log(`✅ Created form: ${form3!.title}`);
+                {
+                    id: f3q7Id,
+                    formId: form3!.id,
+                    label: "Any suggestions?",
+                    labelKey: "suggestions",
+                    type: "LONG_TEXT",
+                    isRequired: false,
+                    index: "7000.00",
+                },
+            ]);
 
         const form3Respondents = [
-            { name: "Alex", email: "alex@mail.com", genre: "Sci-Fi", picks: JSON.stringify(["Dune Part Two", "Interstellar"]), rating: "5" },
-            { name: "Jordan", email: "jordan@mail.com", genre: "Thriller", picks: JSON.stringify(["Oppenheimer", "Parasite"]), rating: "4" },
-            { name: "Morgan", email: "morgan@mail.com", genre: "Comedy", picks: JSON.stringify(["Everything Everywhere All at Once", "Poor Things"]), rating: "5" },
-            { name: "Riley", email: "riley@mail.com", genre: "Action", picks: JSON.stringify(["Dune Part Two", "Oppenheimer"]), rating: "3" },
-            { name: "Sam", email: "sam@mail.com", genre: "Documentary", picks: JSON.stringify(["Parasite", "Poor Things"]), rating: "4" },
+            { name: "Alex", email: "alex@mail.com", genre: "Sci-Fi", choiceField: f3q3Id, choiceValue: "Dune Part Two", rating: "5" },
+            { name: "Jordan", email: "jordan@mail.com", genre: "Comedy", choiceField: f3q4Id, choiceValue: "Everything Everywhere All at Once", rating: "4" },
+            { name: "Sam", email: "sam@mail.com", genre: "Documentary", choiceField: f3q5Id, choiceValue: "Parasite", rating: "5" },
         ];
 
         for (const r of form3Respondents) {
@@ -315,24 +377,14 @@ async function main() {
                 .returning();
 
             await db.insert(formResponseAnswersTable).values([
-                { responseId: response!.id, fieldId: f3q1!.id, value: r.name },
-                { responseId: response!.id, fieldId: f3q2!.id, value: r.genre },
-                { responseId: response!.id, fieldId: f3q3!.id, value: r.picks },
-                { responseId: response!.id, fieldId: f3q4!.id, value: r.rating },
+                { responseId: response!.id, fieldId: f3q1Id, value: r.name },
+                { responseId: response!.id, fieldId: f3q2Id, value: r.genre },
+                { responseId: response!.id, fieldId: r.choiceField, value: r.choiceValue },
+                { responseId: response!.id, fieldId: f3q6Id, value: r.rating },
             ]);
         }
-
-        console.log(`✅ Seeded ${form3Respondents.length} responses for form 3`);
-
-        console.log("\n🎉 Seeding complete!");
-        console.log("────────────────────────────────────");
-        console.log("  Demo email:    demo@formit.dev");
-        console.log("  Demo password: Demo@1234");
-        console.log("  Forms seeded:  3");
-        console.log("  Responses:     16 total");
-        console.log("────────────────────────────────────\n");
     } catch (err) {
-        console.error("❌ Error seeding database:", err);
+        console.error(err);
         process.exit(1);
     } finally {
         await pool.end();

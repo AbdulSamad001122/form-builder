@@ -1,5 +1,5 @@
 import { db, eq, and, desc, sql } from "@repo/database"
-import { formsTable, formFieldsTable, formResponsesTable, formResponseAnswersTable } from "../../database/schema"
+import { formsTable, formFieldsTable, formResponsesTable, formResponseAnswersTable, usersTable } from "../../database/schema"
 import {
     submitFormResponseInputModel, type submitFormResponseInputModelType,
     listFormResponsesInputModel, type listFormResponsesInputModelType
@@ -28,9 +28,11 @@ class FormResponseService {
             title: formsTable.title,
             description: formsTable.description,
             expiresAt: formsTable.expiresAt,
-            responseLimit: formsTable.responseLimit
+            responseLimit: formsTable.responseLimit,
+            creatorEmail: usersTable.email
         })
             .from(formsTable)
+            .innerJoin(usersTable, eq(usersTable.id, formsTable.createdBy))
             .where(eq(formsTable.id, formId))
             .limit(1)
 
@@ -100,7 +102,7 @@ class FormResponseService {
         try {
             const { data, error } = await resend.emails.send({
                 from: 'Formit <onboarding@resend.dev>',
-                to: ["iamabdulsamad2.0@gmail.com"],
+                to: [form[0].creatorEmail],
                 subject: `New Submission: ${form[0].title}`,
                 html: emailHtml,
             });
