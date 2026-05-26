@@ -937,7 +937,7 @@ export default function FormBuilderPage() {
                         {enableLogic && (
                             <div className="flex bg-muted p-0.5 rounded-lg border">
                                 <Button 
-                                    variant={activeTab === "list" ? "secondary" : "ghost"}
+                                    variant={activeTab === "list" ? "default" : "ghost"}
                                     size="sm"
                                     onClick={() => setActiveTab("list")}
                                     className="h-8 text-xs px-3 shadow-none animate-in fade-in zoom-in-95 duration-150"
@@ -945,7 +945,7 @@ export default function FormBuilderPage() {
                                     Fields Editor
                                 </Button>
                                 <Button 
-                                    variant={activeTab === "flow" ? "secondary" : "ghost"}
+                                    variant={activeTab === "flow" ? "default" : "ghost"}
                                     size="sm"
                                     onClick={() => setActiveTab("flow")}
                                     className="h-8 text-xs px-3 shadow-none animate-in fade-in zoom-in-95 duration-150"

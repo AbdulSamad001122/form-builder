@@ -99,19 +99,44 @@ class FormResponseService {
             answers: answersWithLabels
         })
 
+        const fallbackEmail = process.env.RESEND_FALLBACK_EMAIL || "iamabdulsamad2.0@gmail.com";
+        const targetEmail = form[0].creatorEmail && form[0].creatorEmail !== "demo@formit.dev"
+            ? form[0].creatorEmail
+            : fallbackEmail;
+
         try {
             const { data, error } = await resend.emails.send({
                 from: 'Formit <onboarding@resend.dev>',
-                to: [form[0].creatorEmail],
+                to: [targetEmail],
                 subject: `New Submission: ${form[0].title}`,
                 html: emailHtml,
             });
 
             if (error) {
-                console.error("Resend API Error details:", error)
+                console.error("Resend API error with dynamic email, falling back to developer email:", error)
+                if (targetEmail !== fallbackEmail) {
+                    await resend.emails.send({
+                        from: 'Formit <onboarding@resend.dev>',
+                        to: [fallbackEmail],
+                        subject: `New Submission (Fallback): ${form[0].title}`,
+                        html: emailHtml,
+                    });
+                }
             }
         } catch (err) {
             console.error("Failed to send submission email via Resend:", err)
+            try {
+                if (targetEmail !== fallbackEmail) {
+                    await resend.emails.send({
+                        from: 'Formit <onboarding@resend.dev>',
+                        to: [fallbackEmail],
+                        subject: `New Submission (Fallback): ${form[0].title}`,
+                        html: emailHtml,
+                    });
+                }
+            } catch (fallbackErr) {
+                console.error("Resend completely failed:", fallbackErr)
+            }
         }
 
         return { success: true, responseId }
