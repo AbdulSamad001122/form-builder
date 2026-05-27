@@ -349,6 +349,16 @@ async function main() {
                     label: "Rate your excitement for movie night (1–5)",
                     labelKey: "excitement_rating",
                     type: "RATING",
+                    conditionalRules: [
+                        {
+                            id: `rule-${f3q6Id}-Default`,
+                            value: "default",
+                            targetFieldId: f3q7Id,
+                            edgeType: "smoothstep",
+                            color: "#64748b",
+                            animated: true,
+                        },
+                    ],
                     isRequired: false,
                     index: "6000.00",
                 },
@@ -358,6 +368,16 @@ async function main() {
                     label: "Any suggestions?",
                     labelKey: "suggestions",
                     type: "LONG_TEXT",
+                    conditionalRules: [
+                        {
+                            id: `rule-${f3q7Id}-Default`,
+                            value: "default",
+                            targetFieldId: "submit",
+                            edgeType: "smoothstep",
+                            color: "#64748b",
+                            animated: true,
+                        },
+                    ],
                     isRequired: false,
                     index: "7000.00",
                 },
