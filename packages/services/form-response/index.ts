@@ -99,7 +99,8 @@ class FormResponseService {
             answers: answersWithLabels
         })
 
-        const targetEmail = form[0].creatorEmail && form[0].creatorEmail !== "demo@formit.dev"
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        const targetEmail = form[0].creatorEmail && emailRegex.test(form[0].creatorEmail)
             ? form[0].creatorEmail
             : null;
 
