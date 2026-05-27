@@ -28,13 +28,7 @@ const allowedOrigins = [
 ];
 
 if (env.WEB_URL) {
-  // Strip trailing slash if present to match the browser's Origin header perfectly
   allowedOrigins.push(env.WEB_URL.replace(/\/$/, ""));
-}
-
-if (env.FRONTEND_URL) {
-  // Strip trailing slash if present to match the browser's Origin header perfectly
-  allowedOrigins.push(env.FRONTEND_URL.replace(/\/$/, ""));
 }
 
 app.use(
