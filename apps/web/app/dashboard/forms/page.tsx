@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { useCreateForm, useListFormsByUserId, useUpdateForm, useDeleteForm } from "~/hooks/api/form"
+import { useCreateForm, useListFormsByUserId, useUpdateForm, useDeleteForm, useCloneForm } from "~/hooks/api/form"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "~/components/ui/card"
 import { Badge } from "~/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/components/ui/select"
@@ -21,7 +21,7 @@ import { Input } from "~/components/ui/input"
 import { Label } from "~/components/ui/label"
 import { Textarea } from "~/components/ui/textarea"
 import { FORM_THEMES, DEFAULT_THEME_ID, getThemeById } from "~/lib/form-themes"
-import { Check, Palette, Search, ArrowUpDown, Loader2, Lock, Calendar, BarChart3, Edit3, Trash2, ExternalLink, Archive } from "lucide-react"
+import { Check, Palette, Search, ArrowUpDown, Loader2, Lock, Calendar, BarChart3, Edit3, Trash2, ExternalLink, Archive, Copy } from "lucide-react"
 import { toast } from "sonner"
 import { Skeleton } from "~/components/ui/skeleton"
 
@@ -128,6 +128,8 @@ export default function FormsPage() {
     const { data: forms, isLoading } = useListFormsByUserId()
     const { updateForm, isPending: isUpdating } = useUpdateForm()
     const { deleteForm, isPending: isDeleting } = useDeleteForm()
+    const { cloneForm, isPending: isCloning } = useCloneForm()
+    const [clonedFormId, setClonedFormId] = useState<string | null>(null)
 
     const [editOpen, setEditOpen] = useState(false)
     const [deleteOpen, setDeleteOpen] = useState(false)
@@ -250,6 +252,20 @@ export default function FormsPage() {
             },
             onError: (err) => {
                 toast.error(`Failed to archive form: ${err.message}`)
+            }
+        })
+    }
+
+    const handleCloneForm = (formId: string) => {
+        setClonedFormId(formId)
+        cloneForm({ id: formId }, {
+            onSuccess: () => {
+                setClonedFormId(null)
+                toast.success("Form duplicated successfully!")
+            },
+            onError: (err) => {
+                setClonedFormId(null)
+                toast.error(`Failed to duplicate form: ${err.message}`)
             }
         })
     }
@@ -440,6 +456,14 @@ export default function FormsPage() {
                                         <Button variant="outline" size="sm" className="flex items-center gap-1.5" onClick={() => openEditModal(form)}>
                                             <Edit3 size={13} />
                                             <span className="hidden sm:inline lg:hidden 2xl:inline">Edit</span>
+                                        </Button>
+                                        <Button variant="outline" size="sm" className="flex items-center gap-1.5" onClick={() => handleCloneForm(form.id)} disabled={isCloning}>
+                                            {isCloning && clonedFormId === form.id ? (
+                                                <Loader2 size={13} className="animate-spin text-muted-foreground" />
+                                            ) : (
+                                                <Copy size={13} />
+                                            )}
+                                            <span className="hidden sm:inline lg:hidden 2xl:inline">Duplicate</span>
                                         </Button>
                                         <Button variant="outline" size="sm" className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground" onClick={() => handleArchiveForm(form.id)}>
                                             <Archive size={13} />

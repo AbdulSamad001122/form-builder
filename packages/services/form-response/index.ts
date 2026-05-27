@@ -99,29 +99,19 @@ class FormResponseService {
             answers: answersWithLabels
         })
 
-        const fallbackEmail = process.env.RESEND_FALLBACK_EMAIL || "iamabdulsamad2.0@gmail.com";
         const targetEmail = form[0].creatorEmail && form[0].creatorEmail !== "demo@formit.dev"
             ? form[0].creatorEmail
-            : fallbackEmail;
+            : null;
 
-        try {
-            await sendEmail({
-                to: [targetEmail],
-                subject: `New Submission: ${form[0].title}`,
-                html: emailHtml,
-            });
-        } catch (err) {
-            console.error("Failed to send submission email via Brevo:", err);
+        if (targetEmail) {
             try {
-                if (targetEmail !== fallbackEmail) {
-                    await sendEmail({
-                        to: [fallbackEmail],
-                        subject: `New Submission (Fallback): ${form[0].title}`,
-                        html: emailHtml,
-                    });
-                }
-            } catch (fallbackErr) {
-                console.error("Brevo completely failed:", fallbackErr);
+                await sendEmail({
+                    to: [targetEmail],
+                    subject: `New Submission: ${form[0].title}`,
+                    html: emailHtml,
+                });
+            } catch (err) {
+                console.error("Failed to send submission email via Brevo:", err);
             }
         }
 

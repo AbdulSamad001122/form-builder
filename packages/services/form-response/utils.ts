@@ -19,7 +19,7 @@ export async function sendEmail({
     body: JSON.stringify({
       sender: {
         name: "Formit",
-        email: "iamabdulsamad2.0@gmail.com",
+        email: process.env.SENDER_EMAIL || "no-reply@formit.dev",
       },
       to: to.map((email) => ({ email })),
       subject,

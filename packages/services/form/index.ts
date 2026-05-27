@@ -433,6 +433,68 @@ class FormService {
         const token = JWT.sign({ formId: form.id, verified: true }, env.JWT_SECRET, { expiresIn: "2h" })
         return { token }
     }
+
+    public async cloneForm(payload: { id: string; userId: string }) {
+        const { id, userId } = payload
+
+        const [originalForm] = await db.select()
+            .from(formsTable)
+            .where(and(eq(formsTable.id, id), eq(formsTable.createdBy, userId)))
+            .limit(1)
+
+        if (!originalForm) {
+            throw new Error("The form to clone could not be found, or you do not have permission to access it.")
+        }
+
+        const duplicatedTitle = `${originalForm.title} (copy)`
+
+        const [clonedForm] = await db.insert(formsTable).values({
+            title: duplicatedTitle,
+            description: originalForm.description,
+            slug: null,
+            theme: originalForm.theme,
+            visibility: originalForm.visibility,
+            status: "DRAFT",
+            isPasswordProtected: originalForm.isPasswordProtected,
+            applyBranding: originalForm.applyBranding,
+            passwordHash: originalForm.passwordHash,
+            passwordSalt: originalForm.passwordSalt,
+            expiresAt: originalForm.expiresAt,
+            responseLimit: originalForm.responseLimit,
+            createdBy: userId
+        }).returning({
+            id: formsTable.id
+        })
+
+        if (!clonedForm?.id) {
+            throw new Error("An unexpected error occurred while duplicating your form. Please try again.")
+        }
+
+        const originalFields = await db.select()
+            .from(formFieldsTable)
+            .where(eq(formFieldsTable.formId, id))
+            .orderBy(asc(formFieldsTable.index))
+
+        if (originalFields.length > 0) {
+            const fieldsToInsert = originalFields.map(field => ({
+                label: field.label,
+                labelKey: field.labelKey,
+                description: field.description,
+                placeholder: field.placeholder,
+                options: field.options,
+                conditionalRules: field.conditionalRules,
+                isRequired: field.isRequired,
+                index: field.index,
+                formId: clonedForm.id,
+                type: field.type,
+                createdBy: userId
+            }))
+
+            await db.insert(formFieldsTable).values(fieldsToInsert)
+        }
+
+        return { id: clonedForm.id }
+    }
 }
 
 export default FormService;

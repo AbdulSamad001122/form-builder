@@ -91,6 +91,7 @@ trpc-monorepo/
 - **Response Analytics** — Interactive dashboards showing 7-day trend charts, total forms, submissions, published/draft status, and list of responses
 - **CSV Response Export (Bonus)** — Client-side CSV generation and download of responses data
 - **Edit & Delete Forms** — Core CRUD features
+- **Duplicate Forms (Bonus)** — One-click form cloning which performs a deep copy of form meta and all associated form fields (maintaining choice fields, reordering indices, and visual logic rules perfectly) with a custom `(copy)` title suffix.
 
 ### Respondent Features
 - **Public Form Filling** — Fast, unauthenticated form filling with a two-step capture flow

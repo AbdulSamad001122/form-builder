@@ -34,8 +34,9 @@ import { Checkbox } from "~/components/ui/checkbox"
 import { Badge } from "~/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/components/ui/select"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "~/components/ui/dialog"
-import { GripVertical, Edit, Trash2, Copy, Check, Globe, Lock, Eye, EyeOff, Loader2, QrCode, Download, CheckCheck, Clock, Calendar, Workflow } from "lucide-react"
+import { GripVertical, Edit, Trash2, Copy, Check, Globe, Lock, Eye, EyeOff, Loader2, QrCode, Download, CheckCheck, Clock, Calendar, Workflow, Info } from "lucide-react"
 import { Switch } from "~/components/ui/switch"
+import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "~/components/ui/tooltip"
 import LogicFlowCanvas from "~/components/canvas/LogicFlowCanvas"
 import { toast } from "sonner"
 import { Skeleton } from "~/components/ui/skeleton"
@@ -45,6 +46,10 @@ const FIELD_TYPES = [
     "TEXT", "LONG_TEXT", "NUMBER", "EMAIL", "YES_NO", "PASSWORD",
     "SINGLE_SELECT", "MULTI_SELECT", "CHECKBOX", "DROPDOWN", "RATING", "DATE"
 ] as const;
+
+const slugifyKey = (text: string) => {
+    return text.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/(^_|_$)/g, '')
+}
 
 function SortableFieldItem({ field, onEdit, onDelete }: { field: any, onEdit: (field: any) => void, onDelete: (field: any) => void }) {
     const {
@@ -1133,6 +1138,22 @@ export default function FormBuilderPage() {
                             />
                         </div>
                         <div className="space-y-2">
+                            <div className="flex items-center gap-1.5">
+                                <Label>Field Key (Preview)</Label>
+                                <TooltipProvider>
+                                    <Tooltip>
+                                        <TooltipTrigger asChild>
+                                            <Info size={13} className="text-muted-foreground cursor-help" />
+                                        </TooltipTrigger>
+                                        <TooltipContent className="max-w-[280px]">
+                                            A unique behind-the-scenes nickname. It links your field to your form's show/hide rules and serves as the column header when you download responses.
+                                        </TooltipContent>
+                                    </Tooltip>
+                                </TooltipProvider>
+                            </div>
+                            <Input disabled value={slugifyKey(newField.label)} className="bg-muted placeholder:text-muted-foreground/50" placeholder="e.g. full_name" />
+                        </div>
+                        <div className="space-y-2">
                             <Label>Field Type</Label>
                             <Select value={newField.type} onValueChange={(val: any) => setNewField({ ...newField, type: val })}>
                                 <SelectTrigger>
@@ -1207,7 +1228,19 @@ export default function FormBuilderPage() {
                                 />
                             </div>
                             <div className="space-y-2">
-                                <Label>Field Key (Immutable)</Label>
+                                <div className="flex items-center gap-1.5">
+                                    <Label>Field Key (Immutable)</Label>
+                                    <TooltipProvider>
+                                        <Tooltip>
+                                            <TooltipTrigger asChild>
+                                                <Info size={13} className="text-muted-foreground cursor-help" />
+                                            </TooltipTrigger>
+                                            <TooltipContent className="max-w-[280px]">
+                                                The behind-the-scenes nickname that connects your field to your form's rules and downloads. It is locked to prevent breaking your form.
+                                            </TooltipContent>
+                                        </Tooltip>
+                                    </TooltipProvider>
+                                </div>
                                 <Input disabled value={editingField.labelKey} className="bg-muted" />
                             </div>
                             <div className="space-y-2">
@@ -1257,103 +1290,6 @@ export default function FormBuilderPage() {
                                     Required field
                                 </label>
                             </div>
-                            {["YES_NO", "SINGLE_SELECT", "MULTI_SELECT", "CHECKBOX", "DROPDOWN"].includes(editingField.type) && (
-                                <div className="space-y-3 pt-3 border-t">
-                                    <div className="space-y-1">
-                                        <Label className="text-sm font-semibold tracking-tight text-foreground">Logic Jumps (Conditional Routing)</Label>
-                                        <p className="text-[11px] text-muted-foreground leading-normal">
-                                            Define where to navigate the respondent based on their selected answer. By default, they go to the next question.
-                                        </p>
-                                    </div>
-                                    <div className="space-y-2 max-h-[240px] overflow-y-auto pr-1">
-                                        {(() => {
-                                            const currentOptions = ["SINGLE_SELECT", "MULTI_SELECT", "DROPDOWN"].includes(editingField.type)
-                                                ? (typeof editingField.options === 'string'
-                                                    ? editingField.options.split(",").map((s: string) => s.trim()).filter(Boolean)
-                                                    : (Array.isArray(editingField.options) ? editingField.options : []))
-                                                : (editingField.type === "YES_NO"
-                                                    ? ["Yes", "No"]
-                                                    : (editingField.type === "CHECKBOX"
-                                                        ? (editingField.options && (typeof editingField.options === 'string' || Array.isArray(editingField.options))
-                                                            ? (typeof editingField.options === 'string'
-                                                                ? editingField.options.split(",").map((s: string) => s.trim()).filter(Boolean)
-                                                                : editingField.options)
-                                                            : ["Checked"])
-                                                        : []));
-
-                                            if (currentOptions.length === 0) {
-                                                return (
-                                                    <p className="text-xs text-muted-foreground italic py-1">
-                                                        Add options to this field first to configure logic jumps.
-                                                    </p>
-                                                );
-                                            }
-
-                                            const otherFields = fields?.filter((f: any) => f.id !== editingField.id) || [];
-                                            const rules = Array.isArray(editingField.conditionalRules) ? editingField.conditionalRules : [];
-
-                                            return currentOptions.map((opt: string, idx: number) => {
-                                                const activeRule = rules.find((r: any) => String(r.value) === String(opt));
-                                                return (
-                                                    <div key={idx} className="flex items-center gap-3 bg-muted/30 p-2 rounded-lg border border-border/50 hover:bg-muted/50 transition-colors">
-                                                        <div className="flex-1 min-w-0">
-                                                            <div className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider mb-0.5">If answer is</div>
-                                                            <div className="text-xs font-semibold truncate text-foreground">{opt}</div>
-                                                        </div>
-                                                        <div className="text-xs text-muted-foreground font-bold shrink-0">➜</div>
-                                                        <div className="flex-[2] min-w-0">
-                                                            <Select
-                                                                value={activeRule?.targetFieldId || "default"}
-                                                                onValueChange={(val) => {
-                                                                    let nextRules = [...rules];
-                                                                    const ruleIndex = nextRules.findIndex((r: any) => String(r.value) === String(opt));
-                                                                    if (val === "default") {
-                                                                        if (ruleIndex > -1) {
-                                                                            nextRules.splice(ruleIndex, 1);
-                                                                        }
-                                                                    } else {
-                                                                        if (ruleIndex > -1) {
-                                                                            nextRules[ruleIndex] = {
-                                                                                ...nextRules[ruleIndex],
-                                                                                targetFieldId: val
-                                                                            };
-                                                                        } else {
-                                                                            nextRules.push({
-                                                                                id: `rule-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
-                                                                                value: opt,
-                                                                                targetFieldId: val
-                                                                            });
-                                                                        }
-                                                                    }
-                                                                    setEditingField({
-                                                                        ...editingField,
-                                                                        conditionalRules: nextRules
-                                                                    });
-                                                                }}
-                                                            >
-                                                                <SelectTrigger className="h-8 text-xs bg-background">
-                                                                    <SelectValue placeholder="Next Question (Default)" />
-                                                                </SelectTrigger>
-                                                                <SelectContent>
-                                                                    <SelectItem value="default">Next Question (Default)</SelectItem>
-                                                                    {otherFields.map((f: any) => (
-                                                                        <SelectItem key={f.id} value={f.id} className="text-xs max-w-[260px] truncate">
-                                                                            {f.label}
-                                                                        </SelectItem>
-                                                                    ))}
-                                                                    <SelectItem value="submit" className="text-xs font-medium text-primary">
-                                                                        Submit Form (End)
-                                                                    </SelectItem>
-                                                                </SelectContent>
-                                                            </Select>
-                                                        </div>
-                                                    </div>
-                                                );
-                                            });
-                                        })()}
-                                    </div>
-                                </div>
-                            )}
                         </div>
                     )}
                     <DialogFooter>

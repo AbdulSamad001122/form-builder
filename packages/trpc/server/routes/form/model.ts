@@ -152,4 +152,12 @@ export const verifyFormPasswordInputModel = z.object({
 
 export const verifyFormPasswordOutputModel = z.object({
     token: z.string(),
+})
+
+export const cloneFormInputModel = z.object({
+    id: z.string().uuid().describe("Id of the form to clone"),
+})
+
+export const cloneFormOutputModel = z.object({
+    formId: z.string().uuid().describe("Id of the cloned form"),
 })

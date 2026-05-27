@@ -1,6 +1,6 @@
 import { authenticatedProcedure, publicProcedure, router } from "../../trpc";
 import { generatePath } from "../../utils/path-generator";
-import { createFormInputModel, createFormOutputModel, listFormByUserIdOutputModel, updateFormInputModel, updateFormOutputModel, deleteFormInputModel, deleteFormOutputModel, getPublicFormInputModel, getPublicFormOutputModel, getFormByIdInputModel, getFormByIdOutputModel, getDashboardStatsOutputModel, listExploreFormsInputModel, listExploreFormsOutputModel, verifyFormPasswordInputModel, verifyFormPasswordOutputModel } from "./model";
+import { createFormInputModel, createFormOutputModel, listFormByUserIdOutputModel, updateFormInputModel, updateFormOutputModel, deleteFormInputModel, deleteFormOutputModel, getPublicFormInputModel, getPublicFormOutputModel, getFormByIdInputModel, getFormByIdOutputModel, getDashboardStatsOutputModel, listExploreFormsInputModel, listExploreFormsOutputModel, verifyFormPasswordInputModel, verifyFormPasswordOutputModel, cloneFormInputModel, cloneFormOutputModel } from "./model";
 import { formService } from "../../services";
 import { z } from "zod";
 
@@ -183,5 +183,25 @@ export const formRouter = router({
         .output(listExploreFormsOutputModel)
         .query(async ({ input }) => {
             return await formService.listExploreForms({ search: input.search })
+        }),
+
+    cloneForm: authenticatedProcedure
+        .meta({
+            openapi: {
+                method: "POST",
+                path: getPath("cloneForm"),
+                tags: TAGS,
+                protect: true,
+            }
+        })
+        .input(cloneFormInputModel)
+        .output(cloneFormOutputModel)
+        .mutation(async ({ input, ctx }) => {
+            const { id } = input;
+            const result = await formService.cloneForm({
+                id,
+                userId: ctx.user!.id,
+            });
+            return { formId: result.id };
         }),
 });

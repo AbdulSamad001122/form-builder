@@ -341,3 +341,30 @@ export const useListExploreForms = (search?: string) => {
         refetch
     }
 }
+
+export const useCloneForm = () => {
+    const utils = trpc.useUtils()
+
+    const {
+        mutateAsync: cloneFormAsync,
+        mutate: cloneForm,
+        error,
+        isPending,
+        isError,
+        isSuccess
+    } = trpc.form.cloneForm.useMutation({
+        onSettled: () => {
+            utils.form.listFormByUserId.invalidate()
+            utils.form.getDashboardStats.invalidate()
+        }
+    })
+
+    return {
+        cloneFormAsync,
+        cloneForm,
+        error,
+        isPending,
+        isError,
+        isSuccess
+    }
+}
